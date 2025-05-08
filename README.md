@@ -1,6 +1,8 @@
 # Honkai: Star Rail In-App Purchase Analysis
 
-Comprehensive data analysis of value metrics for Honkai: Star Rail in-game purchases.
+This data analysis project focuses on evaluating the cost-effectiveness of various in-app purchase bundles available in Honkai: Star Rail.
+
+The goal is to help players make more informed decisions when spending money on in-game currency (shards) used for gacha rolls.
 
 ## Status
 
