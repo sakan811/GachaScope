@@ -17,7 +17,12 @@ const PARAMS = [
   { name: 'language', value: 'en-US' }
 ];
 
-export function createParams(vizElement: HTMLElement) {
+export function createParams(vizElement: HTMLElement | null) {
+  if (!vizElement) {
+    console.error('createParams: Provided element is null or undefined.');
+    return;
+  }
+
   PARAMS.forEach(param => {
     const paramElement = document.createElementNS(NAMESPACE_XHTML, 'param');
     paramElement.setAttribute('name', param.name);
@@ -40,11 +45,17 @@ export function createNoscriptFallback() {
 }
 
 export function loadScript(src: string, onLoad: () => void) {
+  if (!src) {
+    console.error('loadScript: Provided script source is invalid.');
+    return;
+  }
+
   if (!document.querySelector(`script[src="${src}"]`)) {
     const script = document.createElement('script');
     script.src = src;
     script.async = true;
     script.onload = onLoad;
+    script.onerror = () => console.error(`Failed to load script: ${src}`);
     document.body.appendChild(script);
   } else {
     onLoad();

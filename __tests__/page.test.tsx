@@ -11,6 +11,13 @@ describe('createParams', () => {
     expect(params[0].getAttribute('name')).toBeDefined();
     expect(params[0].getAttribute('value')).toBeDefined();
   });
+
+  it('should log an error if the provided element is null', () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    createParams(null);
+    expect(consoleErrorSpy).toHaveBeenCalledWith('createParams: Provided element is null or undefined.');
+    consoleErrorSpy.mockRestore();
+  });
 });
 
 describe('createNoscriptFallback', () => {
@@ -42,5 +49,25 @@ describe('loadScript', () => {
 
     loadScript('https://example.com/script.js', mockOnLoad);
     expect(mockOnLoad).toHaveBeenCalled();
+  });
+
+  it('should log an error if the provided script source is invalid', () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    loadScript('', vi.fn());
+    expect(consoleErrorSpy).toHaveBeenCalledWith('loadScript: Provided script source is invalid.');
+    consoleErrorSpy.mockRestore();
+  });
+
+  it('should log an error if the script fails to load', () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    loadScript('https://invalid-url.com/script.js', vi.fn());
+
+    const script = document.querySelector('script[src="https://invalid-url.com/script.js"]');
+    expect(script).toBeDefined();
+
+    // Simulate script load error
+    script?.dispatchEvent(new Event('error'));
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to load script: https://invalid-url.com/script.js');
+    consoleErrorSpy.mockRestore();
   });
 });

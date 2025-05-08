@@ -52,7 +52,9 @@ export default function Home() {
       }
       const divElement = document.getElementById(TABLEAU_VIZ_ID);
       if (divElement) {
-        divElement.innerHTML = '';
+        while (divElement.firstChild) {
+          divElement.removeChild(divElement.firstChild);
+        }
       }
     };
   }, []);
