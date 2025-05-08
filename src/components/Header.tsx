@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 const Header = () => {
   return (
@@ -7,7 +7,9 @@ const Header = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="h-8 w-px bg-indigo-400 dark:bg-indigo-600"></div>
-            <h1 className="text-xl font-bold">Honkai: Star Rail In-App Purchase Analysis</h1>
+            <h1 className="text-xl font-bold">
+              Honkai: Star Rail In-App Purchase Analysis
+            </h1>
           </div>
         </div>
       </div>

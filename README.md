@@ -5,4 +5,3 @@ Comprehensive data analysis of value metrics for Honkai: Star Rail in-game purch
 ## Status
 
 ## Dashboard Webpage
-
