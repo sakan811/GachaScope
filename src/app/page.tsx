@@ -64,7 +64,10 @@ export default function Home() {
 
     const initViz = () => {
       const divElement = document.getElementById(TABLEAU_VIZ_ID);
-      if (!divElement) return;
+      if (!divElement) {
+        console.error(`Element with ID ${TABLEAU_VIZ_ID} not found.`);
+        return;
+      }
 
       while (divElement.firstChild) {
         divElement.removeChild(divElement.firstChild);
@@ -85,6 +88,8 @@ export default function Home() {
       const scriptElement = document.createElement('script');
       scriptElement.type = 'text/javascript';
       scriptElement.src = TABLEAU_VIZ_SCRIPT;
+      scriptElement.onload = () => console.log('Script loaded successfully.');
+      scriptElement.onerror = () => console.error('Failed to load the script.');
       if (vizElement.parentNode) {
         vizElement.parentNode.insertBefore(scriptElement, vizElement);
       }
@@ -93,7 +98,14 @@ export default function Home() {
     loadScript(TABLEAU_VIZ_SCRIPT, initViz);
 
     return () => {
-      // Cleanup if needed
+      const script = document.querySelector(`script[src="${TABLEAU_VIZ_SCRIPT}"]`);
+      if (script) {
+        script.remove();
+      }
+      const divElement = document.getElementById(TABLEAU_VIZ_ID);
+      if (divElement) {
+        divElement.innerHTML = '';
+      }
     };
   }, []);
 
@@ -131,3 +143,5 @@ export default function Home() {
     </div>
   );
 }
+
+export { createParams, createNoscriptFallback, loadScript };
