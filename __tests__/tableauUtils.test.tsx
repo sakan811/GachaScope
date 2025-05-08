@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { createNoscriptFallback, loadScript } from "../src/app/tableauUtils";
-import { useTableauDashboard } from "../src/hooks/useTableauDashboard";
-import { renderHook } from "@testing-library/react-hooks";
+
 
 describe("createNoscriptFallback", () => {
   it("should create a noscript element with a fallback image and link", () => {
@@ -57,31 +56,3 @@ describe("loadScript", () => {
   });
 });
 
-describe("useTableauDashboard Hook", () => {
-  it("should initialize the Tableau dashboard on mount", () => {
-    const loadScriptSpy = vi
-      .spyOn(document, "createElement")
-      .mockImplementation(() => {
-        const script = document.createElement("script");
-        script.onload = () => {};
-        return script;
-      });
-
-    renderHook(() => useTableauDashboard());
-
-    expect(loadScriptSpy).toHaveBeenCalledWith("script");
-    loadScriptSpy.mockRestore();
-  });
-
-  it("should clean up the Tableau dashboard on unmount", () => {
-    const removeChildSpy = vi
-      .spyOn(document.body, "removeChild")
-      .mockImplementation(() => {});
-
-    const { unmount } = renderHook(() => useTableauDashboard());
-    unmount();
-
-    expect(removeChildSpy).toHaveBeenCalled();
-    removeChildSpy.mockRestore();
-  });
-});

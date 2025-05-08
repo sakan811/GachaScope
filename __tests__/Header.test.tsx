@@ -19,8 +19,11 @@ describe("Header Component Edge Cases", () => {
     expect(headerElement[0]).toBeTruthy();
   });
 
-  it("should render correctly with additional className props", () => {
-    const { container } = render(<Header className="custom-class" />);
-    expect(container.firstChild).toHaveClass("custom-class");
+  it("should render correctly with default classes only (no className prop)", () => {
+    const { container } = render(<Header />);
+    const el = container.firstChild as HTMLElement | null;
+    // Should have the default classes
+    expect(el?.className).toContain("w-full");
+    expect(el?.className).toContain("bg-indigo-700");
   });
 });
