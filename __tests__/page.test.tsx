@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { createParams, createNoscriptFallback, loadScript } from '../src/app/page';
+import { createParams, createNoscriptFallback, loadScript } from '../src/app/tableauUtils';
 
 describe('createParams', () => {
   it('should append param elements to the given element', () => {
