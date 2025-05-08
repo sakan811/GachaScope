@@ -17,6 +17,11 @@ const PARAMS = [
   { name: 'language', value: 'en-US' }
 ];
 
+/**
+ * Appends Tableau-specific parameters as <param> elements to the given HTML element.
+ * @param vizElement - The HTML element to which the parameters will be appended.
+ * Logs an error if the provided element is null or undefined.
+ */
 export function createParams(vizElement: HTMLElement | null) {
   if (!vizElement) {
     console.error('createParams: Provided element is null or undefined.');
@@ -31,6 +36,10 @@ export function createParams(vizElement: HTMLElement | null) {
   });
 }
 
+/**
+ * Creates a <noscript> fallback element containing a link and an image for accessibility.
+ * @returns The created <noscript> element.
+ */
 export function createNoscriptFallback() {
   const noscript = document.createElement('noscript');
   const fallbackLink = document.createElement('a');
@@ -44,6 +53,12 @@ export function createNoscriptFallback() {
   return noscript;
 }
 
+/**
+ * Dynamically loads an external script into the document.
+ * @param src - The URL of the script to load.
+ * @param onLoad - A callback function to execute once the script is successfully loaded.
+ * Logs an error if the script source is invalid or if the script fails to load.
+ */
 export function loadScript(src: string, onLoad: () => void) {
   if (!src) {
     console.error('loadScript: Provided script source is invalid.');

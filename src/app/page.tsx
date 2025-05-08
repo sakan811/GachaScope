@@ -1,6 +1,7 @@
 "use client"
 import { useEffect } from "react";
 import { createParams, createNoscriptFallback, loadScript } from './tableauUtils';
+import Script from 'next/script';
 
 const TABLEAU_VIZ_SCRIPT = "https://public.tableau.com/javascripts/api/viz_v1.js";
 const TABLEAU_VIZ_ID = "viz1746727019510";
@@ -32,15 +33,6 @@ export default function Home() {
       createParams(vizElement);
       divElement.appendChild(createNoscriptFallback());
       divElement.appendChild(vizElement);
-
-      const scriptElement = document.createElement('script');
-      scriptElement.type = 'text/javascript';
-      scriptElement.src = TABLEAU_VIZ_SCRIPT;
-      scriptElement.onload = () => console.log('Script loaded successfully.');
-      scriptElement.onerror = () => console.error('Failed to load the script.');
-      if (vizElement.parentNode) {
-        vizElement.parentNode.insertBefore(scriptElement, vizElement);
-      }
     };
 
     loadScript(TABLEAU_VIZ_SCRIPT, initViz);
@@ -90,6 +82,13 @@ export default function Home() {
           </div>
         </div>
       </main>
+
+      <Script
+        src={TABLEAU_VIZ_SCRIPT}
+        strategy="afterInteractive"
+        onLoad={() => console.log('Script loaded successfully.')}
+        onError={(e) => console.error('Failed to load the script.', e)}
+      />
     </div>
   );
 }
