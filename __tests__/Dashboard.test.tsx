@@ -34,3 +34,18 @@ describe("Dashboard Component Integration", () => {
     loadScriptSpy.mockRestore();
   });
 });
+
+describe("Dashboard Component Edge Cases", () => {
+  it("should display an error message if the Tableau script fails to load", () => {
+    const loadScriptSpy = vi.spyOn(tableauUtils, "loadScript").mockImplementation((_, onLoad) => {
+      throw new Error("Failed to load script");
+    });
+
+    render(<Dashboard />);
+
+    const errorMessage = screen.getByText("Failed to load script");
+    expect(errorMessage).toBeTruthy();
+
+    loadScriptSpy.mockRestore();
+  });
+});
