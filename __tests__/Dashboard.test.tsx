@@ -37,11 +37,13 @@ describe("Dashboard Component Integration", () => {
 
 describe("Dashboard Component Edge Cases", () => {
   it("should handle script load failure gracefully (no error message expected by default)", () => {
-    const loadScriptSpy = vi.spyOn(tableauUtils, "loadScript").mockImplementation((_, onLoad) => {
-      // Simulate script load failure, but Dashboard does not render an error message
-      // so we just ensure it does not crash
-      // Optionally, you could check for console.error if you want
-    });
+    const loadScriptSpy = vi
+      .spyOn(tableauUtils, "loadScript")
+      .mockImplementation((_, onLoad) => {
+        // Simulate script load failure, but Dashboard does not render an error message
+        // so we just ensure it does not crash
+        // Optionally, you could check for console.error if you want
+      });
 
     expect(() => render(<Dashboard />)).not.toThrow();
     // No error message is rendered by default

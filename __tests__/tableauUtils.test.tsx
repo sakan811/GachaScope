@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { createNoscriptFallback, loadScript } from "../src/app/tableauUtils";
 
-
 describe("createNoscriptFallback", () => {
   it("should create a noscript element with a fallback image and link", () => {
     const noscript = createNoscriptFallback();
@@ -55,4 +54,3 @@ describe("loadScript", () => {
     consoleErrorSpy.mockRestore();
   });
 });
-
