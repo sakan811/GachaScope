@@ -1,17 +1,12 @@
-"use client"
-import { useEffect } from "react";
-import { createParams, createNoscriptFallback, loadScript } from './tableauUtils';
-import Script from 'next/script';
-import Header from '../components/Header';
-import Dashboard from '../components/Dashboard';
+import React, { useEffect } from 'react';
+import { createParams, createNoscriptFallback, loadScript } from '../app/tableauUtils';
 
 const TABLEAU_VIZ_SCRIPT = "https://public.tableau.com/javascripts/api/viz_v1.js";
 const TABLEAU_VIZ_ID = "viz1746727019510";
 const DASHBOARD_WIDTH = "1366px";
 const DASHBOARD_HEIGHT = "818px";
 
-
-export default function Home() {
+const Dashboard = () => {
   useEffect(() => {
     const initViz = () => {
       const divElement = document.getElementById(TABLEAU_VIZ_ID);
@@ -54,22 +49,14 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="grid grid-rows-[auto_1fr_auto] min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
-      <Header />
-      <main className="container mx-auto px-4 py-6">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-2">Honkai: Star Rail In-App Purchase Analysis Dashboard</h1>
-          <p className="text-gray-600 dark:text-gray-400">Comprehensive data analysis of value metrics for in-game purchases</p>
+    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg mb-6">
+      <div id={TABLEAU_VIZ_ID} className="w-full h-full" style={{ position: 'relative' }}>
+        <div className="flex items-center justify-center p-10 text-gray-500">
+          <p>Loading dashboard...</p>
         </div>
-        <Dashboard />
-      </main>
-
-      <Script
-        src={TABLEAU_VIZ_SCRIPT}
-        strategy="afterInteractive"
-        onLoad={() => console.log('Script loaded successfully.')}
-        onError={(e) => console.error('Failed to load the script.', e)}
-      />
+      </div>
     </div>
   );
-}
+};
+
+export default Dashboard;
