@@ -1,3 +1,6 @@
+run:
+	streamlit run main.py
+
 format:
 	ruff format .
 
