@@ -1,5 +1,5 @@
-run:
-	streamlit run main.py
+dev:
+	pnpm run dev
 
 format:
 	ruff format .
