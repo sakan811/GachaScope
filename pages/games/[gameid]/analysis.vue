@@ -241,75 +241,56 @@ const scatterChartData = computed(() => {
   }
 })
 
-const scatterChartOptions = computed(() => ({
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    title: { display: false },
-    legend: {
-      display: true,
-      position: 'top',
-      labels: { 
-        usePointStyle: true, 
-        boxWidth: 8,
-        font: {
-          size: window.innerWidth < 640 ? 10 : 12
+const scatterChartOptions = computed(() => {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      title: { display: false },
+      legend: {
+        display: true,
+        position: 'top',
+        labels: { 
+          usePointStyle: true, 
+          boxWidth: 8,
+          font: { size: isMobile ? 10 : 12 }
+        }
+      },
+      tooltip: {
+        titleFont: { size: isMobile ? 11 : 13 },
+        bodyFont: { size: isMobile ? 10 : 12 },
+        callbacks: {
+          title: (context) => context[0].raw.packageName,
+          label: (context) => `$${context.parsed.y.toFixed(2)} for ${context.parsed.x} ${gameData.metadata.pull.name.toLowerCase()}s`
         }
       }
     },
-    tooltip: {
-      titleFont: {
-        size: window.innerWidth < 640 ? 11 : 13
-      },
-      bodyFont: {
-        size: window.innerWidth < 640 ? 10 : 12
-      },
-      callbacks: {
-        title: function(context) {
-          return context[0].raw.packageName
+    scales: {
+      x: {
+        type: 'linear',
+        position: 'bottom',
+        title: {
+          display: !isMobile,
+          text: `${gameData.metadata.pull.name}s from Package`,
+          font: { size: isMobile ? 10 : 12 }
         },
-        label: function(context) {
-          return `${context.parsed.y.toFixed(2)} for ${context.parsed.x} ${gameData.metadata.pull.name.toLowerCase()}s`
-        }
+        ticks: { font: { size: isMobile ? 9 : 11 } },
+        grid: { display: false }
+      },
+      y: {
+        beginAtZero: true,
+        title: {
+          display: !isMobile,
+          text: 'Package Cost ($)',
+          font: { size: isMobile ? 10 : 12 }
+        },
+        ticks: { font: { size: isMobile ? 9 : 11 } },
+        grid: { color: 'rgba(156, 163, 175, 0.1)' }
       }
-    }
-  },
-  scales: {
-    x: {
-      type: 'linear',
-      position: 'bottom',
-      title: {
-        display: window.innerWidth >= 640,
-        text: `${gameData.metadata.pull.name}s from Package`,
-        font: {
-          size: window.innerWidth < 640 ? 10 : 12
-        }
-      },
-      ticks: {
-        font: {
-          size: window.innerWidth < 640 ? 9 : 11
-        }
-      },
-      grid: { display: false }
-    },
-    y: {
-      beginAtZero: true,
-      title: {
-        display: window.innerWidth >= 640,
-        text: 'Package Cost ($)',
-        font: {
-          size: window.innerWidth < 640 ? 10 : 12
-        }
-      },
-      ticks: {
-        font: {
-          size: window.innerWidth < 640 ? 9 : 11
-        }
-      },
-      grid: { color: 'rgba(156, 163, 175, 0.1)' }
     }
   }
-}))
+})
 
 const barChartData = computed(() => {
   if (!processedPackages) return { labels: [], datasets: [] }
@@ -339,118 +320,73 @@ const barChartData = computed(() => {
   }
 })
 
-const barChartOptions = computed(() => ({
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    title: { display: false },
-    legend: { 
-      display: true, 
-      position: 'top',
-      labels: {
-        font: {
-          size: window.innerWidth < 640 ? 10 : 12
-        }
+const barChartOptions = computed(() => {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      title: { display: false },
+      legend: { 
+        display: true, 
+        position: 'top',
+        labels: { font: { size: isMobile ? 10 : 12 } }
       }
-    }
-  },
-  scales: {
-    x: {
-      title: { 
-        display: window.innerWidth >= 640, 
-        text: 'Package',
-        font: {
-          size: window.innerWidth < 640 ? 10 : 12
-        }
-      },
-      ticks: {
-        font: {
-          size: window.innerWidth < 640 ? 8 : 10
-        },
-        maxRotation: window.innerWidth < 640 ? 45 : 0
-      },
-      grid: { display: false }
     },
-    y: {
-      beginAtZero: true,
-      title: { 
-        display: window.innerWidth >= 640, 
-        text: `Cost per ${gameData.metadata.pull.name} ($)`,
-        font: {
-          size: window.innerWidth < 640 ? 10 : 12
-        }
+    scales: {
+      x: {
+        title: { 
+          display: !isMobile, 
+          text: 'Package',
+          font: { size: isMobile ? 10 : 12 }
+        },
+        ticks: {
+          font: { size: isMobile ? 8 : 10 },
+          maxRotation: isMobile ? 45 : 0
+        },
+        grid: { display: false }
       },
-      ticks: {
-        font: {
-          size: window.innerWidth < 640 ? 9 : 11
-        }
-      },
-      grid: { color: 'rgba(156, 163, 175, 0.1)' }
+      y: {
+        beginAtZero: true,
+        title: { 
+          display: !isMobile, 
+          text: `Cost per ${gameData.metadata.pull.name} ($)`,
+          font: { size: isMobile ? 10 : 12 }
+        },
+        ticks: { font: { size: isMobile ? 9 : 11 } },
+        grid: { color: 'rgba(156, 163, 175, 0.1)' }
+      }
     }
   }
-}))
+})
 
-  // Computed stats for insights
-  const insightStats = computed(() => {
-    if (!analysisResult || !processedPackages) return []
-    
-    // Helper to find next best finite value
-    const getNextBestFinite = (values, comparator = (a, b) => a - b) => {
-      const finiteValues = values.filter(Number.isFinite)
-      if (finiteValues.length === 0) return null
-      return finiteValues.sort(comparator)[0]
+const insightStats = computed(() => {
+  if (!analysisResult || !processedPackages) return []
+  
+  const formatValue = (value, prefix = '$') => 
+    Number.isFinite(value) ? `${prefix}${value.toFixed(2)}` : 'N/A'
+
+  return [
+    { 
+      label: 'Max Savings', 
+      value: formatValue(analysisResult.insights.maxSavings), 
+      color: 'text-green-600 dark:text-green-400' 
+    },
+    { 
+      label: 'Best Package', 
+      value: analysisResult.insights.bestPackageName, 
+      color: 'text-blue-600 dark:text-blue-400' 
+    },
+    { 
+      label: 'Avg Savings', 
+      value: formatValue(analysisResult.insights.avgSavings), 
+      color: 'text-purple-600 dark:text-purple-400' 
+    },
+    { 
+      label: `Best Cost/${gameData.metadata.pull.name}`, 
+      value: formatValue(analysisResult.insights.bestScenario?.costPerPull), 
+      color: 'text-gray-900 dark:text-white' 
     }
-
-    // Get all savings values
-    const allSavings = processedPackages.normal
-      .concat(processedPackages.first_time_bonus)
-      .map(pkg => pkg.savings || 0)
-
-    // Get all cost per pull values
-    const allCostPerPull = processedPackages.normal
-      .concat(processedPackages.first_time_bonus)
-      .map(pkg => pkg.costPerPull || 0)
-
-    // Format values with next best fallback
-    const formatWithFallback = (value, fallbackValues, comparator, prefix = '$') => {
-      if (Number.isFinite(value)) return `${prefix}${value.toFixed(2)}`
-      const fallback = getNextBestFinite(fallbackValues, comparator)
-      return fallback !== null ? `${prefix}${fallback.toFixed(2)}` : 'N/A'
-    }
-
-    return [
-      { 
-        label: 'Max Savings', 
-        value: formatWithFallback(
-          analysisResult.insights.maxSavings, 
-          allSavings, 
-          (a, b) => b - a
-        ), 
-        color: 'text-green-600 dark:text-green-400' 
-      },
-      { 
-        label: 'Best Package', 
-        value: analysisResult.insights.bestPackageName, 
-        color: 'text-blue-600 dark:text-blue-400' 
-      },
-      { 
-        label: 'Avg Savings', 
-        value: formatWithFallback(
-          analysisResult.insights.avgSavings, 
-          allSavings, 
-          (a, b) => b - a
-        ), 
-        color: 'text-purple-600 dark:text-purple-400' 
-      },
-      { 
-        label: `Best Cost/${gameData.metadata.pull.name}`, 
-        value: formatWithFallback(
-          analysisResult.insights.bestScenario?.costPerPull, 
-          allCostPerPull, 
-          (a, b) => a - b
-        ), 
-        color: 'text-gray-900 dark:text-white' 
-      }
-    ]
-  })
+  ]
+})
 </script>
