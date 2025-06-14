@@ -74,10 +74,13 @@ export const useGameAnalysis = () => {
     const firstTimeScenarios: PurchaseScenario[] = []
     
     // Generate scenarios for both types
-    [
-      { packages: normalPackages, scenarios: normalScenarios, type: 'normal' },
-      { packages: bonusPackages, scenarios: firstTimeScenarios, type: 'first_time' }
-    ].forEach(({ packages, scenarios, type }) => {
+    const scenarioConfigs = [
+      { packages: normalPackages, scenarios: normalScenarios, type: 'normal' as const },
+      { packages: bonusPackages, scenarios: firstTimeScenarios, type: 'first_time' as const }
+    ]
+    
+    scenarioConfigs.forEach((config_item) => {
+      const { packages, scenarios, type } = config_item
       
       // Single package purchases
       packages.forEach((pkg, index) => {
@@ -168,10 +171,15 @@ export const useGameAnalysis = () => {
     chartData: ReturnType<typeof generateChartData>
   ) {
     const allBonusScenarios = scenarios.firstTimeBonus.filter(s => s.totalPulls > 0)
-    const maxSavings = Math.max(...chartData.savings.map(s => s.savings), 0)
-    const bestPackage = allBonusScenarios.reduce((best, scenario) => 
-      scenario.costPerPull < best.costPerPull ? scenario.packages[0].package : best.packages[0].package
-    )
+    const maxSavings = chartData.savings.length > 0 ? Math.max(...chartData.savings.map(s => s.savings)) : 0
+    
+    // Fixed: Handle empty array case for reduce by providing a default value
+    const bestPackage = allBonusScenarios.length > 0 
+      ? allBonusScenarios.reduce((best, scenario) => 
+          scenario.costPerPull < best.costPerPull ? scenario : best
+        ).packages[0].package
+      : scenarios.firstTimeBonus[0]?.packages[0]?.package || scenarios.normal[0]?.packages[0]?.package
+    
     const avgSavings = chartData.savings.length > 0 
       ? chartData.savings.reduce((sum, s) => sum + s.savings, 0) / chartData.savings.length 
       : 0

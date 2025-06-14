@@ -9,18 +9,6 @@ const hsrGameData: GameData = {
     id: 'hsr',
     name: 'Honkai: Star Rail',
     shortName: 'HSR',
-    description: 'Turn-based space fantasy RPG by HoYoverse',
-    developer: 'HoYoverse',
-    releaseDate: '2023-04-26',
-    status: 'active',
-    
-    colors: {
-      primary: '#FFD700', // Gold
-      secondary: '#4A90E2', // Blue
-      accent: '#9B59B6'     // Purple
-    },
-    logo: '/images/games/hsr-logo.png',
-    icon: '⭐',
     
     currency: {
       name: 'Oneiric Shards',
@@ -32,7 +20,6 @@ const hsrGameData: GameData = {
     pull: {
       name: 'Warp',
       cost: 160, // 160 shards per pull
-      description: 'Single character/light cone pull'
     },
     
     analysisConfig: {
@@ -72,7 +59,7 @@ export function getAllGames(): GameData[] {
 }
 
 export function getActiveGames(): GameData[] {
-  return getAllGames().filter(game => game.metadata.status === 'active')
+  return getAllGames()
 }
 
 export function getGameById(gameId: string): GameData | undefined {

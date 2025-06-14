@@ -194,7 +194,7 @@ ChartJS.register(
 
 const route = useRoute()
 const { analyzeGame, getProcessedPackages } = useGameAnalysis()
-const gameId = route.params.gameId as string
+const gameId = route.params.gameId
 
 // Get game data
 const gameData = getGameById(gameId)
