@@ -40,34 +40,18 @@
             <template #header>
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                  <div class="text-2xl">{{ game.metadata.icon }}</div>
                   <div>
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
                       {{ game.metadata.name }}
                     </h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-300">
-                      by {{ game.metadata.developer }}
-                    </p>
                   </div>
                 </div>
-                <UBadge 
-                  v-if="game.metadata.status === 'beta'" 
-                  color="yellow" 
-                  variant="soft"
-                >
-                  Beta
-                </UBadge>
               </div>
             </template>
             
-            <div class="space-y-3">
-              <p class="text-gray-600 dark:text-gray-300 text-sm">
-                {{ game.metadata.description }}
-              </p>
-              
+            <div class="space-y-3">              
               <div class="flex items-center gap-4 text-sm">
                 <div class="flex items-center gap-1">
-                  <span>{{ game.metadata.currency.icon }}</span>
                   <span class="text-gray-600 dark:text-gray-300">{{ game.metadata.currency.name }}</span>
                 </div>
                 <div class="text-gray-600 dark:text-gray-300">
@@ -107,6 +91,6 @@ useHead({
 const supportedGames = getActiveGames()
 
 function navigateToGame(gameId) {
-  navigateTo(`/games/${gameId}`)
+  navigateTo(`/games/${gameId}/analysis`)
 }
 </script>

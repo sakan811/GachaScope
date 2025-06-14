@@ -8,9 +8,6 @@
             GachaScope
           </span>
         </NuxtLink>
-        <span v-if="currentGameContext" class="text-sm text-gray-500 dark:text-gray-400">
-          {{ currentGameContext.name }}
-        </span>
       </div>
     </nav>
 
