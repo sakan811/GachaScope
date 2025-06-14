@@ -47,7 +47,7 @@
                 <div class="text-sm text-gray-600 dark:text-gray-300">{{ pkg.totalAmount }} {{ gameData.metadata.currency.shortName.toLowerCase() }}</div>
               </div>
               <div class="text-right">
-                <div class="font-medium text-red-600 dark:text-red-400">{{ pkg.pullsFromPackage }} {{ gameData.metadata.pull.name.toLowerCase() }}s</div>
+                <div :class="{'text-red-600 dark:text-red-400': pkg.pullsFromPackage === 0, 'font-medium': true}">{{ pkg.pullsFromPackage }} {{ gameData.metadata.pull.name.toLowerCase() }}s</div>
                 <div class="text-sm text-gray-600 dark:text-gray-300">{{ pkg.leftoverAmount }} leftover</div>
               </div>
             </div>
@@ -65,7 +65,7 @@
                 <div class="text-sm text-gray-600 dark:text-gray-300">{{ pkg.totalAmount }} {{ gameData.metadata.currency.shortName.toLowerCase() }}</div>
               </div>
               <div class="text-right">
-                <div class="font-medium text-green-600 dark:text-green-400">{{ pkg.pullsFromPackage }} {{ gameData.metadata.pull.name.toLowerCase() }}s</div>
+                <div :class="{'text-red-600 dark:text-red-400': pkg.pullsFromPackage === 0, 'text-green-600 dark:text-green-400 font-medium': pkg.pullsFromPackage !== 0}">{{ pkg.pullsFromPackage }} {{ gameData.metadata.pull.name.toLowerCase() }}s</div>
                 <div class="text-sm text-gray-600 dark:text-gray-300">{{ pkg.leftoverAmount }} leftover</div>
               </div>
             </div>
@@ -111,6 +111,10 @@
         </div>
         <div class="mt-4 text-sm text-gray-600 dark:text-gray-300">
           Cost per {{ gameData.metadata.pull.name.toLowerCase() }} for each package. Lower is better.
+        </div>
+        <div v-if="processedPackages.normal.some(pkg => pkg.pullsFromPackage === 0) || processedPackages.first_time_bonus.some(pkg => pkg.pullsFromPackage === 0)" 
+             class="mt-2 text-sm text-gray-600 dark:text-gray-300 italic">
+          Note: Packages with 0 pulls are not included in efficiency calculations
         </div>
       </UCard>
     </div>
@@ -269,11 +273,11 @@ const barChartData = computed(() => {
   if (!processedPackages) return { labels: [], datasets: [] }
   
   return {
-    labels: processedPackages.normal?.map(pkg => pkg.name) || [],
+    labels: processedPackages.normal?.filter(pkg => pkg.pullsFromPackage > 0).map(pkg => pkg.name) || [],
     datasets: [
       {
         label: `Normal Cost/${gameData.metadata.pull.name}`,
-        data: processedPackages.normal?.map(pkg => 
+        data: processedPackages.normal?.filter(pkg => pkg.pullsFromPackage > 0).map(pkg => 
           pkg.costPerPull === Infinity ? 0 : parseFloat(pkg.costPerPull.toFixed(2))
         ) || [],
         backgroundColor: 'rgba(239, 68, 68, 0.7)',
@@ -282,7 +286,7 @@ const barChartData = computed(() => {
       },
       {
         label: `First-Time Cost/${gameData.metadata.pull.name}`,
-        data: processedPackages.first_time_bonus?.map(pkg => 
+        data: processedPackages.first_time_bonus?.filter(pkg => pkg.pullsFromPackage > 0).map(pkg => 
           pkg.costPerPull === Infinity ? 0 : parseFloat(pkg.costPerPull.toFixed(2))
         ) || [],
         backgroundColor: 'rgba(34, 197, 94, 0.7)',
