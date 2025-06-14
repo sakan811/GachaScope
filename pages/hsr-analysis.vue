@@ -4,127 +4,142 @@
     <div class="text-center mb-8">
       <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">🌟 HSR Oneiric Shards Analysis</h1>
       <p class="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-        Comprehensive analysis of spending efficiency for Honkai Star Rail oneiric shards purchases, comparing normal packages versus first-time bonus packages.
+        Comprehensive analysis of package-based spending for Honkai Star Rail oneiric shards. 
+        See exactly how many pulls you get from different package combinations and their costs.
       </p>
     </div>
 
-    <!-- Interactive Calculator -->
+    <!-- Package Comparison -->
     <UCard class="mb-8">
       <template #header>
         <h2 class="text-2xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-          <UIcon name="i-heroicons-calculator" />Cost Calculator
+          <UIcon name="i-heroicons-cube" />Available Packages
         </h2>
       </template>
-      <div class="grid md:grid-cols-2 gap-6">
+      <div class="grid lg:grid-cols-2 gap-6">
+        <!-- Normal Packages -->
         <div>
-          <UFormGroup label="Target Pulls" class="mb-4">
-            <USlider v-model="targetPulls" :min="1" :max="180" :step="1" />
-            <div class="text-center mt-2 text-sm text-gray-600 dark:text-gray-300">{{ targetPulls }} pulls</div>
-          </UFormGroup>
-        </div>
-        <div class="grid grid-cols-2 gap-4">
-          <UCard v-for="(cost, type) in costs" :key="type">
-            <div class="text-center">
-              <div class="text-sm text-gray-600 dark:text-gray-300 mb-1">{{ cost.label }}</div>
-              <div class="text-2xl font-bold" :class="cost.color">${{ cost.value.toFixed(2) }}</div>
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Normal Packages</h3>
+          <div class="space-y-3">
+            <div v-for="(pkg, index) in normalPackages" :key="index" class="flex justify-between items-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+              <div>
+                <div class="font-medium text-gray-900 dark:text-white">${{ pkg.price.toFixed(2) }}</div>
+                <div class="text-sm text-gray-600 dark:text-gray-300">{{ pkg.totalShards }} shards</div>
+              </div>
+              <div class="text-right">
+                <div class="font-medium text-red-600 dark:text-red-400">{{ pkg.pullsFromPackage }} pulls</div>
+                <div class="text-sm text-gray-600 dark:text-gray-300">{{ pkg.leftoverShards }} leftover</div>
+              </div>
             </div>
-          </UCard>
+          </div>
+        </div>
+
+        <!-- First-Time Bonus Packages -->
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">First-Time Bonus Packages</h3>
+          <div class="space-y-3">
+            <div v-for="(pkg, index) in firstTimeBonusPackages" :key="index" class="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <div>
+                <div class="font-medium text-gray-900 dark:text-white">${{ pkg.price.toFixed(2) }}</div>
+                <div class="text-sm text-gray-600 dark:text-gray-300">{{ pkg.totalShards }} shards</div>
+              </div>
+              <div class="text-right">
+                <div class="font-medium text-green-600 dark:text-green-400">{{ pkg.pullsFromPackage }} pulls</div>
+                <div class="text-sm text-gray-600 dark:text-gray-300">{{ pkg.leftoverShards }} leftover</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <UAlert v-if="savingsAmount > 0" color="green" variant="soft" class="mt-4">
-        <template #title>You save ${{ savingsAmount.toFixed(2) }} ({{ savingsPercent.toFixed(1) }}%) with first-time bonus!</template>
-      </UAlert>
     </UCard>
 
-    <!-- Cost Comparison Chart -->
+    <!-- Spending Scenarios -->
     <UCard class="mb-8">
       <template #header>
         <h2 class="text-2xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-          <UIcon name="i-heroicons-chart-bar" />Cost Comparison: Normal vs First-Time Bonus
+          <UIcon name="i-heroicons-calculator" />Common Spending Scenarios
         </h2>
       </template>
-      <div class="h-96">
-        <canvas ref="costComparisonChart"></canvas>
+      <div class="mb-4">
+        <UTabs v-model="selectedTab" :items="tabItems" />
+      </div>
+      
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-gray-200 dark:border-gray-700">
+              <th class="text-left py-3 px-2 font-medium text-gray-900 dark:text-white">Scenario</th>
+              <th class="text-right py-3 px-2 font-medium text-gray-900 dark:text-white">Cost</th>
+              <th class="text-right py-3 px-2 font-medium text-gray-900 dark:text-white">Pulls</th>
+              <th class="text-right py-3 px-2 font-medium text-gray-900 dark:text-white">$/Pull</th>
+              <th class="text-right py-3 px-2 font-medium text-gray-900 dark:text-white">Leftover</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="scenario in displayedScenarios" :key="scenario.scenario" 
+                class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+              <td class="py-3 px-2 font-medium text-gray-900 dark:text-white">{{ scenario.scenario }}</td>
+              <td class="py-3 px-2 text-right font-medium" :class="selectedTab === 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'">
+                ${{ scenario.totalCost.toFixed(2) }}
+              </td>
+              <td class="py-3 px-2 text-right text-gray-900 dark:text-white">{{ scenario.totalPulls }}</td>
+              <td class="py-3 px-2 text-right text-gray-600 dark:text-gray-300">
+                ${{ scenario.costPerPull.toFixed(2) }}
+              </td>
+              <td class="py-3 px-2 text-right text-gray-600 dark:text-gray-300">
+                {{ scenario.leftoverShards }} shards
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </UCard>
 
-    <!-- Two Column Charts -->
+    <!-- Charts -->
     <div class="grid lg:grid-cols-2 gap-8 mb-8">
-      <!-- Savings Chart -->
+      <!-- Cost vs Pulls Chart -->
       <UCard>
         <template #header>
           <h3 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <UIcon name="i-heroicons-currency-dollar" />Savings from First-Time Bonus
+            <UIcon name="i-heroicons-chart-bar" />Cost vs Pulls Obtained
           </h3>
         </template>
-        <div class="h-64">
-          <canvas ref="savingsChart"></canvas>
+        <div class="h-80">
+          <canvas ref="costVsPullsChart"></canvas>
         </div>
-        <UAlert color="green" variant="soft" class="mt-4">
-          <template #title>Maximum Savings: ${{ maxSavings.toFixed(2) }} at {{ maxSavingsIndex + 1 }} pulls</template>
-        </UAlert>
+        <div class="mt-4 text-sm text-gray-600 dark:text-gray-300">
+          Shows the relationship between spending and pulls you actually get from package purchases.
+        </div>
       </UCard>
 
-      <!-- Cost per Pull Chart -->
+      <!-- Efficiency Comparison -->
       <UCard>
         <template #header>
           <h3 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <UIcon name="i-heroicons-chart-pie" />Cost per Pull
+            <UIcon name="i-heroicons-chart-pie" />Package Efficiency
           </h3>
         </template>
-        <div class="h-64">
-          <canvas ref="costPerPullChart"></canvas>
+        <div class="h-80">
+          <canvas ref="efficiencyChart"></canvas>
         </div>
-        <div class="mt-4 grid grid-cols-2 gap-2">
-          <UCard>
-            <div class="text-center">
-              <div class="text-sm text-gray-600 dark:text-gray-300">Normal (180 pulls)</div>
-              <div class="text-lg font-bold text-red-600 dark:text-red-400">${{ (stats.normal180 / 180).toFixed(2) }}/pull</div>
-            </div>
-          </UCard>
-          <UCard>
-            <div class="text-center">
-              <div class="text-sm text-gray-600 dark:text-gray-300">First-Time (180 pulls)</div>
-              <div class="text-lg font-bold text-green-600 dark:text-green-400">${{ (stats.firstTime180 / 180).toFixed(2) }}/pull</div>
-            </div>
-          </UCard>
+        <div class="mt-4 text-sm text-gray-600 dark:text-gray-300">
+          Cost per pull for each individual package. Lower is better.
         </div>
       </UCard>
     </div>
 
-    <!-- Package Efficiency Analysis -->
+    <!-- Savings Analysis -->
     <UCard class="mb-8">
       <template #header>
         <h2 class="text-2xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-          <UIcon name="i-heroicons-trophy" />Package Efficiency Analysis
+          <UIcon name="i-heroicons-currency-dollar" />First-Time Bonus Savings
         </h2>
       </template>
-      <div class="grid md:grid-cols-2 gap-6">
-        <div v-for="pkg in packageAnalysis" :key="pkg.title">
-          <h4 class="font-semibold text-gray-900 dark:text-white mb-3 text-lg">{{ pkg.title }}</h4>
-          <div class="space-y-2">
-            <UAlert v-for="alert in pkg.alerts" :key="alert.title" :color="alert.color" variant="soft">
-              <template #title>{{ alert.title }}</template>
-            </UAlert>
-          </div>
-          <ul class="mt-4 space-y-2 text-gray-600 dark:text-gray-300">
-            <li v-for="item in pkg.items" :key="item.text" class="flex items-center gap-2">
-              <UIcon :name="item.icon" :class="item.color" />{{ item.text }}
-            </li>
-          </ul>
-        </div>
+      <div class="h-64 mb-4">
+        <canvas ref="savingsChart"></canvas>
       </div>
-    </UCard>
-
-    <!-- Summary Statistics -->
-    <UCard>
-      <template #header>
-        <h2 class="text-2xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-          <UIcon name="i-heroicons-clipboard-document-list" />Summary Statistics
-        </h2>
-      </template>
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <UCard v-for="stat in summaryStats" :key="stat.label">
+        <UCard v-for="stat in savingsStats" :key="stat.label">
           <div class="text-center">
             <div class="text-sm text-gray-600 dark:text-gray-300 mb-1">{{ stat.label }}</div>
             <div class="text-xl font-bold" :class="stat.color">{{ stat.value }}</div>
@@ -132,159 +147,224 @@
         </UCard>
       </div>
     </UCard>
+
+    <!-- Key Insights -->
+    <UCard>
+      <template #header>
+        <h2 class="text-2xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+          <UIcon name="i-heroicons-light-bulb" />Key Insights
+        </h2>
+      </template>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div>
+          <h4 class="font-semibold text-gray-900 dark:text-white mb-3">💡 Spending Tips</h4>
+          <ul class="space-y-2 text-gray-600 dark:text-gray-300">
+            <li class="flex items-start gap-2">
+              <UIcon name="i-heroicons-check" class="text-green-500 mt-0.5 flex-shrink-0" />
+              <span>Always buy first-time bonus packages first - massive savings</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <UIcon name="i-heroicons-check" class="text-green-500 mt-0.5 flex-shrink-0" />
+              <span>Larger packages generally offer better value per pull</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <UIcon name="i-heroicons-check" class="text-green-500 mt-0.5 flex-shrink-0" />
+              <span>Consider leftover shards when planning purchases</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <UIcon name="i-heroicons-check" class="text-green-500 mt-0.5 flex-shrink-0" />
+              <span>Combine packages strategically to minimize waste</span>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-semibold text-gray-900 dark:text-white mb-3">⚠️ Important Notes</h4>
+          <ul class="space-y-2 text-gray-600 dark:text-gray-300">
+            <li class="flex items-start gap-2">
+              <UIcon name="i-heroicons-exclamation-triangle" class="text-yellow-500 mt-0.5 flex-shrink-0" />
+              <span>You can only buy first-time bonus packages once</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <UIcon name="i-heroicons-exclamation-triangle" class="text-yellow-500 mt-0.5 flex-shrink-0" />
+              <span>Leftover shards accumulate for future pulls</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <UIcon name="i-heroicons-exclamation-triangle" class="text-yellow-500 mt-0.5 flex-shrink-0" />
+              <span>Costs shown are for package purchases, not individual pulls</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <UIcon name="i-heroicons-exclamation-triangle" class="text-yellow-500 mt-0.5 flex-shrink-0" />
+              <span>Actual gacha results are random - budget responsibly</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </UCard>
   </div>
 </template>
 
 <script setup>
-import { NORMAL_COSTS, FIRST_TIME_COSTS, normalPackages } from '~/utils/shardsData'
+import { normalPackages, firstTimeBonusPackages, normalScenarios, firstTimeScenarios, chartData } from '~/utils/shardsData'
 
 useHead({
   title: 'HSR Analysis',
-  meta: [{ name: 'description', content: 'Detailed analysis of Honkai Star Rail oneiric shards costs and package efficiency' }]
+  meta: [{ name: 'description', content: 'Package-based analysis of Honkai Star Rail oneiric shards costs and spending efficiency' }]
 })
 
 // Reactive data
-const targetPulls = ref(90)
-const costComparisonChart = ref(null)
+const selectedTab = ref(0)
+const costVsPullsChart = ref(null)
+const efficiencyChart = ref(null)
 const savingsChart = ref(null)
-const costPerPullChart = ref(null)
 const chartInstances = shallowRef({})
 
-// Sample data for cleaner charts
-const sampleIndices = Array.from({length: 37}, (_, i) => i * 5 - (i > 0 ? 1 : 0)).filter(i => i >= 0 && i < 180)
-const pulls = sampleIndices.map(i => i + 1)
-const sampledData = {
-  normal: sampleIndices.map(i => NORMAL_COSTS[i]),
-  firstTime: sampleIndices.map(i => FIRST_TIME_COSTS[i])
-}
-
-// Computed values
-const costs = computed(() => ({
-  normal: { label: 'Normal Cost', value: NORMAL_COSTS[targetPulls.value - 1], color: 'text-red-600 dark:text-red-400' },
-  firstTime: { label: 'First-Time Cost', value: FIRST_TIME_COSTS[targetPulls.value - 1], color: 'text-green-600 dark:text-green-400' }
-}))
-
-const savingsAmount = computed(() => costs.value.normal.value - costs.value.firstTime.value)
-const savingsPercent = computed(() => (savingsAmount.value / costs.value.normal.value) * 100)
-
-const savings = computed(() => sampledData.normal.map((normal, i) => normal - sampledData.firstTime[i]))
-const allSavings = NORMAL_COSTS.map((normal, i) => normal - FIRST_TIME_COSTS[i])
-const maxSavings = computed(() => Math.max(...allSavings))
-const maxSavingsIndex = computed(() => allSavings.indexOf(maxSavings.value))
-
-const costPerPull = computed(() => ({
-  normal: sampledData.normal.map((cost, i) => cost / pulls[i]),
-  firstTime: sampledData.firstTime.map((cost, i) => cost / pulls[i])
-}))
-
-const stats = computed(() => ({
-  normal180: NORMAL_COSTS[179],
-  firstTime180: FIRST_TIME_COSTS[179],
-  totalSavings: NORMAL_COSTS[179] - FIRST_TIME_COSTS[179],
-  totalSavingsPercentage: ((NORMAL_COSTS[179] - FIRST_TIME_COSTS[179]) / NORMAL_COSTS[179]) * 100,
-  bestEfficiency: Math.max(...normalPackages.map(pkg => pkg.shardsPerDollar)),
-  worstEfficiency: Math.min(...normalPackages.map(pkg => pkg.shardsPerDollar))
-}))
-
-// Chart configurations
-const chartConfigs = {
-  costComparison: {
-    datasets: [
-      { label: 'Normal Packages', data: sampledData.normal, color: 'rgb(239, 68, 68)' },
-      { label: 'First-Time Bonus', data: sampledData.firstTime, color: 'rgb(34, 197, 94)' }
-    ]
-  },
-  savings: {
-    datasets: [{ label: 'Savings ($)', data: savings, color: 'rgb(168, 85, 247)', fill: true }]
-  },
-  costPerPull: {
-    datasets: [
-      { label: 'Normal ($/pull)', data: costPerPull.value.normal, color: 'rgb(239, 68, 68)' },
-      { label: 'First-Time ($/pull)', data: costPerPull.value.firstTime, color: 'rgb(34, 197, 94)' }
-    ]
-  }
-}
-
-// Template data
-const packageAnalysis = [
-  {
-    title: 'Normal Packages:',
-    alerts: [
-      { title: `Best: ${stats.value.bestEfficiency.toFixed(2)} shards per dollar`, color: 'red' },
-      { title: `Worst: ${stats.value.worstEfficiency.toFixed(2)} shards per dollar`, color: 'orange' }
-    ],
-    items: [
-      { text: 'Expensive for regular purchases', icon: 'i-heroicons-x-mark', color: 'text-red-500' },
-      { text: 'Lower efficiency ratios', icon: 'i-heroicons-x-mark', color: 'text-red-500' },
-      { text: 'Higher cost per pull', icon: 'i-heroicons-x-mark', color: 'text-red-500' }
-    ]
-  },
-  {
-    title: 'First-Time Bonus:',
-    alerts: [
-      { title: 'Massive savings on all packages', color: 'green' },
-      { title: 'Must-buy for optimal spending', color: 'green' }
-    ],
-    items: [
-      { text: 'Massive savings on all packages', icon: 'i-heroicons-check', color: 'text-green-500' },
-      { text: 'Even small packages become very efficient', icon: 'i-heroicons-check', color: 'text-green-500' },
-      { text: 'Must-buy for optimal spending', icon: 'i-heroicons-check', color: 'text-green-500' }
-    ]
-  }
+// Tab configuration
+const tabItems = [
+  { label: 'Normal Packages', value: 0 },
+  { label: 'First-Time Bonus', value: 1 }
 ]
 
-const summaryStats = computed(() => [
-  { label: '180 Pulls (Normal)', value: `$${stats.value.normal180.toFixed(2)}`, color: 'text-gray-900 dark:text-white' },
-  { label: '180 Pulls (First-Time)', value: `$${stats.value.firstTime180.toFixed(2)}`, color: 'text-green-600 dark:text-green-400' },
-  { label: 'Total Savings', value: `$${stats.value.totalSavings.toFixed(2)}`, color: 'text-blue-600 dark:text-blue-400' },
-  { label: 'Savings %', value: `${stats.value.totalSavingsPercentage.toFixed(1)}%`, color: 'text-purple-600 dark:text-purple-400' }
-])
+// Computed values
+const displayedScenarios = computed(() => {
+  return selectedTab.value === 0 ? normalScenarios : firstTimeScenarios
+})
 
-// Chart creation
+const savingsStats = computed(() => {
+  const maxSavings = Math.max(...chartData.savingsData.map(d => d.savings))
+  const maxSavingsScenario = chartData.savingsData.find(d => d.savings === maxSavings)
+  const totalSavings = chartData.savingsData.reduce((sum, d) => sum + d.savings, 0)
+  const avgSavings = totalSavings / chartData.savingsData.length
+  
+  return [
+    { label: 'Max Savings', value: `$${maxSavings.toFixed(2)}`, color: 'text-green-600 dark:text-green-400' },
+    { label: 'Best Scenario', value: `${maxSavingsScenario?.pulls || 0} pulls`, color: 'text-blue-600 dark:text-blue-400' },
+    { label: 'Avg Savings', value: `$${avgSavings.toFixed(2)}`, color: 'text-purple-600 dark:text-purple-400' },
+    { label: 'Scenarios', value: chartData.savingsData.length.toString(), color: 'text-gray-900 dark:text-white' }
+  ]
+})
+
+// Chart creation functions
 const createChart = async (canvasRef, config, type = 'line') => {
   if (process.server || !canvasRef.value) return
   
   const Chart = await import('chart.js')
-  Chart.Chart.register(Chart.LineElement, Chart.PointElement, Chart.LineController, Chart.CategoryScale, Chart.LinearScale, Chart.Title, Chart.Tooltip, Chart.Legend, Chart.Filler)
+  Chart.Chart.register(
+    Chart.LineElement, Chart.PointElement, Chart.LineController, Chart.BarElement, Chart.BarController,
+    Chart.CategoryScale, Chart.LinearScale, Chart.Title, Chart.Tooltip, Chart.Legend, Chart.Filler
+  )
   
   return new Chart.Chart(canvasRef.value, {
     type,
-    data: {
-      labels: pulls,
-      datasets: config.datasets.map(ds => ({
-        ...ds,
-        borderColor: ds.color,
-        backgroundColor: ds.color.replace('rgb', 'rgba').replace(')', ', 0.1)'),
-        tension: 0.2,
-        pointRadius: 3,
-        pointHoverRadius: 5,
-        fill: ds.fill || false
-      }))
-    },
+    data: config.data,
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { labels: { usePointStyle: true, boxWidth: 6 } } },
-      elements: { point: { radius: 3, hoverRadius: 5 }, line: { tension: 0.2 } },
+      plugins: { 
+        legend: { labels: { usePointStyle: true, boxWidth: 6 } },
+        tooltip: config.tooltip || {}
+      },
       scales: {
-        x: { grid: { display: false }, ticks: { maxTicksLimit: 10 } },
-        y: { beginAtZero: true, grid: { color: 'rgba(156, 163, 175, 0.1)' } }
+        x: { 
+          grid: { display: false }, 
+          ticks: { maxTicksLimit: 10 },
+          title: { display: true, text: config.xAxisLabel || '' }
+        },
+        y: { 
+          beginAtZero: true, 
+          grid: { color: 'rgba(156, 163, 175, 0.1)' },
+          title: { display: true, text: config.yAxisLabel || '' }
+        }
       }
     }
   })
 }
 
 const createCharts = async () => {
-  const chartConfigurations = {
-    costComparisonChart: { ref: costComparisonChart, config: chartConfigs.costComparison },
-    savingsChart: { ref: savingsChart, config: chartConfigs.savings },
-    costPerPullChart: { ref: costPerPullChart, config: chartConfigs.costPerPull }
+  // Cost vs Pulls Chart
+  if (costVsPullsChart.value && !chartInstances.value.costVsPulls) {
+    chartInstances.value.costVsPulls = await createChart(costVsPullsChart, {
+      data: {
+        datasets: [
+          {
+            label: 'Normal Packages',
+            data: chartData.normalData.map(d => ({ x: d.pulls, y: d.cost })),
+            borderColor: 'rgb(239, 68, 68)',
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            pointRadius: 4,
+            pointHoverRadius: 6
+          },
+          {
+            label: 'First-Time Bonus',
+            data: chartData.firstTimeData.map(d => ({ x: d.pulls, y: d.cost })),
+            borderColor: 'rgb(34, 197, 94)',
+            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+            pointRadius: 4,
+            pointHoverRadius: 6
+          }
+        ]
+      },
+      xAxisLabel: 'Pulls Obtained',
+      yAxisLabel: 'Cost ($)',
+      tooltip: {
+        callbacks: {
+          afterLabel: function(context) {
+            const dataPoint = context.dataset.data[context.dataIndex]
+            const scenario = context.datasetIndex === 0 ? 
+              chartData.normalData[context.dataIndex]?.scenario : 
+              chartData.firstTimeData[context.dataIndex]?.scenario
+            return scenario ? `Scenario: ${scenario}` : ''
+          }
+        }
+      }
+    }, 'scatter')
   }
-  
-  for (const [key, { ref: chartRef, config }] of Object.entries(chartConfigurations)) {
-    if (chartRef.value && !chartInstances.value[key]) {
-      chartInstances.value[key] = await createChart(chartRef, config)
-    }
+
+  // Efficiency Chart
+  if (efficiencyChart.value && !chartInstances.value.efficiency) {
+    chartInstances.value.efficiency = await createChart(efficiencyChart, {
+      data: {
+        labels: normalPackages.map((_, i) => `Package ${i + 1}`),
+        datasets: [
+          {
+            label: 'Normal Cost/Pull',
+            data: normalPackages.map(pkg => pkg.costPerPull === Infinity ? 0 : pkg.costPerPull),
+            backgroundColor: 'rgba(239, 68, 68, 0.7)',
+            borderColor: 'rgb(239, 68, 68)',
+            borderWidth: 1
+          },
+          {
+            label: 'First-Time Cost/Pull',
+            data: firstTimeBonusPackages.map(pkg => pkg.costPerPull === Infinity ? 0 : pkg.costPerPull),
+            backgroundColor: 'rgba(34, 197, 94, 0.7)',
+            borderColor: 'rgb(34, 197, 94)',
+            borderWidth: 1
+          }
+        ]
+      },
+      xAxisLabel: 'Package',
+      yAxisLabel: 'Cost per Pull ($)'
+    }, 'bar')
+  }
+
+  // Savings Chart
+  if (savingsChart.value && !chartInstances.value.savings) {
+    chartInstances.value.savings = await createChart(savingsChart, {
+      data: {
+        labels: chartData.savingsData.map(d => `${d.pulls} pulls`),
+        datasets: [{
+          label: 'Savings ($)',
+          data: chartData.savingsData.map(d => d.savings),
+          borderColor: 'rgb(168, 85, 247)',
+          backgroundColor: 'rgba(168, 85, 247, 0.1)',
+          fill: true,
+          tension: 0.2,
+          pointRadius: 4,
+          pointHoverRadius: 6
+        }]
+      },
+      xAxisLabel: 'Pull Count',
+      yAxisLabel: 'Savings ($)'
+    })
   }
 }
 
