@@ -181,7 +181,9 @@ export const useGameAnalysis = () => {
     return {
       maxSavings,
       bestPackage,
-      avgSavings
+      bestScenario,
+      avgSavings,
+      bestPackageName: bestPackage?.name || ''
     }
   }
   
