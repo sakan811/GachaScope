@@ -146,71 +146,36 @@ export const useGameAnalysis = () => {
     const normalScenarios = scenarios.normal ?? []
     const bonusScenarios = scenarios.first_time_bonus ?? []
 
-    // Find all individual packages from both normal and bonus scenarios
-    const allPackages: ProcessedPackage[] = []
-    
-    normalScenarios.forEach(scenario => {
-      scenario.packages.forEach(({ package: pkg }) => {
-        if (pkg.pullsFromPackage > 0) {
-          allPackages.push(pkg)
-        }
-      })
-    })
-    
-    bonusScenarios.forEach(scenario => {
-      scenario.packages.forEach(({ package: pkg }) => {
-        if (pkg.pullsFromPackage > 0) {
-          allPackages.push(pkg)
-        }
-      })
-    })
+    // Find all valid packages from scenarios
+    const allPackages = [...normalScenarios, ...bonusScenarios]
+      .flatMap(scenario => scenario.packages.map(({ package: pkg }) => pkg))
+      .filter(pkg => pkg.pullsFromPackage > 0)
 
-    // Find the actual best package by cost per pull
     const bestPackage = allPackages.length > 0
-      ? allPackages.reduce((best, curr) => {
-          if (process.env.NODE_ENV === 'development') {
-            console.log(`Comparing packages: ${best.name} (${best.costPerPull.toFixed(4)}) vs ${curr.name} (${curr.costPerPull.toFixed(4)})`)
-          }
-          return curr.costPerPull < best.costPerPull ? curr : best
-        })
+      ? allPackages.reduce((best, curr) => curr.costPerPull < best.costPerPull ? curr : best)
       : null
-
-    if (process.env.NODE_ENV === 'development' && bestPackage) {
-      console.log(`Best package found: ${bestPackage.name} with cost per pull: ${bestPackage.costPerPull.toFixed(4)}`)
-    }
 
     // Find best normal cost per pull for savings calculation
     const bestNormal = normalScenarios
       .filter(s => s.costPerPull !== Infinity)
-      .reduce((best, curr) => 
-        best.costPerPull < curr.costPerPull ? best : curr, 
-        {costPerPull: Infinity} as PurchaseScenario
-      )
+      .reduce((best, curr) => best.costPerPull < curr.costPerPull ? best : curr, {costPerPull: Infinity} as PurchaseScenario)
 
     const allBonusScenarios = bonusScenarios.filter(s => s.totalPulls > 0)
 
-    // Calculate savings for each bonus package
-    const savings: number[] = []
-    allBonusScenarios.forEach(bonus => {
-      if (bestNormal.costPerPull !== Infinity) {
-        const normalCost = bonus.totalPulls * bestNormal.costPerPull
-        const saving = normalCost - bonus.totalCost
-        savings.push(Math.max(0, saving))
-      }
+    // Calculate savings
+    const savings = allBonusScenarios.map(bonus => {
+      if (bestNormal.costPerPull === Infinity) return 0
+      return Math.max(0, bonus.totalPulls * bestNormal.costPerPull - bonus.totalCost)
     })
 
     const maxSavings = savings.length > 0 ? Math.max(...savings) : 0
-    const avgSavings = savings.length > 0 ? 
-      savings.reduce((sum, val) => sum + val, 0) / savings.length : 0
+    const avgSavings = savings.length > 0 ? savings.reduce((sum, val) => sum + val, 0) / savings.length : 0
 
-    // Find best scenario (can be different from best package)
     const bestScenario = allBonusScenarios.length > 0
-      ? allBonusScenarios.reduce((best, s) => 
-          s.costPerPull < best.costPerPull ? s : best
-        )
+      ? allBonusScenarios.reduce((best, s) => s.costPerPull < best.costPerPull ? s : best)
       : bonusScenarios[0] || normalScenarios[0]
 
-      return {
+    return {
       maxSavings,
       bestPackage,
       bestScenario,
