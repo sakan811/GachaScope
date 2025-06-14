@@ -39,16 +39,6 @@
       <main>
         <NuxtPage />
       </main>
-
-      <!-- Footer -->
-      <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-auto">
-        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-          <div class="text-center text-gray-600 dark:text-gray-400">
-            <p>&copy; 2025 HSR Oneiric Shards Analysis. Built with Nuxt.js & TailwindCSS.</p>
-            <p class="mt-2 text-sm">Analysis of optimal spending for Honkai Star Rail gacha pulls</p>
-          </div>
-        </div>
-      </footer>
     </div>
   </UApp>
 </template>

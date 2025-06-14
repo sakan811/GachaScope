@@ -53,48 +53,6 @@
       </div>
     </UCard>
 
-    <!-- Spending Scenarios -->
-    <UCard class="mb-8">
-      <template #header>
-        <h2 class="text-2xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-          <UIcon name="i-heroicons-calculator" />Common Spending Scenarios
-        </h2>
-      </template>
-      <div class="mb-4">
-        <UTabs v-model="selectedTab" :items="tabItems" />
-      </div>
-      
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b border-gray-200 dark:border-gray-700">
-              <th class="text-left py-3 px-2 font-medium text-gray-900 dark:text-white">Scenario</th>
-              <th class="text-right py-3 px-2 font-medium text-gray-900 dark:text-white">Cost</th>
-              <th class="text-right py-3 px-2 font-medium text-gray-900 dark:text-white">Pulls</th>
-              <th class="text-right py-3 px-2 font-medium text-gray-900 dark:text-white">$/Pull</th>
-              <th class="text-right py-3 px-2 font-medium text-gray-900 dark:text-white">Leftover</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="scenario in displayedScenarios" :key="scenario.scenario" 
-                class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
-              <td class="py-3 px-2 font-medium text-gray-900 dark:text-white">{{ scenario.scenario }}</td>
-              <td class="py-3 px-2 text-right font-medium" :class="selectedTab === 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'">
-                ${{ scenario.totalCost.toFixed(2) }}
-              </td>
-              <td class="py-3 px-2 text-right text-gray-900 dark:text-white">{{ scenario.totalPulls }}</td>
-              <td class="py-3 px-2 text-right text-gray-600 dark:text-gray-300">
-                ${{ scenario.costPerPull.toFixed(2) }}
-              </td>
-              <td class="py-3 px-2 text-right text-gray-600 dark:text-gray-300">
-                {{ scenario.leftoverShards }} shards
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </UCard>
-
     <!-- Charts -->
     <div class="grid lg:grid-cols-2 gap-8 mb-8">
       <!-- Cost vs Pulls Chart -->
@@ -145,59 +103,6 @@
             <div class="text-xl font-bold" :class="stat.color">{{ stat.value }}</div>
           </div>
         </UCard>
-      </div>
-    </UCard>
-
-    <!-- Key Insights -->
-    <UCard>
-      <template #header>
-        <h2 class="text-2xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-          <UIcon name="i-heroicons-light-bulb" />Key Insights
-        </h2>
-      </template>
-      <div class="grid md:grid-cols-2 gap-6">
-        <div>
-          <h4 class="font-semibold text-gray-900 dark:text-white mb-3">💡 Spending Tips</h4>
-          <ul class="space-y-2 text-gray-600 dark:text-gray-300">
-            <li class="flex items-start gap-2">
-              <UIcon name="i-heroicons-check" class="text-green-500 mt-0.5 flex-shrink-0" />
-              <span>Always buy first-time bonus packages first - massive savings</span>
-            </li>
-            <li class="flex items-start gap-2">
-              <UIcon name="i-heroicons-check" class="text-green-500 mt-0.5 flex-shrink-0" />
-              <span>Larger packages generally offer better value per pull</span>
-            </li>
-            <li class="flex items-start gap-2">
-              <UIcon name="i-heroicons-check" class="text-green-500 mt-0.5 flex-shrink-0" />
-              <span>Consider leftover shards when planning purchases</span>
-            </li>
-            <li class="flex items-start gap-2">
-              <UIcon name="i-heroicons-check" class="text-green-500 mt-0.5 flex-shrink-0" />
-              <span>Combine packages strategically to minimize waste</span>
-            </li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="font-semibold text-gray-900 dark:text-white mb-3">⚠️ Important Notes</h4>
-          <ul class="space-y-2 text-gray-600 dark:text-gray-300">
-            <li class="flex items-start gap-2">
-              <UIcon name="i-heroicons-exclamation-triangle" class="text-yellow-500 mt-0.5 flex-shrink-0" />
-              <span>You can only buy first-time bonus packages once</span>
-            </li>
-            <li class="flex items-start gap-2">
-              <UIcon name="i-heroicons-exclamation-triangle" class="text-yellow-500 mt-0.5 flex-shrink-0" />
-              <span>Leftover shards accumulate for future pulls</span>
-            </li>
-            <li class="flex items-start gap-2">
-              <UIcon name="i-heroicons-exclamation-triangle" class="text-yellow-500 mt-0.5 flex-shrink-0" />
-              <span>Costs shown are for package purchases, not individual pulls</span>
-            </li>
-            <li class="flex items-start gap-2">
-              <UIcon name="i-heroicons-exclamation-triangle" class="text-yellow-500 mt-0.5 flex-shrink-0" />
-              <span>Actual gacha results are random - budget responsibly</span>
-            </li>
-          </ul>
-        </div>
       </div>
     </UCard>
   </div>
