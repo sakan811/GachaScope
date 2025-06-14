@@ -63,23 +63,15 @@
         <div v-if="processedPackages.normal">
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Normal Packages</h3>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div v-for="(pkg, index) in processedPackages.normal" :key="index" 
-                 class="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
-              <div class="flex justify-between items-start mb-2">
-                <div class="text-lg font-bold text-gray-900 dark:text-white">${{ pkg.price.toFixed(2) }}</div>
-                <div class="text-right">
-                  <div :class="pkg.pullsFromPackage === 0 ? 'text-red-500 font-medium' : 'text-gray-900 dark:text-white font-semibold'">
-                    {{ pkg.pullsFromPackage }} {{ gameData.metadata.pull.name.toLowerCase() }}s
-                  </div>
-                </div>
-              </div>
-              <div class="text-sm text-gray-600 dark:text-gray-300 mb-1">
-                {{ pkg.totalAmount }} {{ gameData.metadata.currency.shortName.toLowerCase() }}
-              </div>
-              <div class="text-xs text-gray-500 dark:text-gray-400">
-                {{ pkg.leftoverAmount }} leftover
-              </div>
-            </div>
+            <PackageCard 
+              v-for="(pkg, index) in processedPackages.normal"
+              :key="index"
+              :pkg="pkg"
+              :pull-name="gameData.metadata.pull.name"
+              :currency-name="gameData.metadata.currency.shortName"
+              bg-color="bg-red-50 dark:bg-red-900/20"
+              border-color="border-red-200 dark:border-red-800"
+            />
           </div>
         </div>
 
@@ -87,23 +79,16 @@
         <div v-if="processedPackages.first_time_bonus">
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">First-Time Bonus Packages</h3>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div v-for="(pkg, index) in processedPackages.first_time_bonus" :key="index" 
-                 class="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-              <div class="flex justify-between items-start mb-2">
-                <div class="text-lg font-bold text-gray-900 dark:text-white">${{ pkg.price.toFixed(2) }}</div>
-                <div class="text-right">
-                  <div :class="pkg.pullsFromPackage === 0 ? 'text-red-500 font-medium' : 'text-green-600 dark:text-green-400 font-semibold'">
-                    {{ pkg.pullsFromPackage }} {{ gameData.metadata.pull.name.toLowerCase() }}s
-                  </div>
-                </div>
-              </div>
-              <div class="text-sm text-gray-600 dark:text-gray-300 mb-1">
-                {{ pkg.totalAmount }} {{ gameData.metadata.currency.shortName.toLowerCase() }}
-              </div>
-              <div class="text-xs text-gray-500 dark:text-gray-400">
-                {{ pkg.leftoverAmount }} leftover
-              </div>
-            </div>
+            <PackageCard 
+              v-for="(pkg, index) in processedPackages.first_time_bonus"
+              :key="index"
+              :pkg="pkg"
+              :pull-name="gameData.metadata.pull.name"
+              :currency-name="gameData.metadata.currency.shortName"
+              bg-color="bg-green-50 dark:bg-green-900/20"
+              border-color="border-green-200 dark:border-green-800"
+              text-color="text-green-600 dark:text-green-400"
+            />
           </div>
         </div>
       </div>
@@ -111,73 +96,26 @@
       <!-- Desktop View: Table Layout -->
       <div class="hidden lg:block">
         <div class="grid grid-cols-2 gap-8">
-          <!-- Normal Packages Desktop -->
-          <div v-if="processedPackages.normal">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Normal Packages</h3>
-            <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-              <div class="bg-red-50 dark:bg-red-900/20 px-4 py-3 border-b border-red-200 dark:border-red-800">
-                <div class="grid grid-cols-4 gap-4 text-sm font-medium text-gray-700 dark:text-gray-300">
-                  <div>Price</div>
-                  <div>{{ gameData.metadata.currency.shortName }}</div>
-                  <div>{{ gameData.metadata.pull.name }}s</div>
-                  <div>Leftover</div>
-                </div>
-              </div>
-              <div class="divide-y divide-gray-200 dark:divide-gray-700">
-                <div v-for="(pkg, index) in processedPackages.normal" :key="index" 
-                     class="px-4 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                  <div class="grid grid-cols-4 gap-4 items-center">
-                    <div class="font-semibold text-gray-900 dark:text-white">
-                      ${{ pkg.price.toFixed(2) }}
-                    </div>
-                    <div class="text-gray-600 dark:text-gray-300">
-                      {{ pkg.totalAmount.toLocaleString() }}
-                    </div>
-                    <div :class="pkg.pullsFromPackage === 0 ? 'text-red-500 font-medium' : 'text-gray-900 dark:text-white font-medium'">
-                      {{ pkg.pullsFromPackage }}
-                    </div>
-                    <div class="text-sm text-gray-500 dark:text-gray-400">
-                      {{ pkg.leftoverAmount }}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <PackageTable 
+            v-if="processedPackages?.normal"
+            :packages="processedPackages.normal"
+            :pull-name="gameData.metadata.pull.name"
+            :currency-name="gameData.metadata.currency.shortName"
+            title="Normal Packages"
+            header-bg="bg-red-50 dark:bg-red-900/20"
+            header-border="border-red-200 dark:border-red-800"
+          />
 
-          <!-- First-Time Bonus Packages Desktop -->
-          <div v-if="processedPackages.first_time_bonus">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">First-Time Bonus Packages</h3>
-            <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-              <div class="bg-green-50 dark:bg-green-900/20 px-4 py-3 border-b border-green-200 dark:border-green-800">
-                <div class="grid grid-cols-4 gap-4 text-sm font-medium text-gray-700 dark:text-gray-300">
-                  <div>Price</div>
-                  <div>{{ gameData.metadata.currency.shortName }}</div>
-                  <div>{{ gameData.metadata.pull.name }}s</div>
-                  <div>Leftover</div>
-                </div>
-              </div>
-              <div class="divide-y divide-gray-200 dark:divide-gray-700">
-                <div v-for="(pkg, index) in processedPackages.first_time_bonus" :key="index" 
-                     class="px-4 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                  <div class="grid grid-cols-4 gap-4 items-center">
-                    <div class="font-semibold text-gray-900 dark:text-white">
-                      ${{ pkg.price.toFixed(2) }}
-                    </div>
-                    <div class="text-gray-600 dark:text-gray-300">
-                      {{ pkg.totalAmount.toLocaleString() }}
-                    </div>
-                    <div :class="pkg.pullsFromPackage === 0 ? 'text-red-500 font-medium' : 'text-green-600 dark:text-green-400 font-medium'">
-                      {{ pkg.pullsFromPackage }}
-                    </div>
-                    <div class="text-sm text-gray-500 dark:text-gray-400">
-                      {{ pkg.leftoverAmount }}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <PackageTable 
+            v-if="processedPackages?.first_time_bonus"
+            :packages="processedPackages.first_time_bonus"
+            :pull-name="gameData.metadata.pull.name"
+            :currency-name="gameData.metadata.currency.shortName"
+            title="First-Time Bonus Packages"
+            header-bg="bg-green-50 dark:bg-green-900/20"
+            header-border="border-green-200 dark:border-green-800"
+            text-color="text-green-600 dark:text-green-400"
+          />
         </div>
       </div>
     </UCard>
@@ -249,6 +187,9 @@
 <script setup>
 import { getGameById } from '~/utils/gameRegistry'
 import { useGameAnalysis } from '~/composables/useGameAnalysis'
+import PackageCard from '~/components/analysis/PackageCard.vue'
+import PackageTable from '~/components/analysis/PackageTable.vue'
+import { useChartConfig } from '~/composables/useChartConfig'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -310,64 +251,35 @@ const hasZeroPullPackages = computed(() => {
   )
 })
 
+const { packageTypeColors, typeLabels } = useChartConfig(gameData)
+
 const scatterChartData = computed(() => {
   if (!chartsData) return { datasets: [] }
   
-  const packageTypeColors = {
-    normal: { bg: 'rgba(239, 68, 68, 0.8)', border: 'rgb(239, 68, 68)' },
-    first_time_bonus: { bg: 'rgba(34, 197, 94, 0.8)', border: 'rgb(34, 197, 94)' },
-    subscription: { bg: 'rgba(59, 130, 246, 0.8)', border: 'rgb(59, 130, 246)' },
-    limited_time: { bg: 'rgba(168, 85, 247, 0.8)', border: 'rgb(168, 85, 247)' }
-  }
-  
-  const typeLabels = {
-    normal: 'Normal Packages',
-    first_time_bonus: 'First-Time Bonus',
-    subscription: 'Subscription',
-    limited_time: 'Limited Time'
-  }
-  
-  const groupedData = {}
-  
-  chartsData.scatterData.forEach(point => {
-    if (!groupedData[point.type]) {
-      groupedData[point.type] = []
-    }
-    groupedData[point.type].push({
+  const groupedData = chartsData.scatterData.reduce((acc, point) => {
+    acc[point.type] = acc[point.type] || []
+    acc[point.type].push({
       x: point.x,
       y: parseFloat(point.y.toFixed(2)),
       packageName: point.packageName
     })
-  })
+    return acc
+  }, {})
   
-  const datasets = Object.entries(groupedData).map(([type, data]) => ({
-    label: typeLabels[typeLabels] || type,
-    data,
-    backgroundColor: packageTypeColors[type]?.bg || 'rgba(156, 163, 175, 0.8)',
-    borderColor: packageTypeColors[type]?.border || 'rgb(156, 163, 175)',
-    pointRadius: 6,
-    pointHoverRadius: 10
-  }))
-  
-  return { datasets }
+  return {
+    datasets: Object.entries(groupedData).map(([type, data]) => ({
+      label: typeLabels[type] || type,
+      data,
+      backgroundColor: packageTypeColors[type]?.bg || 'rgba(156, 163, 175, 0.8)',
+      borderColor: packageTypeColors[type]?.border || 'rgb(156, 163, 175)',
+      pointRadius: 6,
+      pointHoverRadius: 10
+    }))
+  }
 })
 
 const barChartData = computed(() => {
   if (!chartsData) return { labels: [], datasets: [] }
-  
-  const packageTypeColors = {
-    normal: { bg: 'rgba(239, 68, 68, 0.7)', border: 'rgb(239, 68, 68)' },
-    first_time_bonus: { bg: 'rgba(34, 197, 94, 0.7)', border: 'rgb(34, 197, 94)' },
-    subscription: { bg: 'rgba(59, 130, 246, 0.7)', border: 'rgb(59, 130, 246)' },
-    limited_time: { bg: 'rgba(168, 85, 247, 0.7)', border: 'rgb(168, 85, 247)' }
-  }
-  
-  const typeLabels = {
-    normal: 'Normal',
-    first_time_bonus: 'First-Time Bonus',
-    subscription: 'Subscription',
-    limited_time: 'Limited Time'
-  }
   
   // Get all unique package names across all types
   const allPackageNames = new Set()
@@ -391,63 +303,7 @@ const barChartData = computed(() => {
   return { labels, datasets }
 })
 
-const createChartOptions = (isScatter = false) => {
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640
-  
-  const baseOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      title: { display: false },
-      legend: { 
-        display: true, 
-        position: 'top',
-        labels: { 
-          font: { size: isMobile ? 10 : 12 },
-          ...(isScatter && { usePointStyle: true, boxWidth: 8 })
-        }
-      }
-    },
-    scales: {
-      x: {
-        ...(isScatter && { type: 'linear', position: 'bottom' }),
-        title: { 
-          display: !isMobile, 
-          text: isScatter ? `${gameData.metadata.pull.name}s from Package` : 'Package',
-          font: { size: isMobile ? 10 : 12 }
-        },
-        ticks: { 
-          font: { size: isMobile ? (isScatter ? 9 : 8) : (isScatter ? 11 : 10) },
-          ...(!isScatter && { maxRotation: isMobile ? 45 : 0 })
-        },
-        grid: { display: false }
-      },
-      y: {
-        beginAtZero: true,
-        title: { 
-          display: !isMobile, 
-          text: isScatter ? 'Package Cost ($)' : `Cost per ${gameData.metadata.pull.name} ($)`,
-          font: { size: isMobile ? 10 : 12 }
-        },
-        ticks: { font: { size: isMobile ? 9 : 11 } },
-        grid: { color: 'rgba(156, 163, 175, 0.1)' }
-      }
-    }
-  }
-  
-  if (isScatter) {
-    baseOptions.plugins.tooltip = {
-      titleFont: { size: isMobile ? 11 : 13 },
-      bodyFont: { size: isMobile ? 10 : 12 },
-      callbacks: {
-        title: (context) => context[0].raw.packageName,
-        label: (context) => `$${context.parsed.y.toFixed(2)} for ${context.parsed.x} ${gameData.metadata.pull.name.toLowerCase()}s`
-      }
-    }
-  }
-  
-  return baseOptions
-}
+const { createChartOptions } = useChartConfig(gameData)
 
 const scatterChartOptions = computed(() => createChartOptions(true))
 const barChartOptions = computed(() => createChartOptions(false))
