@@ -269,7 +269,7 @@ const barChartData = computed(() => {
   if (!processedPackages) return { labels: [], datasets: [] }
   
   return {
-    labels: processedPackages.normal?.map((_, i) => `Package ${i + 1}`) || [],
+    labels: processedPackages.normal?.map(pkg => pkg.name) || [],
     datasets: [
       {
         label: `Normal Cost/${gameData.metadata.pull.name}`,
