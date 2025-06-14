@@ -1,13 +1,7 @@
-import { computed } from 'vue'
 import type { Ref } from 'vue'
 import type { GameData } from '../types/games'
 import type { 
-  ChartOptions,
-  Plugin,
-  LegendOptions,
-  CartesianScaleTypeRegistry,
-  ScaleOptionsByType
-} from 'chart.js'
+  ChartOptions} from 'chart.js'
 
 export const useChartConfig = (gameData: Ref<GameData>) => {
   const packageTypeColors = {
@@ -26,6 +20,7 @@ export const useChartConfig = (gameData: Ref<GameData>) => {
 
   const createChartOptions = (isScatter = false): ChartOptions<'bar' | 'scatter'> => {
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 640
+    const pullName = gameData.value?.metadata?.pull.name || 'Pull'
     
     const baseOptions: ChartOptions<'bar' | 'scatter'> = {
       responsive: true,
@@ -39,7 +34,7 @@ export const useChartConfig = (gameData: Ref<GameData>) => {
             font: { size: isMobile ? 10 : 12 },
             ...(isScatter && { usePointStyle: true, boxWidth: 8 })
           }
-        } as LegendOptions<'scatter' | 'bar'>
+        }
       },
       scales: {
         x: {
@@ -47,7 +42,7 @@ export const useChartConfig = (gameData: Ref<GameData>) => {
           position: 'bottom' as const,
           title: { 
             display: !isMobile, 
-            text: isScatter ? `${gameData.value.metadata.pull.name}s from Package` : 'Package',
+            text: isScatter ? `${pullName}s from Package` : 'Package',
             font: { size: isMobile ? 10 : 12 }
           },
           ticks: { 
@@ -85,7 +80,7 @@ export const useChartConfig = (gameData: Ref<GameData>) => {
         bodyFont: { size: isMobile ? 10 : 12 },
         callbacks: {
           title: (context: any) => context[0].raw.packageName,
-          label: (context: any) => `$${context.parsed.y.toFixed(2)} for ${context.parsed.x} ${gameData.value.metadata.pull.name.toLowerCase()}s`
+          label: (context: any) => `$${context.parsed.y.toFixed(2)} for ${context.parsed.x} ${pullName.toLowerCase()}s`
         }
       }
     }
