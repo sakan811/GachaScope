@@ -73,11 +73,7 @@
       </template>
 
       <div class="h-96">
-        <NuxtChart
-          type="line"
-          :data="costComparisonData"
-          :options="chartOptions"
-        />
+        <canvas ref="costComparisonChart"></canvas>
       </div>
     </UCard>
 
@@ -93,11 +89,7 @@
         </template>
 
         <div class="h-64">
-          <NuxtChart
-            type="line"
-            :data="savingsData"
-            :options="chartOptions"
-          />
+          <canvas ref="savingsChart"></canvas>
         </div>
 
         <UAlert color="green" variant="soft" class="mt-4">
@@ -117,11 +109,7 @@
         </template>
 
         <div class="h-64">
-          <NuxtChart
-            type="line"
-            :data="costPerPullData"
-            :options="chartOptions"
-          />
+          <canvas ref="costPerPullChart"></canvas>
         </div>
 
         <div class="mt-4 grid grid-cols-2 gap-2">
@@ -284,6 +272,16 @@ useHead({
   ]
 })
 
+// Template refs
+const costComparisonChart = ref(null)
+const savingsChart = ref(null)
+const costPerPullChart = ref(null)
+
+// Chart instances - using shallowRef to avoid reactivity issues
+const costComparisonChartInstance = shallowRef(null)
+const savingsChartInstance = shallowRef(null)
+const costPerPullChartInstance = shallowRef(null)
+
 // Reactive data
 const targetPulls = ref(90)
 
@@ -293,17 +291,26 @@ const firstTimeCost = computed(() => FIRST_TIME_COSTS[targetPulls.value - 1])
 const savingsAmount = computed(() => normalCost.value - firstTimeCost.value)
 const savingsPercent = computed(() => (savingsAmount.value / normalCost.value) * 100)
 
-const pulls = Array.from({ length: 180 }, (_, i) => i + 1)
-const savings = computed(() => NORMAL_COSTS.map((normal, index) => normal - FIRST_TIME_COSTS[index]))
+// Sample data points for cleaner charts (every 5 pulls + key milestones)
+const sampleIndices = [
+  0, 4, 9, 14, 19, 24, 29, 34, 39, 44, 49, 54, 59, 64, 69, 74, 79, 84, 89, 94, 99, 104, 109, 114, 119, 124, 129, 134, 139, 144, 149, 154, 159, 164, 169, 174, 179
+]
+const pulls = sampleIndices.map(i => i + 1)
+const sampledNormalCosts = sampleIndices.map(i => NORMAL_COSTS[i])
+const sampledFirstTimeCosts = sampleIndices.map(i => FIRST_TIME_COSTS[i])
 
-const maxSavings = computed(() => Math.max(...savings.value))
-const maxSavingsIndex = computed(() => savings.value.indexOf(maxSavings.value))
+const savings = computed(() => sampledNormalCosts.map((normal, index) => normal - sampledFirstTimeCosts[index]))
 
-const costPerPullNormal = computed(() => NORMAL_COSTS.map((cost, index) => cost / (index + 1)))
-const costPerPullFirstTime = computed(() => FIRST_TIME_COSTS.map((cost, index) => cost / (index + 1)))
+// Calculate max savings from full data, not sampled data
+const allSavings = NORMAL_COSTS.map((normal, index) => normal - FIRST_TIME_COSTS[index])
+const maxSavings = computed(() => Math.max(...allSavings))
+const maxSavingsIndex = computed(() => allSavings.indexOf(maxSavings.value))
 
-const costPerPullNormal180 = computed(() => costPerPullNormal.value[179])
-const costPerPullFirstTime180 = computed(() => costPerPullFirstTime.value[179])
+const costPerPullNormal = computed(() => sampledNormalCosts.map((cost, index) => cost / pulls[index]))
+const costPerPullFirstTime = computed(() => sampledFirstTimeCosts.map((cost, index) => cost / pulls[index]))
+
+const costPerPullNormal180 = computed(() => NORMAL_COSTS[179] / 180)
+const costPerPullFirstTime180 = computed(() => FIRST_TIME_COSTS[179] / 180)
 
 const bestNormalEfficiency = computed(() => Math.max(...normalPackages.map(pkg => pkg.shardsPerDollar)))
 const worstNormalEfficiency = computed(() => Math.min(...normalPackages.map(pkg => pkg.shardsPerDollar)))
@@ -311,66 +318,15 @@ const worstNormalEfficiency = computed(() => Math.min(...normalPackages.map(pkg 
 const totalSavings = computed(() => NORMAL_COSTS[179] - FIRST_TIME_COSTS[179])
 const totalSavingsPercentage = computed(() => (totalSavings.value / NORMAL_COSTS[179]) * 100)
 
-// Chart data
-const costComparisonData = computed(() => ({
-  labels: pulls,
-  datasets: [
-    {
-      label: 'Normal Packages',
-      data: NORMAL_COSTS,
-      borderColor: 'rgb(239, 68, 68)',
-      backgroundColor: 'rgba(239, 68, 68, 0.1)',
-      tension: 0.1
-    },
-    {
-      label: 'First-Time Bonus',
-      data: FIRST_TIME_COSTS,
-      borderColor: 'rgb(34, 197, 94)',
-      backgroundColor: 'rgba(34, 197, 94, 0.1)',
-      tension: 0.1
-    }
-  ]
-}))
-
-const savingsData = computed(() => ({
-  labels: pulls,
-  datasets: [
-    {
-      label: 'Savings ($)',
-      data: savings.value,
-      borderColor: 'rgb(168, 85, 247)',
-      backgroundColor: 'rgba(168, 85, 247, 0.1)',
-      tension: 0.1,
-      fill: true
-    }
-  ]
-}))
-
-const costPerPullData = computed(() => ({
-  labels: pulls,
-  datasets: [
-    {
-      label: 'Normal ($/pull)',
-      data: costPerPullNormal.value,
-      borderColor: 'rgb(239, 68, 68)',
-      backgroundColor: 'rgba(239, 68, 68, 0.1)',
-      tension: 0.1
-    },
-    {
-      label: 'First-Time ($/pull)',
-      data: costPerPullFirstTime.value,
-      borderColor: 'rgb(34, 197, 94)',
-      backgroundColor: 'rgba(34, 197, 94, 0.1)',
-      tension: 0.1
-    }
-  ]
-}))
-
-// Chart options
-const chartOptions = {
+// Chart options with reduced point display
+const getChartOptions = (title) => ({
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
+    title: {
+      display: !!title,
+      text: title
+    },
     legend: {
       labels: {
         usePointStyle: true,
@@ -378,10 +334,23 @@ const chartOptions = {
       }
     }
   },
+  elements: {
+    point: {
+      radius: 3,
+      hoverRadius: 5,
+      pointStyle: 'circle'
+    },
+    line: {
+      tension: 0.2
+    }
+  },
   scales: {
     x: {
       grid: {
         display: false
+      },
+      ticks: {
+        maxTicksLimit: 10
       }
     },
     y: {
@@ -391,5 +360,138 @@ const chartOptions = {
       }
     }
   }
+})
+
+// Create charts only on client side
+const createCharts = async () => {
+  if (process.server) return
+  
+  // Dynamic import Chart.js only on client side
+  const Chart = await import('chart.js')
+  
+  // Register Chart.js components
+  Chart.Chart.register(
+    Chart.LineElement,
+    Chart.PointElement,
+    Chart.LineController,
+    Chart.CategoryScale,
+    Chart.LinearScale,
+    Chart.Title,
+    Chart.Tooltip,
+    Chart.Legend,
+    Chart.Filler
+  )
+
+  // Cost Comparison Chart
+  if (costComparisonChart.value && !costComparisonChartInstance.value) {
+    costComparisonChartInstance.value = new Chart.Chart(costComparisonChart.value, {
+      type: 'line',
+      data: {
+        labels: pulls,
+        datasets: [
+          {
+            label: 'Normal Packages',
+            data: sampledNormalCosts,
+            borderColor: 'rgb(239, 68, 68)',
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            tension: 0.2,
+            pointRadius: 3,
+            pointHoverRadius: 5
+          },
+          {
+            label: 'First-Time Bonus',
+            data: sampledFirstTimeCosts,
+            borderColor: 'rgb(34, 197, 94)',
+            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+            tension: 0.2,
+            pointRadius: 3,
+            pointHoverRadius: 5
+          }
+        ]
+      },
+      options: getChartOptions()
+    })
+  }
+
+  // Savings Chart
+  if (savingsChart.value && !savingsChartInstance.value) {
+    savingsChartInstance.value = new Chart.Chart(savingsChart.value, {
+      type: 'line',
+      data: {
+        labels: pulls,
+        datasets: [
+          {
+            label: 'Savings ($)',
+            data: savings.value,
+            borderColor: 'rgb(168, 85, 247)',
+            backgroundColor: 'rgba(168, 85, 247, 0.1)',
+            tension: 0.2,
+            fill: true,
+            pointRadius: 3,
+            pointHoverRadius: 5
+          }
+        ]
+      },
+      options: getChartOptions()
+    })
+  }
+
+  // Cost per Pull Chart
+  if (costPerPullChart.value && !costPerPullChartInstance.value) {
+    costPerPullChartInstance.value = new Chart.Chart(costPerPullChart.value, {
+      type: 'line',
+      data: {
+        labels: pulls,
+        datasets: [
+          {
+            label: 'Normal ($/pull)',
+            data: costPerPullNormal.value,
+            borderColor: 'rgb(239, 68, 68)',
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            tension: 0.2,
+            pointRadius: 3,
+            pointHoverRadius: 5
+          },
+          {
+            label: 'First-Time ($/pull)',
+            data: costPerPullFirstTime.value,
+            borderColor: 'rgb(34, 197, 94)',
+            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+            tension: 0.2,
+            pointRadius: 3,
+            pointHoverRadius: 5
+          }
+        ]
+      },
+      options: getChartOptions()
+    })
+  }
 }
+
+// Destroy charts
+const destroyCharts = () => {
+  if (costComparisonChartInstance.value) {
+    costComparisonChartInstance.value.destroy()
+    costComparisonChartInstance.value = null
+  }
+  if (savingsChartInstance.value) {
+    savingsChartInstance.value.destroy()
+    savingsChartInstance.value = null
+  }
+  if (costPerPullChartInstance.value) {
+    costPerPullChartInstance.value.destroy()
+    costPerPullChartInstance.value = null
+  }
+}
+
+// Lifecycle hooks
+onMounted(() => {
+  nextTick(() => {
+    createCharts()
+  })
+})
+
+onUnmounted(() => {
+  destroyCharts()
+})
 </script>
