@@ -240,8 +240,8 @@ const barChartData = computed(() => ({
     {
       label: 'Normal Cost/Pull',
       data: normalPackages.map(pkg => {
-        // Show actual cost per pull, or null for packages with 0 pulls
-        return pkg.pullsFromPackage === 0 ? null : parseFloat(pkg.costPerPull.toFixed(2))
+        // Show actual cost per pull
+        return parseFloat(pkg.costPerPull.toFixed(2))
       }),
       backgroundColor: 'rgba(239, 68, 68, 0.7)',
       borderColor: 'rgb(239, 68, 68)',
@@ -250,8 +250,8 @@ const barChartData = computed(() => ({
     {
       label: 'First-Time Cost/Pull',
       data: firstTimeBonusPackages.map(pkg => {
-        // Show actual cost per pull, or null for packages with 0 pulls
-        return pkg.pullsFromPackage === 0 ? null : parseFloat(pkg.costPerPull.toFixed(2))
+        // Show actual cost per pull
+        return parseFloat(pkg.costPerPull.toFixed(2))
       }),
       backgroundColor: 'rgba(34, 197, 94, 0.7)',
       borderColor: 'rgb(34, 197, 94)',
