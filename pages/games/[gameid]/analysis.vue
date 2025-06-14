@@ -197,10 +197,10 @@ const scatterChartData = computed(() => {
     datasets: [
       {
         label: 'Normal Packages',
-        data: processedPackages.normal?.map((pkg, index) => ({
+        data: processedPackages.normal?.map((pkg) => ({
           x: pkg.pullsFromPackage,
           y: parseFloat(pkg.price.toFixed(2)),
-          packageName: `Normal Package ${index + 1}`
+          packageName: pkg.name
         })) || [],
         backgroundColor: 'rgba(239, 68, 68, 0.8)',
         borderColor: 'rgb(239, 68, 68)',
@@ -209,10 +209,10 @@ const scatterChartData = computed(() => {
       },
       {
         label: 'First-Time Bonus Packages',
-        data: processedPackages.first_time_bonus?.map((pkg, index) => ({
+        data: processedPackages.first_time_bonus?.map((pkg) => ({
           x: pkg.pullsFromPackage,
           y: parseFloat(pkg.price.toFixed(2)),
-          packageName: `Bonus Package ${index + 1}`
+          packageName: pkg.name
         })) || [],
         backgroundColor: 'rgba(34, 197, 94, 0.8)',
         borderColor: 'rgb(34, 197, 94)',
