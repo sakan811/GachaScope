@@ -31,11 +31,11 @@
 
     <!-- Header -->
     <div class="text-center mb-6 sm:mb-8">
-      <div class="text-4xl sm:text-6xl mb-4">{{ gameData.metadata.icon }}</div>
+      <div class="text-4xl sm:text-6xl mb-4">🌟</div>
       <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4 px-2">
         <span class="block sm:inline">{{ gameData.metadata.name }}</span>
         <span class="block sm:inline sm:before:content-[' - ']">{{ " " }}</span>
-        <span class="block sm:inline sm:before:content-[' - ']">{{ gameData.metadata.currency.name }} Analysis</span>
+        <span class="block sm:inline">{{ gameData.metadata.currency.name }} Analysis</span>
       </h1>
       <p class="text-sm sm:text-base lg:text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto px-4">
         Comprehensive analysis of {{ gameData.metadata.currency.name.toLowerCase() }} packages for {{ gameData.metadata.name }}. 
@@ -54,7 +54,7 @@
       <!-- Mobile View: Stacked Cards -->
       <div class="block lg:hidden space-y-6">
         <!-- Normal Packages Mobile -->
-        <div>
+        <div v-if="processedPackages.normal">
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Normal Packages</h3>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div v-for="(pkg, index) in processedPackages.normal" :key="index" 
@@ -63,12 +63,12 @@
                 <div class="text-lg font-bold text-gray-900 dark:text-white">${{ pkg.price.toFixed(2) }}</div>
                 <div class="text-right">
                   <div :class="pkg.pullsFromPackage === 0 ? 'text-red-500 font-medium' : 'text-gray-900 dark:text-white font-semibold'">
-                    {{ pkg.pullsFromPackage }} warps
+                    {{ pkg.pullsFromPackage }} {{ gameData.metadata.pull.name.toLowerCase() }}s
                   </div>
                 </div>
               </div>
               <div class="text-sm text-gray-600 dark:text-gray-300 mb-1">
-                {{ pkg.totalAmount }} shards
+                {{ pkg.totalAmount }} {{ gameData.metadata.currency.shortName.toLowerCase() }}
               </div>
               <div class="text-xs text-gray-500 dark:text-gray-400">
                 {{ pkg.leftoverAmount }} leftover
@@ -78,7 +78,7 @@
         </div>
 
         <!-- First-Time Bonus Packages Mobile -->
-        <div>
+        <div v-if="processedPackages.first_time_bonus">
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">First-Time Bonus Packages</h3>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div v-for="(pkg, index) in processedPackages.first_time_bonus" :key="index" 
@@ -87,12 +87,12 @@
                 <div class="text-lg font-bold text-gray-900 dark:text-white">${{ pkg.price.toFixed(2) }}</div>
                 <div class="text-right">
                   <div :class="pkg.pullsFromPackage === 0 ? 'text-red-500 font-medium' : 'text-green-600 dark:text-green-400 font-semibold'">
-                    {{ pkg.pullsFromPackage }} warps
+                    {{ pkg.pullsFromPackage }} {{ gameData.metadata.pull.name.toLowerCase() }}s
                   </div>
                 </div>
               </div>
               <div class="text-sm text-gray-600 dark:text-gray-300 mb-1">
-                {{ pkg.totalAmount }} shards
+                {{ pkg.totalAmount }} {{ gameData.metadata.currency.shortName.toLowerCase() }}
               </div>
               <div class="text-xs text-gray-500 dark:text-gray-400">
                 {{ pkg.leftoverAmount }} leftover
@@ -106,14 +106,14 @@
       <div class="hidden lg:block">
         <div class="grid grid-cols-2 gap-8">
           <!-- Normal Packages Desktop -->
-          <div>
+          <div v-if="processedPackages.normal">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Normal Packages</h3>
             <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
               <div class="bg-red-50 dark:bg-red-900/20 px-4 py-3 border-b border-red-200 dark:border-red-800">
                 <div class="grid grid-cols-4 gap-4 text-sm font-medium text-gray-700 dark:text-gray-300">
                   <div>Price</div>
-                  <div>Shards</div>
-                  <div>Warps</div>
+                  <div>{{ gameData.metadata.currency.shortName }}</div>
+                  <div>{{ gameData.metadata.pull.name }}s</div>
                   <div>Leftover</div>
                 </div>
               </div>
@@ -140,14 +140,14 @@
           </div>
 
           <!-- First-Time Bonus Packages Desktop -->
-          <div>
+          <div v-if="processedPackages.first_time_bonus">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">First-Time Bonus Packages</h3>
             <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
               <div class="bg-green-50 dark:bg-green-900/20 px-4 py-3 border-b border-green-200 dark:border-green-800">
                 <div class="grid grid-cols-4 gap-4 text-sm font-medium text-gray-700 dark:text-gray-300">
                   <div>Price</div>
-                  <div>Shards</div>
-                  <div>Warps</div>
+                  <div>{{ gameData.metadata.currency.shortName }}</div>
+                  <div>{{ gameData.metadata.pull.name }}s</div>
                   <div>Leftover</div>
                 </div>
               </div>
@@ -214,7 +214,7 @@
         <div class="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-600 dark:text-gray-300">
           Cost per {{ gameData.metadata.pull.name.toLowerCase() }} for each package. Lower is better.
         </div>
-        <div v-if="processedPackages.normal.some(pkg => pkg.pullsFromPackage === 0) || processedPackages.first_time_bonus.some(pkg => pkg.pullsFromPackage === 0)" 
+        <div v-if="hasZeroPullPackages" 
              class="mt-2 text-xs sm:text-sm text-gray-600 dark:text-gray-300 italic">
           Note: Packages with 0 pulls are not included in efficiency calculations
         </div>
@@ -295,29 +295,50 @@ useHead({
 const analysisResult = analyzeGame(gameId)
 const processedPackages = getProcessedPackages(gameId)
 
-// Computed chart data and options
+// Computed properties
+const hasZeroPullPackages = computed(() => {
+  if (!processedPackages) return false
+  return Object.values(processedPackages).some(packages => 
+    packages?.some(pkg => pkg.pullsFromPackage === 0)
+  )
+})
+
 const scatterChartData = computed(() => {
-  if (!analysisResult || !processedPackages) return { datasets: [] }
+  if (!processedPackages) return { datasets: [] }
   
-  const createDataset = (packages, label, bgColor, borderColor) => ({
-    label,
-    data: packages?.map(pkg => ({
-      x: pkg.pullsFromPackage,
-      y: parseFloat(pkg.price.toFixed(2)),
-      packageName: pkg.name
-    })) || [],
-    backgroundColor: bgColor,
-    borderColor,
-    pointRadius: 6,
-    pointHoverRadius: 10
-  })
+  const datasets = []
   
-  return {
-    datasets: [
-      createDataset(processedPackages.normal, 'Normal Packages', 'rgba(239, 68, 68, 0.8)', 'rgb(239, 68, 68)'),
-      createDataset(processedPackages.first_time_bonus, 'First-Time Bonus Packages', 'rgba(34, 197, 94, 0.8)', 'rgb(34, 197, 94)')
-    ]
+  if (processedPackages.normal?.length) {
+    datasets.push({
+      label: 'Normal Packages',
+      data: processedPackages.normal.map(pkg => ({
+        x: pkg.pullsFromPackage,
+        y: parseFloat(pkg.price.toFixed(2)),
+        packageName: pkg.name
+      })),
+      backgroundColor: 'rgba(239, 68, 68, 0.8)',
+      borderColor: 'rgb(239, 68, 68)',
+      pointRadius: 6,
+      pointHoverRadius: 10
+    })
   }
+  
+  if (processedPackages.first_time_bonus?.length) {
+    datasets.push({
+      label: 'First-Time Bonus',
+      data: processedPackages.first_time_bonus.map(pkg => ({
+        x: pkg.pullsFromPackage,
+        y: parseFloat(pkg.price.toFixed(2)),
+        packageName: pkg.name
+      })),
+      backgroundColor: 'rgba(34, 197, 94, 0.8)',
+      borderColor: 'rgb(34, 197, 94)',
+      pointRadius: 6,
+      pointHoverRadius: 10
+    })
+  }
+  
+  return { datasets }
 })
 
 const barChartData = computed(() => {
@@ -326,19 +347,27 @@ const barChartData = computed(() => {
   const validNormal = processedPackages.normal?.filter(pkg => pkg.pullsFromPackage > 0) || []
   const validBonus = processedPackages.first_time_bonus?.filter(pkg => pkg.pullsFromPackage > 0) || []
   
+  const allLabels = [...validNormal, ...validBonus].map(pkg => pkg.name)
+  
   return {
-    labels: validNormal.map(pkg => pkg.name),
+    labels: allLabels,
     datasets: [
       {
         label: `Normal Cost/${gameData.metadata.pull.name}`,
-        data: validNormal.map(pkg => parseFloat(pkg.costPerPull.toFixed(2))),
+        data: allLabels.map(label => {
+          const pkg = validNormal.find(p => p.name === label)
+          return pkg ? parseFloat(pkg.costPerPull.toFixed(2)) : null
+        }),
         backgroundColor: 'rgba(239, 68, 68, 0.7)',
         borderColor: 'rgb(239, 68, 68)',
         borderWidth: 1
       },
       {
         label: `First-Time Cost/${gameData.metadata.pull.name}`,
-        data: validBonus.map(pkg => parseFloat(pkg.costPerPull.toFixed(2))),
+        data: allLabels.map(label => {
+          const pkg = validBonus.find(p => p.name === label)
+          return pkg ? parseFloat(pkg.costPerPull.toFixed(2)) : null
+        }),
         backgroundColor: 'rgba(34, 197, 94, 0.7)',
         borderColor: 'rgb(34, 197, 94)',
         borderWidth: 1
@@ -397,7 +426,7 @@ const createChartOptions = (isScatter = false) => {
       bodyFont: { size: isMobile ? 10 : 12 },
       callbacks: {
         title: (context) => context[0].raw.packageName,
-        label: (context) => `${context.parsed.y.toFixed(2)} for ${context.parsed.x} ${gameData.metadata.pull.name.toLowerCase()}s`
+        label: (context) => `$${context.parsed.y.toFixed(2)} for ${context.parsed.x} ${gameData.metadata.pull.name.toLowerCase()}s`
       }
     }
   }
@@ -409,7 +438,7 @@ const scatterChartOptions = computed(() => createChartOptions(true))
 const barChartOptions = computed(() => createChartOptions(false))
 
 const insightStats = computed(() => {
-  if (!analysisResult || !processedPackages) return []
+  if (!analysisResult) return []
   
   const formatValue = (value, prefix = '$') => 
     Number.isFinite(value) ? `${prefix}${value.toFixed(2)}` : 'N/A'
@@ -422,7 +451,7 @@ const insightStats = computed(() => {
     },
     { 
       label: 'Best Package', 
-      value: analysisResult.insights.bestPackageName, 
+      value: analysisResult.insights.bestPackageName || 'N/A', 
       color: 'text-blue-600 dark:text-blue-400' 
     },
     { 

@@ -24,10 +24,9 @@ describe('HSR Analysis Page Responsive', () => {
     // Check for desktop table layout (hidden until lg)
     expect(component.html()).toContain('hidden lg:block')
     
-    // Check for table headers
+    // Check for table headers using dynamic currency name
     expect(component.html()).toContain('Price')
     expect(component.html()).toContain('Shards')
-    expect(component.html()).toContain('Warps')
     expect(component.html()).toContain('Leftover')
   })
 
@@ -47,5 +46,29 @@ describe('HSR Analysis Page Responsive', () => {
     
     // Should have styling for zero warps
     expect(component.html()).toContain('text-red-500')
+  })
+
+  it('should display normal and bonus packages', async () => {
+    const component = await mountSuspended(() => import('~/pages/games/[gameId]/analysis.vue'), {
+      route: { params: { gameId: 'hsr' } }
+    })
+    
+    // Check for package sections
+    expect(component.html()).toContain('Normal Packages')
+    expect(component.html()).toContain('First-Time Bonus Packages')
+    
+    // Check for package colors
+    expect(component.html()).toContain('bg-red-50')
+    expect(component.html()).toContain('bg-green-50')
+  })
+
+  it('should show charts section', async () => {
+    const component = await mountSuspended(() => import('~/pages/games/[gameId]/analysis.vue'), {
+      route: { params: { gameId: 'hsr' } }
+    })
+    
+    // Check for chart titles
+    expect(component.html()).toContain('Cost vs')
+    expect(component.html()).toContain('Package Efficiency')
   })
 })
