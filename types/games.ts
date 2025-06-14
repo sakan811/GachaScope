@@ -64,23 +64,17 @@ export interface GameMetadata {
 
 export interface GameData {
   metadata: GameMetadata;
-  packages: {
-    normal: PurchasePackage[];
-    firstTimeBonus: PurchasePackage[];
-    limited?: PurchasePackage[];
-  };
+  packages: Partial<Record<PurchaseType, PurchasePackage[]>>;
 }
+
+export type ChartKey = PurchaseType | 'combined'
 
 export interface GameAnalysisResult {
   gameId: string;
-  scenarios: {
-    normal: PurchaseScenario[];
-    firstTimeBonus: PurchaseScenario[];
-    combined?: PurchaseScenario[];
-  };
+  scenarios: Partial<Record<ChartKey, PurchaseScenario[]>>;
   chartData: {
-    costVsPulls: Array<{ pulls: number; cost: number; scenario: string; type: string }>;
-    efficiency: Array<{ package: string; costPerPull: number; type: string }>;
+    costVsPulls: Array<{ pulls: number; cost: number; scenario: string; type: ChartKey }>;
+    efficiency: Array<{ package: string; costPerPull: number; type: PurchaseType | 'combined' }>;
     savings: Array<{ package: string; savings: number; pulls: number }>;
   };
   insights: {

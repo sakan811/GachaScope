@@ -2,16 +2,15 @@ import type {
   PurchasePackage, 
   ProcessedPackage, 
   PurchaseScenario, 
-  GameData,
-  GameAnalysisResult 
+  GameData, 
+  GameAnalysisResult, 
+  PurchaseType, 
+  ChartKey
 } from '~/types/games'
 import { getGameById } from '~/utils/gameRegistry'
 
 export const useGameAnalysis = () => {
-  
-  /**
-   * Process a raw package into analyzed data
-   */
+
   function processPackage(rawPackage: PurchasePackage, pullCost: number): ProcessedPackage {
     const totalAmount = rawPackage.baseAmount + rawPackage.extraAmount
     const amountPerDollar = totalAmount / rawPackage.price
@@ -19,7 +18,7 @@ export const useGameAnalysis = () => {
     const leftoverAmount = totalAmount % pullCost
     const costPerPull = pullsFromPackage > 0 ? rawPackage.price / pullsFromPackage : Infinity
     const efficiency = amountPerDollar
-    
+
     return {
       ...rawPackage,
       totalAmount,
@@ -30,10 +29,7 @@ export const useGameAnalysis = () => {
       efficiency
     }
   }
-  
-  /**
-   * Create a purchase scenario from package combinations
-   */
+
   function createScenario(
     purchases: Array<{ package: ProcessedPackage; count: number }>, 
     scenarioName: string,
@@ -45,7 +41,7 @@ export const useGameAnalysis = () => {
     const leftoverAmount = totalAmount % pullCost
     const efficiency = totalAmount / totalCost
     const costPerPull = totalPulls > 0 ? totalCost / totalPulls : Infinity
-    
+
     return {
       id: `scenario_${scenarioName.toLowerCase().replace(/\s+/g, '_')}`,
       name: scenarioName,
@@ -59,131 +55,113 @@ export const useGameAnalysis = () => {
       costPerPull
     }
   }
-  
-  /**
-   * Generate all possible scenarios for a game
-   */
-  function generateScenarios(gameData: GameData): { normal: PurchaseScenario[]; firstTimeBonus: PurchaseScenario[] } {
+
+  function generateScenarios(gameData: GameData): Partial<Record<PurchaseType, PurchaseScenario[]>> {
     const pullCost = gameData.metadata.pull.cost
     const config = gameData.metadata.analysisConfig
-    
-    const normalPackages = gameData.packages.normal.map(pkg => processPackage(pkg, pullCost))
-    const bonusPackages = gameData.packages.firstTimeBonus.map(pkg => processPackage(pkg, pullCost))
-    
-    const normalScenarios: PurchaseScenario[] = []
-    const firstTimeScenarios: PurchaseScenario[] = []
-    
-    // Generate scenarios for both types
-    const scenarioConfigs = [
-      { packages: normalPackages, scenarios: normalScenarios, type: 'normal' as const },
-      { packages: bonusPackages, scenarios: firstTimeScenarios, type: 'first_time' as const }
-    ]
-    
-    scenarioConfigs.forEach((config_item) => {
-      const { packages, scenarios, type } = config_item
-      
-      // Single package purchases
-      packages.forEach((pkg, index) => {
-        const scenario = createScenario([{ package: pkg, count: 1 }], `${type} package ${index + 1}`, pullCost)
-        scenarios.push(scenario)
-      })
-      
-      if (config.includeMultiPackage) {
-        // Multiple of same package
-        packages.slice(0, Math.min(4, packages.length)).forEach((pkg, index) => {
+
+    const scenarioGroups: Partial<Record<PurchaseType, PurchaseScenario[]>> = {}
+
+    for (const [groupKey, rawPackages] of Object.entries(gameData.packages)) {
+      if (!rawPackages) continue
+
+      const processedPackages = rawPackages.map(pkg => processPackage(pkg, pullCost))
+      const scenarios: PurchaseScenario[] = []
+
+      processedPackages.forEach((pkg, index) => {
+        scenarios.push(createScenario([{ package: pkg, count: 1 }], `${groupKey} package ${index + 1}`, pullCost))
+
+        if (config.includeMultiPackage) {
           for (let count = 2; count <= config.maxPackageMultiplier; count++) {
-            const scenario = createScenario([{ package: pkg, count }], `${count}x ${type} package ${index + 1}`, pullCost)
-            scenarios.push(scenario)
-          }
-        })
-        
-        // Package combinations
-        if (packages.length >= 3) {
-          const combo1 = createScenario(
-            [{ package: packages[1], count: 1 }, { package: packages[2], count: 1 }],
-            `${type} combo: packages 2+3`,
-            pullCost
-          )
-          scenarios.push(combo1)
-          
-          if (packages.length >= 5) {
-            const combo2 = createScenario(
-              [{ package: packages[2], count: 1 }, { package: packages[4], count: 1 }],
-              `${type} combo: packages 3+5`,
-              pullCost
-            )
-            scenarios.push(combo2)
+            scenarios.push(createScenario([{ package: pkg, count }], `${count}x ${groupKey} package ${index + 1}`, pullCost))
           }
         }
+      })
+
+      if (config.includeMultiPackage && processedPackages.length >= 3) {
+        scenarios.push(createScenario(
+          [
+            { package: processedPackages[1], count: 1 },
+            { package: processedPackages[2], count: 1 }
+          ],
+          `${groupKey} combo 2+3`,
+          pullCost
+        ))
       }
-    })
-    
-    // Sort by cost and limit scenarios
-    normalScenarios.sort((a, b) => a.totalCost - b.totalCost)
-    firstTimeScenarios.sort((a, b) => a.totalCost - b.totalCost)
-    
-    return {
-      normal: normalScenarios.slice(0, config.maxScenarios),
-      firstTimeBonus: firstTimeScenarios.slice(0, config.maxScenarios)
+
+      scenarios.sort((a, b) => a.totalCost - b.totalCost)
+
+      if (['normal', 'first_time_bonus', 'limited_time', 'subscription'].includes(groupKey)) {
+        scenarioGroups[groupKey as PurchaseType] = scenarios.slice(0, config.maxScenarios)
+      }
     }
+
+    return scenarioGroups
   }
-  
-  /**
-   * Generate chart data for visualization
-   */
-  function generateChartData(scenarios: { normal: PurchaseScenario[]; firstTimeBonus: PurchaseScenario[] }) {
-    const costVsPulls = [
-      ...scenarios.normal.map(s => ({ pulls: s.totalPulls, cost: s.totalCost, scenario: s.name, type: 'normal' })),
-      ...scenarios.firstTimeBonus.map(s => ({ pulls: s.totalPulls, cost: s.totalCost, scenario: s.name, type: 'bonus' }))
-    ]
-    
-    const efficiency = [
-      ...scenarios.normal.map((s, i) => ({ package: `Normal ${i + 1}`, costPerPull: s.costPerPull, type: 'normal' })),
-      ...scenarios.firstTimeBonus.map((s, i) => ({ package: `Bonus ${i + 1}`, costPerPull: s.costPerPull, type: 'bonus' }))
-    ].filter(item => item.costPerPull !== Infinity)
-    
-    // Calculate savings
-    const savings: Array<{ package: string; savings: number; pulls: number }> = []
-    scenarios.firstTimeBonus.forEach((bonusScenario, index) => {
-      const normalScenario = scenarios.normal[index]
-      if (normalScenario && normalScenario.totalPulls > 0 && bonusScenario.totalPulls > 0) {
-        const pullDiff = bonusScenario.totalPulls - normalScenario.totalPulls
-        const savings_amount = Math.max(0, (pullDiff * normalScenario.costPerPull))
-        
-        if (savings_amount > 0) {
-          savings.push({
-            package: `Package ${index + 1}`,
-            savings: savings_amount,
-            pulls: bonusScenario.totalPulls
-          })
+
+
+  function generateChartData(
+    scenariosByType: Partial<Record<ChartKey, PurchaseScenario[]>>
+  ): {
+    costVsPulls: Array<{ pulls: number; cost: number; scenario: string; type: ChartKey }>;
+    efficiency: Array<{ package: string; costPerPull: number; type: ChartKey }>;
+    savings: Array<{ package: string; savings: number; pulls: number }>;
+  } {
+    const costVsPulls: Array<{ pulls: number; cost: number; scenario: string; type: ChartKey }> = []
+    const efficiency: Array<{ package: string; costPerPull: number; type: ChartKey }> = []
+
+    for (const [type, scenarios] of Object.entries(scenariosByType) as [ChartKey, PurchaseScenario[]][]) {
+      scenarios.forEach((s, i) => {
+        costVsPulls.push({ pulls: s.totalPulls, cost: s.totalCost, scenario: s.name, type })
+        if (s.costPerPull !== Infinity) {
+          efficiency.push({ package: `${type} ${i + 1}`, costPerPull: s.costPerPull, type })
         }
+      })
+    }
+
+    const savings: Array<{ package: string; savings: number; pulls: number }> = []
+    const normal = scenariosByType['normal'] || []
+    const bonus = scenariosByType['first_time_bonus'] || []
+
+    for (let i = 0; i < Math.min(normal.length, bonus.length); i++) {
+      const pullDiff = bonus[i].totalPulls - normal[i].totalPulls
+      const savingsAmount = Math.max(0, pullDiff * normal[i].costPerPull)
+      if (savingsAmount > 0) {
+        savings.push({
+          package: `Package ${i + 1}`,
+          savings: savingsAmount,
+          pulls: bonus[i].totalPulls
+        })
       }
-    })
-    
+    }
+
     return { costVsPulls, efficiency, savings }
   }
-  
-  /**
-   * Generate insights
-   */
+
+
   function generateInsights(
-    scenarios: { normal: PurchaseScenario[]; firstTimeBonus: PurchaseScenario[] },
+    scenarios: Partial<Record<PurchaseType, PurchaseScenario[]>>,
     chartData: ReturnType<typeof generateChartData>
   ) {
-    const allBonusScenarios = scenarios.firstTimeBonus.filter(s => s.totalPulls > 0)
-    const maxSavings = chartData.savings.length > 0 ? Math.max(...chartData.savings.map(s => s.savings)) : 0
-    
-    // Fixed: Handle empty array case for reduce by providing a default value
-    const bestPackage = allBonusScenarios.length > 0 
-      ? allBonusScenarios.reduce((best, scenario) => 
-          scenario.costPerPull < best.costPerPull ? scenario : best
-        ).packages[0].package
-      : scenarios.firstTimeBonus[0]?.packages[0]?.package || scenarios.normal[0]?.packages[0]?.package
-    
-    const avgSavings = chartData.savings.length > 0 
-      ? chartData.savings.reduce((sum, s) => sum + s.savings, 0) / chartData.savings.length 
+    const normalScenarios = scenarios.normal ?? []
+    const bonusScenarios = scenarios.first_time_bonus ?? []
+
+    const allBonusScenarios = bonusScenarios.filter(s => s.totalPulls > 0)
+
+    const maxSavings = chartData.savings.length > 0
+      ? Math.max(...chartData.savings.map(s => s.savings))
       : 0
-        
+
+    const bestScenario = allBonusScenarios.length > 0
+      ? allBonusScenarios.reduce((best, s) => s.costPerPull < best.costPerPull ? s : best)
+      : bonusScenarios[0] || normalScenarios[0]
+
+    const bestPackage = bestScenario?.packages?.[0]?.package
+
+    const avgSavings = chartData.savings.length > 0
+      ? chartData.savings.reduce((sum, s) => sum + s.savings, 0) / chartData.savings.length
+      : 0
+
     return {
       maxSavings,
       bestPackage,
@@ -191,21 +169,18 @@ export const useGameAnalysis = () => {
     }
   }
   
-  /**
-   * Complete analysis for a specific game
-   */
   function analyzeGame(gameId: string): GameAnalysisResult | null {
     const gameData = getGameById(gameId)
     if (!gameData) {
       console.error(`Game with ID '${gameId}' not found`)
       return null
     }
-    
+
     try {
       const scenarios = generateScenarios(gameData)
       const chartData = generateChartData(scenarios)
       const insights = generateInsights(scenarios, chartData)
-      
+
       return {
         gameId,
         scenarios,
@@ -217,22 +192,21 @@ export const useGameAnalysis = () => {
       return null
     }
   }
-  
-  /**
-   * Get processed packages for a game
-   */
-  function getProcessedPackages(gameId: string) {
+
+  function getProcessedPackages(gameId: string): Record<string, ProcessedPackage[]> | null {
     const gameData = getGameById(gameId)
     if (!gameData) return null
-    
+
     const pullCost = gameData.metadata.pull.cost
-    
-    return {
-      normal: gameData.packages.normal.map(pkg => processPackage(pkg, pullCost)),
-      firstTimeBonus: gameData.packages.firstTimeBonus.map(pkg => processPackage(pkg, pullCost))
+    const result: Record<string, ProcessedPackage[]> = {}
+
+    for (const [type, packages] of Object.entries(gameData.packages)) {
+      result[type] = packages.map(pkg => processPackage(pkg, pullCost))
     }
+
+    return result
   }
-  
+
   return {
     processPackage,
     createScenario,
