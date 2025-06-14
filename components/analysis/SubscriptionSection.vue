@@ -87,6 +87,9 @@
           <div class="text-center p-2 sm:p-3">
             <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-1 sm:mb-2">{{ stat.label }}</div>
             <div class="text-lg sm:text-xl font-bold break-words" :class="stat.color">{{ stat.value }}</div>
+            <div v-if="stat.explanation" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              {{ stat.explanation }}
+            </div>
           </div>
         </UCard>
       </div>
@@ -141,12 +144,14 @@ const subscriptionStats = computed(() => {
     { 
       label: 'Monthly Total', 
       value: formatValue(subscriptionAnalysis.value.totalMonthlyValue), 
-      color: 'text-purple-600 dark:text-purple-400' 
+      color: 'text-purple-600 dark:text-purple-400',
+      explanation: 'Total monthly cost for all subscriptions'
     },
     { 
       label: `Monthly ${props.gameData.metadata.pull.name}s`, 
       value: subscriptionAnalysis.value.totalMonthlyPulls.toString(), 
-      color: 'text-gray-900 dark:text-white' 
+      color: 'text-gray-900 dark:text-white',
+      explanation: 'Total pulls per month from all subscriptions'
     }
   ]
 })
