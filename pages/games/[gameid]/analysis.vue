@@ -43,6 +43,12 @@
       </p>
     </div>
 
+    <!-- Subscription Packages -->
+    <AnalysisSubscriptionSection 
+      :game-data="gameData" 
+      :subscription-packages="processedPackages.subscription || []" 
+    />
+
     <!-- Package Comparison -->
     <UCard class="mb-6 sm:mb-8">
       <template #header>
