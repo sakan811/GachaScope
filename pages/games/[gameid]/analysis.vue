@@ -199,7 +199,7 @@
           />
         </div>
         <div class="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-600 dark:text-gray-300">
-          Shows cost vs {{ gameData.metadata.pull.name.toLowerCase() }}s for each package. Green dots represent better value from first-time bonuses.
+          Shows cost vs {{ gameData.metadata.pull.name.toLowerCase() }}s for all package types including subscriptions. Different colors represent different package types.
         </div>
       </UCard>
 
@@ -218,7 +218,7 @@
           />
         </div>
         <div class="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-600 dark:text-gray-300">
-          Cost per {{ gameData.metadata.pull.name.toLowerCase() }} for each package. Lower is better.
+          Cost per {{ gameData.metadata.pull.name.toLowerCase() }} grouped by package type. Lower is better.
         </div>
         <div v-if="hasZeroPullPackages" 
              class="mt-2 text-xs sm:text-sm text-gray-600 dark:text-gray-300 italic">
@@ -231,7 +231,7 @@
     <UCard class="mb-6 sm:mb-8">
       <template #header>
         <h2 class="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-          <UIcon name="i-heroicons-currency-dollar" class="w-5 h-5 sm:w-6 sm:h-6" />Summary
+          <UIcon name="i-heroicons-currency-dollar" class="w-5 h-5 sm:w-6 sm:h-6" />Package Value Analysis
         </h2>
       </template>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
@@ -275,7 +275,7 @@ ChartJS.register(
 )
 
 const route = useRoute()
-const { analyzeGame, getProcessedPackages } = useGameAnalysis()
+const { analyzeGame, getProcessedPackages, generateChartsFromPackages } = useGameAnalysis()
 const gameId = route.params.gameId
 
 // Get game data
@@ -300,6 +300,7 @@ useHead({
 // Get analysis data
 const analysisResult = analyzeGame(gameId)
 const processedPackages = getProcessedPackages(gameId)
+const chartsData = processedPackages ? generateChartsFromPackages(processedPackages) : null
 
 // Computed properties
 const hasZeroPullPackages = computed(() => {
@@ -310,76 +311,84 @@ const hasZeroPullPackages = computed(() => {
 })
 
 const scatterChartData = computed(() => {
-  if (!processedPackages) return { datasets: [] }
+  if (!chartsData) return { datasets: [] }
   
-  const datasets = []
-  
-  if (processedPackages.normal?.length) {
-    datasets.push({
-      label: 'Normal Packages',
-      data: processedPackages.normal.map(pkg => ({
-        x: pkg.pullsFromPackage,
-        y: parseFloat(pkg.price.toFixed(2)),
-        packageName: pkg.name
-      })),
-      backgroundColor: 'rgba(239, 68, 68, 0.8)',
-      borderColor: 'rgb(239, 68, 68)',
-      pointRadius: 6,
-      pointHoverRadius: 10
-    })
+  const packageTypeColors = {
+    normal: { bg: 'rgba(239, 68, 68, 0.8)', border: 'rgb(239, 68, 68)' },
+    first_time_bonus: { bg: 'rgba(34, 197, 94, 0.8)', border: 'rgb(34, 197, 94)' },
+    subscription: { bg: 'rgba(59, 130, 246, 0.8)', border: 'rgb(59, 130, 246)' },
+    limited_time: { bg: 'rgba(168, 85, 247, 0.8)', border: 'rgb(168, 85, 247)' }
   }
   
-  if (processedPackages.first_time_bonus?.length) {
-    datasets.push({
-      label: 'First-Time Bonus',
-      data: processedPackages.first_time_bonus.map(pkg => ({
-        x: pkg.pullsFromPackage,
-        y: parseFloat(pkg.price.toFixed(2)),
-        packageName: pkg.name
-      })),
-      backgroundColor: 'rgba(34, 197, 94, 0.8)',
-      borderColor: 'rgb(34, 197, 94)',
-      pointRadius: 6,
-      pointHoverRadius: 10
-    })
+  const typeLabels = {
+    normal: 'Normal Packages',
+    first_time_bonus: 'First-Time Bonus',
+    subscription: 'Subscription',
+    limited_time: 'Limited Time'
   }
+  
+  const groupedData = {}
+  
+  chartsData.scatterData.forEach(point => {
+    if (!groupedData[point.type]) {
+      groupedData[point.type] = []
+    }
+    groupedData[point.type].push({
+      x: point.x,
+      y: parseFloat(point.y.toFixed(2)),
+      packageName: point.packageName
+    })
+  })
+  
+  const datasets = Object.entries(groupedData).map(([type, data]) => ({
+    label: typeLabels[typeLabels] || type,
+    data,
+    backgroundColor: packageTypeColors[type]?.bg || 'rgba(156, 163, 175, 0.8)',
+    borderColor: packageTypeColors[type]?.border || 'rgb(156, 163, 175)',
+    pointRadius: 6,
+    pointHoverRadius: 10
+  }))
   
   return { datasets }
 })
 
 const barChartData = computed(() => {
-  if (!processedPackages) return { labels: [], datasets: [] }
+  if (!chartsData) return { labels: [], datasets: [] }
   
-  const validNormal = processedPackages.normal?.filter(pkg => pkg.pullsFromPackage > 0) || []
-  const validBonus = processedPackages.first_time_bonus?.filter(pkg => pkg.pullsFromPackage > 0) || []
-  
-  const allLabels = [...validNormal, ...validBonus].map(pkg => pkg.name)
-  
-  return {
-    labels: allLabels,
-    datasets: [
-      {
-        label: `Normal Cost/${gameData.metadata.pull.name}`,
-        data: allLabels.map(label => {
-          const pkg = validNormal.find(p => p.name === label)
-          return pkg ? parseFloat(pkg.costPerPull.toFixed(2)) : null
-        }),
-        backgroundColor: 'rgba(239, 68, 68, 0.7)',
-        borderColor: 'rgb(239, 68, 68)',
-        borderWidth: 1
-      },
-      {
-        label: `First-Time Cost/${gameData.metadata.pull.name}`,
-        data: allLabels.map(label => {
-          const pkg = validBonus.find(p => p.name === label)
-          return pkg ? parseFloat(pkg.costPerPull.toFixed(2)) : null
-        }),
-        backgroundColor: 'rgba(34, 197, 94, 0.7)',
-        borderColor: 'rgb(34, 197, 94)',
-        borderWidth: 1
-      }
-    ]
+  const packageTypeColors = {
+    normal: { bg: 'rgba(239, 68, 68, 0.7)', border: 'rgb(239, 68, 68)' },
+    first_time_bonus: { bg: 'rgba(34, 197, 94, 0.7)', border: 'rgb(34, 197, 94)' },
+    subscription: { bg: 'rgba(59, 130, 246, 0.7)', border: 'rgb(59, 130, 246)' },
+    limited_time: { bg: 'rgba(168, 85, 247, 0.7)', border: 'rgb(168, 85, 247)' }
   }
+  
+  const typeLabels = {
+    normal: 'Normal',
+    first_time_bonus: 'First-Time Bonus',
+    subscription: 'Subscription',
+    limited_time: 'Limited Time'
+  }
+  
+  // Get all unique package names across all types
+  const allPackageNames = new Set()
+  Object.values(chartsData.barData).forEach(packages => {
+    packages.forEach(pkg => allPackageNames.add(pkg.package))
+  })
+  
+  const labels = Array.from(allPackageNames)
+  
+  const datasets = Object.entries(chartsData.barData).map(([type, packages]) => ({
+    label: `${typeLabels[type] || type} Cost/${gameData.metadata.pull.name}`,
+    data: labels.map(label => {
+      const pkg = packages.find(p => p.package === label)
+      return pkg ? parseFloat(pkg.costPerPull.toFixed(2)) : null
+    }),
+    backgroundColor: packageTypeColors[type]?.bg || 'rgba(156, 163, 175, 0.7)',
+    borderColor: packageTypeColors[type]?.border || 'rgb(156, 163, 175)',
+    borderWidth: 1
+  }))
+  
+  return { labels, datasets }
 })
 
 const createChartOptions = (isScatter = false) => {
