@@ -52,7 +52,7 @@ export function createPackage(shardsPrice: ShardsPrice): ShardsPackage {
   const shardsPerDollar = totalShards / shardsPrice.price;
   const pullsFromPackage = Math.floor(totalShards / SHARDS_PER_PULL);
   const leftoverShards = totalShards % SHARDS_PER_PULL;
-  const costPerPull = pullsFromPackage > 0 ? shardsPrice.price / pullsFromPackage : Infinity;
+  const costPerPull = pullsFromPackage > 0 ? shardsPrice.price / pullsFromPackage : shardsPrice.price;
   
   return {
     ...shardsPrice,
