@@ -21,6 +21,7 @@
   "devDependencies": {
     "@nuxt/test-utils": "^3.19.1",
     "jsdom": "^26.1.0",
-    "vitest": "^3.2.3"
+    "vitest": "^3.2.3",
+    "vue-tsc": "^2.2.10"
   }
 }
