@@ -16,6 +16,17 @@
   </div>
 
   <div v-else class="container mx-auto px-4 py-8 max-w-7xl">
+    <!-- Back Button -->
+    <div class="mb-6">
+      <UButton 
+        variant="ghost" 
+        icon="i-heroicons-arrow-left" 
+        @click="navigateTo('/')"
+      >
+        Back to Home
+      </UButton>
+    </div>
+
     <!-- Header -->
     <div class="text-center mb-8">
       <div class="text-6xl mb-4">{{ gameData.metadata.icon }}</div>
