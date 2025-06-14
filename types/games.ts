@@ -79,7 +79,9 @@ export interface GameAnalysisResult {
   };
   insights: {
     maxSavings: number;
-    bestPackage: ProcessedPackage;
+    bestPackage: ProcessedPackage | null;
+    bestScenario: PurchaseScenario | null;
     avgSavings: number;
+    bestPackageName: string;
   };
 }
