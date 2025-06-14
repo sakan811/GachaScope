@@ -207,7 +207,7 @@
       <UCard>
         <template #header>
           <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <UIcon name="i-heroicons-chart-pie" class="w-4 h-4 sm:w-5 sm:h-5" />Package Efficiency
+            <UIcon name="i-heroicons-chart-pie" class="w-4 h-4 sm:w-5 sm:h-5" />Package and Subscription Efficiency
           </h3>
         </template>
         <div class="h-64 sm:h-80 w-full">
@@ -218,7 +218,7 @@
           />
         </div>
         <div class="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-600 dark:text-gray-300">
-          Cost per {{ gameData.metadata.pull.name.toLowerCase() }} grouped by package type. Lower is better.
+          Cost per {{ gameData.metadata.pull.name.toLowerCase() }} grouped by package and subscription type. Lower is better.
         </div>
         <div v-if="hasZeroPullPackages" 
              class="mt-2 text-xs sm:text-sm text-gray-600 dark:text-gray-300 italic">
