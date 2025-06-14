@@ -62,11 +62,15 @@
             <UIcon name="i-heroicons-chart-bar" />Cost vs Pulls Obtained
           </h3>
         </template>
-        <div class="h-80">
-          <canvas ref="costVsPullsChart"></canvas>
+        <div class="h-80 w-full">
+          <Scatter 
+            :data="scatterChartData" 
+            :options="scatterChartOptions" 
+            :height="320"
+          />
         </div>
         <div class="mt-4 text-sm text-gray-600 dark:text-gray-300">
-          Shows the relationship between spending and pulls you actually get from package purchases.
+          Shows cost vs pulls for each individual package. Green dots represent better value from first-time bonuses.
         </div>
       </UCard>
 
@@ -77,11 +81,15 @@
             <UIcon name="i-heroicons-chart-pie" />Package Efficiency
           </h3>
         </template>
-        <div class="h-80">
-          <canvas ref="efficiencyChart"></canvas>
+        <div class="h-80 w-full">
+          <Bar 
+            :data="barChartData" 
+            :options="barChartOptions" 
+            :height="320"
+          />
         </div>
         <div class="mt-4 text-sm text-gray-600 dark:text-gray-300">
-          Cost per pull for each individual package. Lower is better.
+          Cost per pull for each individual package. Lower is better. First-time bonus packages show dramatic savings.
         </div>
       </UCard>
     </div>
@@ -90,11 +98,15 @@
     <UCard class="mb-8">
       <template #header>
         <h2 class="text-2xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-          <UIcon name="i-heroicons-currency-dollar" />First-Time Bonus Savings
+          <UIcon name="i-heroicons-currency-dollar" />First-Time Bonus Package Savings
         </h2>
       </template>
-      <div class="h-64 mb-4">
-        <canvas ref="savingsChart"></canvas>
+      <div class="h-64 w-full mb-4">
+        <Bar 
+          :data="savingsChartData" 
+          :options="savingsChartOptions" 
+          :height="256"
+        />
       </div>
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <UCard v-for="stat in savingsStats" :key="stat.label">
@@ -109,175 +121,290 @@
 </template>
 
 <script setup>
-import { normalPackages, firstTimeBonusPackages, normalScenarios, firstTimeScenarios, chartData } from '~/utils/shardsData'
+import { normalPackages, firstTimeBonusPackages } from '~/utils/shardsData'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js'
+import { Bar, Scatter } from 'vue-chartjs'
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+)
 
 useHead({
   title: 'HSR Analysis',
   meta: [{ name: 'description', content: 'Package-based analysis of Honkai Star Rail oneiric shards costs and spending efficiency' }]
 })
 
-// Reactive data
-const selectedTab = ref(0)
-const costVsPullsChart = ref(null)
-const efficiencyChart = ref(null)
-const savingsChart = ref(null)
-const chartInstances = shallowRef({})
-
-// Tab configuration
-const tabItems = [
-  { label: 'Normal Packages', value: 0 },
-  { label: 'First-Time Bonus', value: 1 }
-]
-
-// Computed values
-const displayedScenarios = computed(() => {
-  return selectedTab.value === 0 ? normalScenarios : firstTimeScenarios
-})
-
-const savingsStats = computed(() => {
-  const maxSavings = Math.max(...chartData.savingsData.map(d => d.savings))
-  const maxSavingsScenario = chartData.savingsData.find(d => d.savings === maxSavings)
-  const totalSavings = chartData.savingsData.reduce((sum, d) => sum + d.savings, 0)
-  const avgSavings = totalSavings / chartData.savingsData.length
-  
-  return [
-    { label: 'Max Savings', value: `$${maxSavings.toFixed(2)}`, color: 'text-green-600 dark:text-green-400' },
-    { label: 'Best Scenario', value: `${maxSavingsScenario?.pulls || 0} pulls`, color: 'text-blue-600 dark:text-blue-400' },
-    { label: 'Avg Savings', value: `$${avgSavings.toFixed(2)}`, color: 'text-purple-600 dark:text-purple-400' },
-    { label: 'Scenarios', value: chartData.savingsData.length.toString(), color: 'text-gray-900 dark:text-white' }
+// Scatter Chart Data - Cost vs Pulls
+const scatterChartData = computed(() => ({
+  datasets: [
+    {
+      label: 'Normal Packages',
+      data: normalPackages.map((pkg, index) => ({
+        x: pkg.pullsFromPackage,
+        y: parseFloat(pkg.price.toFixed(2)),
+        packageName: `Normal Package ${index + 1}`
+      })),
+      backgroundColor: 'rgba(239, 68, 68, 0.8)',
+      borderColor: 'rgb(239, 68, 68)',
+      pointRadius: 6,
+      pointHoverRadius: 10
+    },
+    {
+      label: 'First-Time Bonus Packages',
+      data: firstTimeBonusPackages.map((pkg, index) => ({
+        x: pkg.pullsFromPackage,
+        y: parseFloat(pkg.price.toFixed(2)),
+        packageName: `Bonus Package ${index + 1}`
+      })),
+      backgroundColor: 'rgba(34, 197, 94, 0.8)',
+      borderColor: 'rgb(34, 197, 94)',
+      pointRadius: 6,
+      pointHoverRadius: 10
+    }
   ]
-})
+}))
 
-// Chart creation functions
-const createChart = async (canvasRef, config, type = 'line') => {
-  if (process.server || !canvasRef.value) return
-  
-  const Chart = await import('chart.js')
-  Chart.Chart.register(
-    Chart.LineElement, Chart.PointElement, Chart.LineController, Chart.BarElement, Chart.BarController,
-    Chart.CategoryScale, Chart.LinearScale, Chart.Title, Chart.Tooltip, Chart.Legend, Chart.Filler
-  )
-  
-  return new Chart.Chart(canvasRef.value, {
-    type,
-    data: config.data,
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { 
-        legend: { labels: { usePointStyle: true, boxWidth: 6 } },
-        tooltip: config.tooltip || {}
-      },
-      scales: {
-        x: { 
-          grid: { display: false }, 
-          ticks: { maxTicksLimit: 10 },
-          title: { display: true, text: config.xAxisLabel || '' }
+const scatterChartOptions = computed(() => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    title: {
+      display: false
+    },
+    legend: {
+      display: true,
+      position: 'top',
+      labels: {
+        usePointStyle: true,
+        boxWidth: 8
+      }
+    },
+    tooltip: {
+      callbacks: {
+        title: function(context) {
+          return context[0].raw.packageName
         },
-        y: { 
-          beginAtZero: true, 
-          grid: { color: 'rgba(156, 163, 175, 0.1)' },
-          title: { display: true, text: config.yAxisLabel || '' }
+        label: function(context) {
+          return `$${context.parsed.y.toFixed(2)} for ${context.parsed.x} pulls`
         }
       }
     }
-  })
-}
-
-const createCharts = async () => {
-  // Cost vs Pulls Chart
-  if (costVsPullsChart.value && !chartInstances.value.costVsPulls) {
-    chartInstances.value.costVsPulls = await createChart(costVsPullsChart, {
-      data: {
-        datasets: [
-          {
-            label: 'Normal Packages',
-            data: chartData.normalData.map(d => ({ x: d.pulls, y: d.cost })),
-            borderColor: 'rgb(239, 68, 68)',
-            backgroundColor: 'rgba(239, 68, 68, 0.1)',
-            pointRadius: 4,
-            pointHoverRadius: 6
-          },
-          {
-            label: 'First-Time Bonus',
-            data: chartData.firstTimeData.map(d => ({ x: d.pulls, y: d.cost })),
-            borderColor: 'rgb(34, 197, 94)',
-            backgroundColor: 'rgba(34, 197, 94, 0.1)',
-            pointRadius: 4,
-            pointHoverRadius: 6
-          }
-        ]
+  },
+  scales: {
+    x: {
+      type: 'linear',
+      position: 'bottom',
+      title: {
+        display: true,
+        text: 'Pulls from Package'
       },
-      xAxisLabel: 'Pulls Obtained',
-      yAxisLabel: 'Cost ($)',
-      tooltip: {
-        callbacks: {
-          afterLabel: function(context) {
-            const dataPoint = context.dataset.data[context.dataIndex]
-            const scenario = context.datasetIndex === 0 ? 
-              chartData.normalData[context.dataIndex]?.scenario : 
-              chartData.firstTimeData[context.dataIndex]?.scenario
-            return scenario ? `Scenario: ${scenario}` : ''
+      grid: {
+        display: false
+      }
+    },
+    y: {
+      beginAtZero: true,
+      title: {
+        display: true,
+        text: 'Package Cost ($)'
+      },
+      grid: {
+        color: 'rgba(156, 163, 175, 0.1)'
+      }
+    }
+  }
+}))
+
+// Bar Chart Data - Package Efficiency
+const barChartData = computed(() => ({
+  labels: normalPackages.map((_, i) => `Package ${i + 1}`),
+  datasets: [
+    {
+      label: 'Normal Cost/Pull',
+      data: normalPackages.map(pkg => {
+        // Show actual cost per pull, or null for packages with 0 pulls
+        return pkg.pullsFromPackage === 0 ? null : parseFloat(pkg.costPerPull.toFixed(2))
+      }),
+      backgroundColor: 'rgba(239, 68, 68, 0.7)',
+      borderColor: 'rgb(239, 68, 68)',
+      borderWidth: 1
+    },
+    {
+      label: 'First-Time Cost/Pull',
+      data: firstTimeBonusPackages.map(pkg => {
+        // Show actual cost per pull, or null for packages with 0 pulls
+        return pkg.pullsFromPackage === 0 ? null : parseFloat(pkg.costPerPull.toFixed(2))
+      }),
+      backgroundColor: 'rgba(34, 197, 94, 0.7)',
+      borderColor: 'rgb(34, 197, 94)',
+      borderWidth: 1
+    }
+  ]
+}))
+
+const barChartOptions = computed(() => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    title: {
+      display: false
+    },
+    legend: {
+      display: true,
+      position: 'top'
+    },
+    tooltip: {
+      callbacks: {
+        label: function(context) {
+          const packageIndex = context.dataIndex
+          const isNormal = context.datasetIndex === 0
+          const pkg = isNormal ? normalPackages[packageIndex] : firstTimeBonusPackages[packageIndex]
+          
+          if (pkg.pullsFromPackage === 0) {
+            return `${context.dataset.label}: $${pkg.price.toFixed(2)} for 0 pulls (no value)`
           }
+          return `${context.dataset.label}: $${context.parsed.y.toFixed(2)} per pull`
         }
       }
-    }, 'scatter')
-  }
-
-  // Efficiency Chart
-  if (efficiencyChart.value && !chartInstances.value.efficiency) {
-    chartInstances.value.efficiency = await createChart(efficiencyChart, {
-      data: {
-        labels: normalPackages.map((_, i) => `Package ${i + 1}`),
-        datasets: [
-          {
-            label: 'Normal Cost/Pull',
-            data: normalPackages.map(pkg => pkg.costPerPull === Infinity ? 0 : pkg.costPerPull),
-            backgroundColor: 'rgba(239, 68, 68, 0.7)',
-            borderColor: 'rgb(239, 68, 68)',
-            borderWidth: 1
-          },
-          {
-            label: 'First-Time Cost/Pull',
-            data: firstTimeBonusPackages.map(pkg => pkg.costPerPull === Infinity ? 0 : pkg.costPerPull),
-            backgroundColor: 'rgba(34, 197, 94, 0.7)',
-            borderColor: 'rgb(34, 197, 94)',
-            borderWidth: 1
-          }
-        ]
+    }
+  },
+  scales: {
+    x: {
+      title: {
+        display: true,
+        text: 'Package'
       },
-      xAxisLabel: 'Package',
-      yAxisLabel: 'Cost per Pull ($)'
-    }, 'bar')
-  }
-
-  // Savings Chart
-  if (savingsChart.value && !chartInstances.value.savings) {
-    chartInstances.value.savings = await createChart(savingsChart, {
-      data: {
-        labels: chartData.savingsData.map(d => `${d.pulls} pulls`),
-        datasets: [{
-          label: 'Savings ($)',
-          data: chartData.savingsData.map(d => d.savings),
-          borderColor: 'rgb(168, 85, 247)',
-          backgroundColor: 'rgba(168, 85, 247, 0.1)',
-          fill: true,
-          tension: 0.2,
-          pointRadius: 4,
-          pointHoverRadius: 6
-        }]
+      grid: {
+        display: false
+      }
+    },
+    y: {
+      beginAtZero: true,
+      title: {
+        display: true,
+        text: 'Cost per Pull ($)'
       },
-      xAxisLabel: 'Pull Count',
-      yAxisLabel: 'Savings ($)'
-    })
+      grid: {
+        color: 'rgba(156, 163, 175, 0.1)'
+      }
+    }
   }
-}
+}))
 
-const destroyCharts = () => {
-  Object.values(chartInstances.value).forEach(chart => chart?.destroy())
-  chartInstances.value = {}
-}
+// Savings Chart Data
+const savingsChartData = computed(() => {
+  const savingsData = firstTimeBonusPackages.map((bonusPackage, index) => {
+    const normalPackage = normalPackages[index]
+    if (!normalPackage) return null
+    
+    // Calculate actual savings: difference in total shards for same price
+    const normalShards = normalPackage.totalShards
+    const bonusShards = bonusPackage.totalShards
+    const extraShards = bonusShards - normalShards
+    const shardsValueInDollars = (extraShards / normalShards) * normalPackage.price
+    
+    return {
+      savings: Math.max(0, parseFloat(shardsValueInDollars.toFixed(2))),
+      bonusPulls: bonusPackage.pullsFromPackage,
+      normalPulls: normalPackage.pullsFromPackage,
+      extraShards: extraShards
+    }
+  }).filter(Boolean)
 
-onMounted(() => nextTick(createCharts))
-onUnmounted(destroyCharts)
+  return {
+    labels: savingsData.map((_, i) => `Package ${i + 1}`),
+    datasets: [{
+      label: 'Savings per Package ($)',
+      data: savingsData.map(s => s.savings),
+      backgroundColor: 'rgba(168, 85, 247, 0.7)',
+      borderColor: 'rgb(168, 85, 247)',
+      borderWidth: 2,
+      extraData: savingsData // Store extra data for tooltips
+    }]
+  }
+})
+
+const savingsChartOptions = computed(() => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    title: {
+      display: false
+    },
+    legend: {
+      display: false
+    },
+    tooltip: {
+      callbacks: {
+        afterLabel: function(context) {
+          const dataPoint = context.dataset.extraData[context.dataIndex]
+          return [
+            `Bonus pulls: ${dataPoint.bonusPulls} vs Normal: ${dataPoint.normalPulls}`,
+            `Extra shards: ${dataPoint.extraShards}`
+          ]
+        }
+      }
+    }
+  },
+  scales: {
+    x: {
+      title: {
+        display: true,
+        text: 'Package'
+      },
+      grid: {
+        display: false
+      }
+    },
+    y: {
+      beginAtZero: true,
+      title: {
+        display: true,
+        text: 'Savings ($)'
+      },
+      grid: {
+        color: 'rgba(156, 163, 175, 0.1)'
+      }
+    }
+  }
+}))
+
+// Computed stats
+const savingsStats = computed(() => {
+  const savingsData = savingsChartData.value.datasets[0].extraData
+  if (!savingsData || savingsData.length === 0) return []
+  
+  const maxSavings = Math.max(...savingsData.map(s => s.savings))
+  const maxSavingsIndex = savingsData.findIndex(s => s.savings === maxSavings)
+  const totalSavings = savingsData.reduce((sum, s) => sum + s.savings, 0)
+  const avgSavings = totalSavings / savingsData.length
+  const bestPackage = firstTimeBonusPackages.reduce((best, pkg) => 
+    pkg.costPerPull < best.costPerPull && pkg.costPerPull !== Infinity ? pkg : best
+  )
+  
+  return [
+    { label: 'Max Package Savings', value: `$${maxSavings.toFixed(2)}`, color: 'text-green-600 dark:text-green-400' },
+    { label: 'Best Package', value: `Package ${maxSavingsIndex + 1}`, color: 'text-blue-600 dark:text-blue-400' },
+    { label: 'Avg Package Savings', value: `$${avgSavings.toFixed(2)}`, color: 'text-purple-600 dark:text-purple-400' },
+    { label: 'Best Cost/Pull', value: `$${bestPackage.costPerPull.toFixed(2)}`, color: 'text-gray-900 dark:text-white' }
+  ]
+})
 </script>
