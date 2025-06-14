@@ -34,6 +34,7 @@
       <div class="text-4xl sm:text-6xl mb-4">{{ gameData.metadata.icon }}</div>
       <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4 px-2">
         <span class="block sm:inline">{{ gameData.metadata.name }}</span>
+        <span class="block sm:inline sm:before:content-[' - ']">{{ " " }}</span>
         <span class="block sm:inline sm:before:content-[' - ']">{{ gameData.metadata.currency.name }} Analysis</span>
       </h1>
       <p class="text-sm sm:text-base lg:text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto px-4">
@@ -49,38 +50,125 @@
           <UIcon name="i-heroicons-cube" class="w-5 h-5 sm:w-6 sm:h-6" />Available Packages
         </h2>
       </template>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        <!-- Normal Packages -->
+      
+      <!-- Mobile View: Stacked Cards -->
+      <div class="block lg:hidden space-y-6">
+        <!-- Normal Packages Mobile -->
         <div>
-          <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">Normal Packages</h3>
-          <div class="space-y-2 sm:space-y-3">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Normal Packages</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div v-for="(pkg, index) in processedPackages.normal" :key="index" 
-                 class="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg gap-2 sm:gap-0">
-              <div class="flex justify-between sm:block">
-                <div class="font-medium text-gray-900 dark:text-white text-sm sm:text-base">${{ pkg.price.toFixed(2) }}</div>
-                <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300">{{ pkg.totalAmount }} {{ gameData.metadata.currency.shortName.toLowerCase() }}</div>
+                 class="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+              <div class="flex justify-between items-start mb-2">
+                <div class="text-lg font-bold text-gray-900 dark:text-white">${{ pkg.price.toFixed(2) }}</div>
+                <div class="text-right">
+                  <div :class="pkg.pullsFromPackage === 0 ? 'text-red-500 font-medium' : 'text-gray-900 dark:text-white font-semibold'">
+                    {{ pkg.pullsFromPackage }} warps
+                  </div>
+                </div>
               </div>
-              <div class="flex justify-between sm:text-right">
-                <div :class="{'text-red-600 dark:text-red-400': pkg.pullsFromPackage === 0, 'font-medium': true, 'text-sm sm:text-base': true}">{{ pkg.pullsFromPackage }} {{ gameData.metadata.pull.name.toLowerCase() }}s</div>
-                <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300">{{ pkg.leftoverAmount }} leftover</div>
+              <div class="text-sm text-gray-600 dark:text-gray-300 mb-1">
+                {{ pkg.totalAmount }} shards
+              </div>
+              <div class="text-xs text-gray-500 dark:text-gray-400">
+                {{ pkg.leftoverAmount }} leftover
               </div>
             </div>
           </div>
         </div>
 
-        <!-- First-Time Bonus Packages -->
+        <!-- First-Time Bonus Packages Mobile -->
         <div>
-          <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">First-Time Bonus Packages</h3>
-          <div class="space-y-2 sm:space-y-3">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">First-Time Bonus Packages</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div v-for="(pkg, index) in processedPackages.first_time_bonus" :key="index" 
-                 class="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg gap-2 sm:gap-0">
-              <div class="flex justify-between sm:block">
-                <div class="font-medium text-gray-900 dark:text-white text-sm sm:text-base">${{ pkg.price.toFixed(2) }}</div>
-                <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300">{{ pkg.totalAmount }} {{ gameData.metadata.currency.shortName.toLowerCase() }}</div>
+                 class="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+              <div class="flex justify-between items-start mb-2">
+                <div class="text-lg font-bold text-gray-900 dark:text-white">${{ pkg.price.toFixed(2) }}</div>
+                <div class="text-right">
+                  <div :class="pkg.pullsFromPackage === 0 ? 'text-red-500 font-medium' : 'text-green-600 dark:text-green-400 font-semibold'">
+                    {{ pkg.pullsFromPackage }} warps
+                  </div>
+                </div>
               </div>
-              <div class="flex justify-between sm:text-right">
-                <div :class="{'text-red-600 dark:text-red-400': pkg.pullsFromPackage === 0, 'text-green-600 dark:text-green-400 font-medium': pkg.pullsFromPackage !== 0, 'text-sm sm:text-base': true}">{{ pkg.pullsFromPackage }} {{ gameData.metadata.pull.name.toLowerCase() }}s</div>
-                <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300">{{ pkg.leftoverAmount }} leftover</div>
+              <div class="text-sm text-gray-600 dark:text-gray-300 mb-1">
+                {{ pkg.totalAmount }} shards
+              </div>
+              <div class="text-xs text-gray-500 dark:text-gray-400">
+                {{ pkg.leftoverAmount }} leftover
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Desktop View: Table Layout -->
+      <div class="hidden lg:block">
+        <div class="grid grid-cols-2 gap-8">
+          <!-- Normal Packages Desktop -->
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Normal Packages</h3>
+            <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div class="bg-red-50 dark:bg-red-900/20 px-4 py-3 border-b border-red-200 dark:border-red-800">
+                <div class="grid grid-cols-4 gap-4 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <div>Price</div>
+                  <div>Shards</div>
+                  <div>Warps</div>
+                  <div>Leftover</div>
+                </div>
+              </div>
+              <div class="divide-y divide-gray-200 dark:divide-gray-700">
+                <div v-for="(pkg, index) in processedPackages.normal" :key="index" 
+                     class="px-4 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                  <div class="grid grid-cols-4 gap-4 items-center">
+                    <div class="font-semibold text-gray-900 dark:text-white">
+                      ${{ pkg.price.toFixed(2) }}
+                    </div>
+                    <div class="text-gray-600 dark:text-gray-300">
+                      {{ pkg.totalAmount.toLocaleString() }}
+                    </div>
+                    <div :class="pkg.pullsFromPackage === 0 ? 'text-red-500 font-medium' : 'text-gray-900 dark:text-white font-medium'">
+                      {{ pkg.pullsFromPackage }}
+                    </div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400">
+                      {{ pkg.leftoverAmount }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- First-Time Bonus Packages Desktop -->
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">First-Time Bonus Packages</h3>
+            <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div class="bg-green-50 dark:bg-green-900/20 px-4 py-3 border-b border-green-200 dark:border-green-800">
+                <div class="grid grid-cols-4 gap-4 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <div>Price</div>
+                  <div>Shards</div>
+                  <div>Warps</div>
+                  <div>Leftover</div>
+                </div>
+              </div>
+              <div class="divide-y divide-gray-200 dark:divide-gray-700">
+                <div v-for="(pkg, index) in processedPackages.first_time_bonus" :key="index" 
+                     class="px-4 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                  <div class="grid grid-cols-4 gap-4 items-center">
+                    <div class="font-semibold text-gray-900 dark:text-white">
+                      ${{ pkg.price.toFixed(2) }}
+                    </div>
+                    <div class="text-gray-600 dark:text-gray-300">
+                      {{ pkg.totalAmount.toLocaleString() }}
+                    </div>
+                    <div :class="pkg.pullsFromPackage === 0 ? 'text-red-500 font-medium' : 'text-green-600 dark:text-green-400 font-medium'">
+                      {{ pkg.pullsFromPackage }}
+                    </div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400">
+                      {{ pkg.leftoverAmount }}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -207,111 +295,50 @@ useHead({
 const analysisResult = analyzeGame(gameId)
 const processedPackages = getProcessedPackages(gameId)
 
-// Computed chart data
+// Computed chart data and options
 const scatterChartData = computed(() => {
   if (!analysisResult || !processedPackages) return { datasets: [] }
   
+  const createDataset = (packages, label, bgColor, borderColor) => ({
+    label,
+    data: packages?.map(pkg => ({
+      x: pkg.pullsFromPackage,
+      y: parseFloat(pkg.price.toFixed(2)),
+      packageName: pkg.name
+    })) || [],
+    backgroundColor: bgColor,
+    borderColor,
+    pointRadius: 6,
+    pointHoverRadius: 10
+  })
+  
   return {
     datasets: [
-      {
-        label: 'Normal Packages',
-        data: processedPackages.normal?.map((pkg) => ({
-          x: pkg.pullsFromPackage,
-          y: parseFloat(pkg.price.toFixed(2)),
-          packageName: pkg.name
-        })) || [],
-        backgroundColor: 'rgba(239, 68, 68, 0.8)',
-        borderColor: 'rgb(239, 68, 68)',
-        pointRadius: 6,
-        pointHoverRadius: 10
-      },
-      {
-        label: 'First-Time Bonus Packages',
-        data: processedPackages.first_time_bonus?.map((pkg) => ({
-          x: pkg.pullsFromPackage,
-          y: parseFloat(pkg.price.toFixed(2)),
-          packageName: pkg.name
-        })) || [],
-        backgroundColor: 'rgba(34, 197, 94, 0.8)',
-        borderColor: 'rgb(34, 197, 94)',
-        pointRadius: 6,
-        pointHoverRadius: 10
-      }
+      createDataset(processedPackages.normal, 'Normal Packages', 'rgba(239, 68, 68, 0.8)', 'rgb(239, 68, 68)'),
+      createDataset(processedPackages.first_time_bonus, 'First-Time Bonus Packages', 'rgba(34, 197, 94, 0.8)', 'rgb(34, 197, 94)')
     ]
-  }
-})
-
-const scatterChartOptions = computed(() => {
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640
-  return {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      title: { display: false },
-      legend: {
-        display: true,
-        position: 'top',
-        labels: { 
-          usePointStyle: true, 
-          boxWidth: 8,
-          font: { size: isMobile ? 10 : 12 }
-        }
-      },
-      tooltip: {
-        titleFont: { size: isMobile ? 11 : 13 },
-        bodyFont: { size: isMobile ? 10 : 12 },
-        callbacks: {
-          title: (context) => context[0].raw.packageName,
-          label: (context) => `$${context.parsed.y.toFixed(2)} for ${context.parsed.x} ${gameData.metadata.pull.name.toLowerCase()}s`
-        }
-      }
-    },
-    scales: {
-      x: {
-        type: 'linear',
-        position: 'bottom',
-        title: {
-          display: !isMobile,
-          text: `${gameData.metadata.pull.name}s from Package`,
-          font: { size: isMobile ? 10 : 12 }
-        },
-        ticks: { font: { size: isMobile ? 9 : 11 } },
-        grid: { display: false }
-      },
-      y: {
-        beginAtZero: true,
-        title: {
-          display: !isMobile,
-          text: 'Package Cost ($)',
-          font: { size: isMobile ? 10 : 12 }
-        },
-        ticks: { font: { size: isMobile ? 9 : 11 } },
-        grid: { color: 'rgba(156, 163, 175, 0.1)' }
-      }
-    }
   }
 })
 
 const barChartData = computed(() => {
   if (!processedPackages) return { labels: [], datasets: [] }
   
+  const validNormal = processedPackages.normal?.filter(pkg => pkg.pullsFromPackage > 0) || []
+  const validBonus = processedPackages.first_time_bonus?.filter(pkg => pkg.pullsFromPackage > 0) || []
+  
   return {
-    labels: processedPackages.normal?.filter(pkg => pkg.pullsFromPackage > 0).map(pkg => pkg.name) || [],
+    labels: validNormal.map(pkg => pkg.name),
     datasets: [
       {
         label: `Normal Cost/${gameData.metadata.pull.name}`,
-        data: processedPackages.normal?.filter(pkg => pkg.pullsFromPackage > 0).map(pkg => 
-          pkg.costPerPull === Infinity ? 0 : parseFloat(pkg.costPerPull.toFixed(2))
-        ) || [],
+        data: validNormal.map(pkg => parseFloat(pkg.costPerPull.toFixed(2))),
         backgroundColor: 'rgba(239, 68, 68, 0.7)',
         borderColor: 'rgb(239, 68, 68)',
         borderWidth: 1
       },
       {
         label: `First-Time Cost/${gameData.metadata.pull.name}`,
-        data: processedPackages.first_time_bonus?.filter(pkg => pkg.pullsFromPackage > 0).map(pkg => 
-          pkg.costPerPull === Infinity ? 0 : parseFloat(pkg.costPerPull.toFixed(2))
-        ) || [],
+        data: validBonus.map(pkg => parseFloat(pkg.costPerPull.toFixed(2))),
         backgroundColor: 'rgba(34, 197, 94, 0.7)',
         borderColor: 'rgb(34, 197, 94)',
         borderWidth: 1
@@ -320,9 +347,10 @@ const barChartData = computed(() => {
   }
 })
 
-const barChartOptions = computed(() => {
+const createChartOptions = (isScatter = false) => {
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 640
-  return {
+  
+  const baseOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -330,19 +358,23 @@ const barChartOptions = computed(() => {
       legend: { 
         display: true, 
         position: 'top',
-        labels: { font: { size: isMobile ? 10 : 12 } }
+        labels: { 
+          font: { size: isMobile ? 10 : 12 },
+          ...(isScatter && { usePointStyle: true, boxWidth: 8 })
+        }
       }
     },
     scales: {
       x: {
+        ...(isScatter && { type: 'linear', position: 'bottom' }),
         title: { 
           display: !isMobile, 
-          text: 'Package',
+          text: isScatter ? `${gameData.metadata.pull.name}s from Package` : 'Package',
           font: { size: isMobile ? 10 : 12 }
         },
-        ticks: {
-          font: { size: isMobile ? 8 : 10 },
-          maxRotation: isMobile ? 45 : 0
+        ticks: { 
+          font: { size: isMobile ? (isScatter ? 9 : 8) : (isScatter ? 11 : 10) },
+          ...(!isScatter && { maxRotation: isMobile ? 45 : 0 })
         },
         grid: { display: false }
       },
@@ -350,7 +382,7 @@ const barChartOptions = computed(() => {
         beginAtZero: true,
         title: { 
           display: !isMobile, 
-          text: `Cost per ${gameData.metadata.pull.name} ($)`,
+          text: isScatter ? 'Package Cost ($)' : `Cost per ${gameData.metadata.pull.name} ($)`,
           font: { size: isMobile ? 10 : 12 }
         },
         ticks: { font: { size: isMobile ? 9 : 11 } },
@@ -358,7 +390,23 @@ const barChartOptions = computed(() => {
       }
     }
   }
-})
+  
+  if (isScatter) {
+    baseOptions.plugins.tooltip = {
+      titleFont: { size: isMobile ? 11 : 13 },
+      bodyFont: { size: isMobile ? 10 : 12 },
+      callbacks: {
+        title: (context) => context[0].raw.packageName,
+        label: (context) => `${context.parsed.y.toFixed(2)} for ${context.parsed.x} ${gameData.metadata.pull.name.toLowerCase()}s`
+      }
+    }
+  }
+  
+  return baseOptions
+}
+
+const scatterChartOptions = computed(() => createChartOptions(true))
+const barChartOptions = computed(() => createChartOptions(false))
 
 const insightStats = computed(() => {
   if (!analysisResult || !processedPackages) return []
