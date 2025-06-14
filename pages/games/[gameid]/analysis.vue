@@ -33,13 +33,13 @@
     <div class="text-center mb-6 sm:mb-8">
       <div class="text-4xl sm:text-6xl mb-4">🌟</div>
       <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4 px-2">
-        <span class="block sm:inline">{{ gameData.metadata.name }}</span>
+        <span class="block sm:inline">{{ gameData?.metadata?.name || 'Unknown Game' }}</span>
         <span class="block sm:inline sm:before:content-[' - ']">{{ " " }}</span>
-        <span class="block sm:inline">{{ gameData.metadata.currency.name }} Analysis</span>
+        <span class="block sm:inline">{{ gameData?.metadata?.currency?.name || 'Currency' }} Analysis</span>
       </h1>
       <p class="text-sm sm:text-base lg:text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto px-4">
-        Comprehensive analysis of {{ gameData.metadata.currency.name.toLowerCase() }} packages for {{ gameData.metadata.name }}. 
-        See exactly how many {{ gameData.metadata.pull.name.toLowerCase() }}s you get from different package combinations.
+        Comprehensive analysis of {{ gameData?.metadata?.currency?.name?.toLowerCase() || 'currency' }} packages for {{ gameData?.metadata?.name || 'this game' }}. 
+        See exactly how many {{ gameData?.metadata?.pull?.name?.toLowerCase() || 'pull' }}s you get from different package combinations.
       </p>
     </div>
 
@@ -67,8 +67,8 @@
               v-for="(pkg, index) in processedPackages.normal"
               :key="index"
               :pkg="pkg"
-              :pull-name="gameData.metadata.pull.name"
-              :currency-name="gameData.metadata.currency.shortName"
+              :pull-name="gameData?.metadata?.pull?.name || 'Pull'"
+              :currency-name="gameData?.metadata?.currency?.shortName || 'Currency'"
               bg-color="bg-red-50 dark:bg-red-900/20"
               border-color="border-red-200 dark:border-red-800"
             />
@@ -83,8 +83,8 @@
               v-for="(pkg, index) in processedPackages.first_time_bonus"
               :key="index"
               :pkg="pkg"
-              :pull-name="gameData.metadata.pull.name"
-              :currency-name="gameData.metadata.currency.shortName"
+              :pull-name="gameData?.metadata?.pull?.name || 'Pull'"
+              :currency-name="gameData?.metadata?.currency?.shortName || 'Currency'"
               bg-color="bg-green-50 dark:bg-green-900/20"
               border-color="border-green-200 dark:border-green-800"
               text-color="text-green-600 dark:text-green-400"
@@ -99,8 +99,8 @@
           <PackageTable 
             v-if="processedPackages?.normal"
             :packages="processedPackages.normal"
-            :pull-name="gameData.metadata.pull.name"
-            :currency-name="gameData.metadata.currency.shortName"
+            :pull-name="gameData?.metadata?.pull?.name || 'Pull'"
+            :currency-name="gameData?.metadata?.currency?.shortName || 'Currency'"
             title="Normal Packages"
             header-bg="bg-red-50 dark:bg-red-900/20"
             header-border="border-red-200 dark:border-red-800"
@@ -109,8 +109,8 @@
           <PackageTable 
             v-if="processedPackages?.first_time_bonus"
             :packages="processedPackages.first_time_bonus"
-            :pull-name="gameData.metadata.pull.name"
-            :currency-name="gameData.metadata.currency.shortName"
+            :pull-name="gameData?.metadata?.pull?.name || 'Pull'"
+            :currency-name="gameData?.metadata?.currency?.shortName || 'Currency'"
             title="First-Time Bonus Packages"
             header-bg="bg-green-50 dark:bg-green-900/20"
             header-border="border-green-200 dark:border-green-800"
@@ -126,19 +126,19 @@
       <UCard>
         <template #header>
           <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <UIcon name="i-heroicons-chart-bar" class="w-4 h-4 sm:w-5 sm:h-5" />Cost vs {{ gameData.metadata.pull.name }}s Obtained
+            <UIcon name="i-heroicons-chart-bar" class="w-4 h-4 sm:w-5 sm:h-5" />Cost vs {{ gameData?.metadata?.pull?.name || 'Pulls' }}s Obtained
           </h3>
         </template>
         <div class="h-64 sm:h-80 w-full">
-          <Scatter 
-            :data="scatterChartData" 
-            :options="scatterChartOptions" 
-            :height="256"
-          />
-        </div>
-        <div class="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-600 dark:text-gray-300">
-          Shows cost vs {{ gameData.metadata.pull.name.toLowerCase() }}s for all package types including subscriptions. Different colors represent different package types.
-        </div>
+      <Scatter 
+        :data="scatterChartData" 
+        :options="scatterChartOptions" 
+        :height="256"
+      />
+    </div>
+    <div class="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-600 dark:text-gray-300">
+      Shows cost vs {{ gameData?.metadata?.pull?.name?.toLowerCase() || 'pull' }}s for all package types including subscriptions. Different colors represent different package types.
+    </div>
       </UCard>
 
       <!-- Efficiency Comparison -->
@@ -156,7 +156,7 @@
           />
         </div>
         <div class="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-600 dark:text-gray-300">
-          Cost per {{ gameData.metadata.pull.name.toLowerCase() }} grouped by package and subscription type. Lower is better.
+          Cost per {{ gameData?.metadata?.pull?.name?.toLowerCase() || 'pull' }} grouped by package and subscription type. Lower is better.
         </div>
         <div v-if="hasZeroPullPackages" 
              class="mt-2 text-xs sm:text-sm text-gray-600 dark:text-gray-300 italic">
@@ -220,10 +220,10 @@ const { analyzeGame, getProcessedPackages, generateChartsFromPackages } = useGam
 const gameId = route.params.gameId
 
 // Get game data
-const gameData = getGameById(gameId)
+const gameData = ref(getGameById(gameId))
 
 // Validate game exists
-if (!gameData) {
+if (!gameData.value) {
   throw createError({
     statusCode: 404,
     statusMessage: `Game "${gameId}" not found`
@@ -231,12 +231,17 @@ if (!gameData) {
 }
 
 // Set page meta
-useHead({
-  title: `${gameData.metadata.name} Analysis`,
-  meta: [
-    { name: 'description', content: `Comprehensive ${gameData.metadata.currency.name} package analysis for ${gameData.metadata.name}` }
-  ]
-})
+if (gameData.value?.metadata) {
+  useHead({
+    title: `${gameData.value.metadata.name} Analysis`,
+    meta: [
+      { 
+        name: 'description', 
+        content: `Comprehensive ${gameData.value.metadata.currency.name} package analysis for ${gameData.value.metadata.name}` 
+      }
+    ]
+  })
+}
 
 // Get analysis data
 const analysisResult = analyzeGame(gameId)
@@ -290,7 +295,7 @@ const barChartData = computed(() => {
   const labels = Array.from(allPackageNames)
   
   const datasets = Object.entries(chartsData.barData).map(([type, packages]) => ({
-    label: `${typeLabels[type] || type} Cost/${gameData.metadata.pull.name}`,
+    label: `${typeLabels[type] || type} Cost/${gameData?.metadata?.pull?.name || 'Pull'}`,
     data: labels.map(label => {
       const pkg = packages.find(p => p.package === label)
       return pkg ? parseFloat(pkg.costPerPull.toFixed(2)) : null
@@ -331,7 +336,7 @@ const insightStats = computed(() => {
       color: 'text-purple-600 dark:text-purple-400' 
     },
     { 
-      label: `Best Cost/${gameData.metadata.pull.name}`, 
+      label: `Best Cost/${gameData?.metadata?.pull?.name || 'Pull'}`, 
       value: formatValue(analysisResult.insights.bestScenario?.costPerPull), 
       color: 'text-gray-900 dark:text-white' 
     }
