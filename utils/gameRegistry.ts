@@ -99,5 +99,5 @@ export function getGameNames(): Array<{ id: string; name: string; shortName: str
   }))
 }
 
-// Export default games for easier imports
-export { hsrGameData, genshinGameData }
+// Export HSR data for easier imports
+export { hsrGameData }
