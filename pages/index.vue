@@ -48,27 +48,6 @@
                 </div>
               </div>
             </template>
-            
-            <div class="space-y-3">              
-              <div class="flex items-center gap-4 text-sm">
-                <div class="flex items-center gap-1">
-                  <span class="text-gray-600 dark:text-gray-300">{{ game.metadata.currency.name }}</span>
-                </div>
-                <div class="text-gray-600 dark:text-gray-300">
-                  {{ game.packages.normal.length + game.packages.firstTimeBonus.length }} packages
-                </div>
-              </div>
-              
-              <div class="pt-2">
-                <UButton 
-                  block 
-                  color="primary" 
-                  @click.stop="navigateToGame(game.metadata.id)"
-                >
-                  Analyze Packages →
-                </UButton>
-              </div>
-            </div>
           </UCard>
         </div>
       </div>
