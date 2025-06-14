@@ -25,8 +25,8 @@ export default defineNuxtConfig({
       title: 'GachaScope - Gacha Game Analysis Tool',
       meta: [
         { name: 'description', content: 'Comprehensive analysis tool for gacha game in-app purchases and spending optimization' },
-        { name: 'keywords', content: 'gacha games, in-app purchase, cost analysis, spending optimization, mobile games, HSR, Genshin Impact' },
-        { property: 'og:title', content: 'GachaScope - Gacha Game Analysis Tool' },
+        { name: 'keywords', content: 'gacha games, in-app purchase, cost analysis, spending optimization, mobile games, HSR' },
+        { property: 'og:title', content: 'GachaScope - Gacha Game In-App Purchases Analysis' },
         { property: 'og:description', content: 'Make informed decisions about your gacha game spending with detailed package analysis' },
         { property: 'og:type', content: 'website' },
         { name: 'twitter:card', content: 'summary_large_image' }
@@ -39,8 +39,6 @@ export default defineNuxtConfig({
   
   // Runtime configuration
   runtimeConfig: {
-    // Private keys (only available on server-side)
-    
     // Public keys (exposed to client-side)
     public: {
       siteName: 'GachaScope',
