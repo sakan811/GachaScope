@@ -58,7 +58,7 @@
         <div>
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">First-Time Bonus Packages</h3>
           <div class="space-y-3">
-            <div v-for="(pkg, index) in processedPackages.firstTimeBonus" :key="index" 
+            <div v-for="(pkg, index) in processedPackages.first_time_bonus" :key="index" 
                  class="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
               <div>
                 <div class="font-medium text-gray-900 dark:text-white">${{ pkg.price.toFixed(2) }}</div>
@@ -197,11 +197,11 @@ const scatterChartData = computed(() => {
     datasets: [
       {
         label: 'Normal Packages',
-        data: processedPackages.normal.map((pkg, index) => ({
+        data: processedPackages.normal?.map((pkg, index) => ({
           x: pkg.pullsFromPackage,
           y: parseFloat(pkg.price.toFixed(2)),
           packageName: `Normal Package ${index + 1}`
-        })),
+        })) || [],
         backgroundColor: 'rgba(239, 68, 68, 0.8)',
         borderColor: 'rgb(239, 68, 68)',
         pointRadius: 6,
@@ -209,11 +209,11 @@ const scatterChartData = computed(() => {
       },
       {
         label: 'First-Time Bonus Packages',
-        data: processedPackages.firstTimeBonus.map((pkg, index) => ({
+        data: processedPackages.first_time_bonus?.map((pkg, index) => ({
           x: pkg.pullsFromPackage,
           y: parseFloat(pkg.price.toFixed(2)),
           packageName: `Bonus Package ${index + 1}`
-        })),
+        })) || [],
         backgroundColor: 'rgba(34, 197, 94, 0.8)',
         borderColor: 'rgb(34, 197, 94)',
         pointRadius: 6,
@@ -269,22 +269,22 @@ const barChartData = computed(() => {
   if (!processedPackages) return { labels: [], datasets: [] }
   
   return {
-    labels: processedPackages.normal.map((_, i) => `Package ${i + 1}`),
+    labels: processedPackages.normal?.map((_, i) => `Package ${i + 1}`) || [],
     datasets: [
       {
         label: `Normal Cost/${gameData.metadata.pull.name}`,
-        data: processedPackages.normal.map(pkg => 
+        data: processedPackages.normal?.map(pkg => 
           pkg.costPerPull === Infinity ? 0 : parseFloat(pkg.costPerPull.toFixed(2))
-        ),
+        ) || [],
         backgroundColor: 'rgba(239, 68, 68, 0.7)',
         borderColor: 'rgb(239, 68, 68)',
         borderWidth: 1
       },
       {
         label: `First-Time Cost/${gameData.metadata.pull.name}`,
-        data: processedPackages.firstTimeBonus.map(pkg => 
+        data: processedPackages.first_time_bonus?.map(pkg => 
           pkg.costPerPull === Infinity ? 0 : parseFloat(pkg.costPerPull.toFixed(2))
-        ),
+        ) || [],
         backgroundColor: 'rgba(34, 197, 94, 0.7)',
         borderColor: 'rgb(34, 197, 94)',
         borderWidth: 1
