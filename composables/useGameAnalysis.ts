@@ -222,11 +222,45 @@ export const useGameAnalysis = () => {
     return result
   }
 
+  function generateChartsFromPackages(
+    processedPackages: Record<string, ProcessedPackage[]>
+  ) {
+    const scatterData: Array<{ x: number; y: number; packageName: string; type: string }> = []
+    const barData: Record<string, Array<{ package: string; costPerPull: number }>> = {}
+
+    // Process all package types
+    for (const [type, packages] of Object.entries(processedPackages)) {
+      if (!packages) continue
+      
+      packages.forEach((pkg) => {
+        // Add to scatter chart data
+        scatterData.push({
+          x: pkg.pullsFromPackage,
+          y: pkg.price,
+          packageName: pkg.name,
+          type
+        })
+        
+        // Add to bar chart data (only if has pulls)
+        if (pkg.pullsFromPackage > 0) {
+          if (!barData[type]) barData[type] = []
+          barData[type].push({
+            package: pkg.name,
+            costPerPull: pkg.costPerPull
+          })
+        }
+      })
+    }
+
+    return { scatterData, barData }
+  }
+
   return {
     processPackage,
     createScenario,
     generateScenarios,
     generateChartData,
+    generateChartsFromPackages,
     generateInsights,
     analyzeGame,
     getProcessedPackages
