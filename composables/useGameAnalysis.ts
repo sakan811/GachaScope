@@ -146,21 +146,37 @@ export const useGameAnalysis = () => {
     const normalScenarios = scenarios.normal ?? []
     const bonusScenarios = scenarios.first_time_bonus ?? []
 
+    // Find best normal cost per pull
+    const bestNormal = normalScenarios
+      .filter(s => s.costPerPull !== Infinity)
+      .reduce((best, curr) => 
+        best.costPerPull < curr.costPerPull ? best : curr, 
+        {costPerPull: Infinity} as PurchaseScenario
+      )
+
     const allBonusScenarios = bonusScenarios.filter(s => s.totalPulls > 0)
 
-    const maxSavings = chartData.savings.length > 0
-      ? Math.max(...chartData.savings.map(s => s.savings))
-      : 0
+    // Calculate savings for each bonus package
+    const savings: number[] = []
+    allBonusScenarios.forEach(bonus => {
+      if (bestNormal.costPerPull !== Infinity) {
+        const normalCost = bonus.totalPulls * bestNormal.costPerPull
+        const saving = normalCost - bonus.totalCost
+        savings.push(Math.max(0, saving))
+      }
+    })
+
+    const maxSavings = savings.length > 0 ? Math.max(...savings) : 0
+    const avgSavings = savings.length > 0 ? 
+      savings.reduce((sum, val) => sum + val, 0) / savings.length : 0
 
     const bestScenario = allBonusScenarios.length > 0
-      ? allBonusScenarios.reduce((best, s) => s.costPerPull < best.costPerPull ? s : best)
+      ? allBonusScenarios.reduce((best, s) => 
+          s.costPerPull < best.costPerPull ? s : best
+        )
       : bonusScenarios[0] || normalScenarios[0]
 
     const bestPackage = bestScenario?.packages?.[0]?.package
-
-    const avgSavings = chartData.savings.length > 0
-      ? chartData.savings.reduce((sum, s) => sum + s.savings, 0) / chartData.savings.length
-      : 0
 
     return {
       maxSavings,
