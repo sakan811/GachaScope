@@ -18,7 +18,7 @@
       <div class="grid md:grid-cols-2 gap-6">
         <div>
           <UFormGroup label="Target Pulls" class="mb-4">
-            <URange v-model="targetPulls" :min="1" :max="180" :step="1" />
+            <USlider v-model="targetPulls" :min="1" :max="180" :step="1" />
             <div class="text-center mt-2 text-sm text-gray-600 dark:text-gray-300">{{ targetPulls }} pulls</div>
           </UFormGroup>
         </div>
