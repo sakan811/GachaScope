@@ -146,7 +146,40 @@ export const useGameAnalysis = () => {
     const normalScenarios = scenarios.normal ?? []
     const bonusScenarios = scenarios.first_time_bonus ?? []
 
-    // Find best normal cost per pull
+    // Find all individual packages from both normal and bonus scenarios
+    const allPackages: ProcessedPackage[] = []
+    
+    normalScenarios.forEach(scenario => {
+      scenario.packages.forEach(({ package: pkg }) => {
+        if (pkg.pullsFromPackage > 0) {
+          allPackages.push(pkg)
+        }
+      })
+    })
+    
+    bonusScenarios.forEach(scenario => {
+      scenario.packages.forEach(({ package: pkg }) => {
+        if (pkg.pullsFromPackage > 0) {
+          allPackages.push(pkg)
+        }
+      })
+    })
+
+    // Find the actual best package by cost per pull
+    const bestPackage = allPackages.length > 0
+      ? allPackages.reduce((best, curr) => {
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`Comparing packages: ${best.name} (${best.costPerPull.toFixed(4)}) vs ${curr.name} (${curr.costPerPull.toFixed(4)})`)
+          }
+          return curr.costPerPull < best.costPerPull ? curr : best
+        })
+      : null
+
+    if (process.env.NODE_ENV === 'development' && bestPackage) {
+      console.log(`Best package found: ${bestPackage.name} with cost per pull: ${bestPackage.costPerPull.toFixed(4)}`)
+    }
+
+    // Find best normal cost per pull for savings calculation
     const bestNormal = normalScenarios
       .filter(s => s.costPerPull !== Infinity)
       .reduce((best, curr) => 
@@ -170,15 +203,14 @@ export const useGameAnalysis = () => {
     const avgSavings = savings.length > 0 ? 
       savings.reduce((sum, val) => sum + val, 0) / savings.length : 0
 
+    // Find best scenario (can be different from best package)
     const bestScenario = allBonusScenarios.length > 0
       ? allBonusScenarios.reduce((best, s) => 
           s.costPerPull < best.costPerPull ? s : best
         )
       : bonusScenarios[0] || normalScenarios[0]
 
-    const bestPackage = bestScenario?.packages?.[0]?.package
-
-    return {
+      return {
       maxSavings,
       bestPackage,
       bestScenario,
