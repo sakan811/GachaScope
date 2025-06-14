@@ -10,7 +10,6 @@ export interface GameCurrency {
 export interface GamePull {
   name: string;
   cost: number; // in primary currency units
-  description: string;
 }
 
 export interface PurchasePackage {
@@ -52,20 +51,7 @@ export interface GameMetadata {
   id: string;
   name: string;
   shortName: string;
-  description: string;
-  developer: string;
-  releaseDate: string;
-  status: 'active' | 'beta' | 'archived';
-  
-  // Visual branding
-  colors: {
-    primary: string;
-    secondary: string;
-    accent: string;
-  };
-  logo: string;
-  icon: string;
-  
+    
   // Game mechanics
   currency: GameCurrency;
   pull: GamePull;
