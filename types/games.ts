@@ -3,8 +3,6 @@ export type PurchaseType = 'normal' | 'first_time_bonus' | 'limited_time' | 'sub
 export interface GameCurrency {
   name: string;
   shortName: string;
-  description: string;
-  icon: string;
 }
 
 export interface GamePull {
@@ -89,6 +87,5 @@ export interface GameAnalysisResult {
     maxSavings: number;
     bestPackage: ProcessedPackage;
     avgSavings: number;
-    recommendedStrategy: string[];
   };
 }

@@ -12,9 +12,7 @@ const hsrGameData: GameData = {
     
     currency: {
       name: 'Oneiric Shards',
-      shortName: 'Shards',
-      description: 'Premium currency used for pulls',
-      icon: '💎'
+      shortName: 'Shards'
     },
     
     pull: {

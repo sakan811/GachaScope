@@ -119,7 +119,7 @@
     <UCard class="mb-8">
       <template #header>
         <h2 class="text-2xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-          <UIcon name="i-heroicons-currency-dollar" />Key Insights
+          <UIcon name="i-heroicons-currency-dollar" />Summary
         </h2>
       </template>
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -129,36 +129,6 @@
             <div class="text-xl font-bold" :class="stat.color">{{ stat.value }}</div>
           </div>
         </UCard>
-      </div>
-      
-      <div class="grid md:grid-cols-2 gap-6">
-        <div>
-          <h4 class="font-semibold text-gray-900 dark:text-white mb-3">💡 Spending Tips</h4>
-          <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-            <li v-for="tip in analysisResult.insights.recommendedStrategy" :key="tip" class="flex items-start gap-2">
-              <span class="text-green-500 mt-1">•</span>
-              <span>{{ tip }}</span>
-            </li>
-          </ul>
-        </div>
-        
-        <div>
-          <h4 class="font-semibold text-gray-900 dark:text-white mb-3">⚠️ Important Notes</h4>
-          <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-            <li class="flex items-start gap-2">
-              <span class="text-yellow-500 mt-1">•</span>
-              <span>First-time bonuses can only be purchased once per package</span>
-            </li>
-            <li class="flex items-start gap-2">
-              <span class="text-yellow-500 mt-1">•</span>
-              <span>Consider your budget and spending goals</span>
-            </li>
-            <li class="flex items-start gap-2">
-              <span class="text-yellow-500 mt-1">•</span>
-              <span>Leftover currency can accumulate for future {{ gameData.metadata.pull.name.toLowerCase() }}s</span>
-            </li>
-          </ul>
-        </div>
       </div>
     </UCard>
   </div>
