@@ -164,7 +164,7 @@ export const useGameAnalysis = () => {
   }
   
   /**
-   * Generate insights and recommendations
+   * Generate insights
    */
   function generateInsights(
     scenarios: { normal: PurchaseScenario[]; firstTimeBonus: PurchaseScenario[] },
@@ -183,19 +183,11 @@ export const useGameAnalysis = () => {
     const avgSavings = chartData.savings.length > 0 
       ? chartData.savings.reduce((sum, s) => sum + s.savings, 0) / chartData.savings.length 
       : 0
-    
-    const recommendedStrategy = [
-      'Purchase first-time bonus packages first for maximum value',
-      'Larger packages generally offer better cost per pull',
-      'Consider your budget and spending goals before purchasing',
-      'First-time bonuses can only be purchased once per package'
-    ]
-    
+        
     return {
       maxSavings,
       bestPackage,
-      avgSavings,
-      recommendedStrategy
+      avgSavings
     }
   }
   
