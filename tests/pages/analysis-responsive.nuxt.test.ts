@@ -13,20 +13,22 @@ describe('HSR Analysis Page Responsive', () => {
     expect(component.html()).toContain('Summary')
   })
 
-  it('should have responsive classes', async () => {
+  it('should have mobile and desktop package layouts', async () => {
     const component = await mountSuspended(() => import('~/pages/games/[gameId]/analysis.vue'), {
       route: { params: { gameId: 'hsr' } }
     })
     
-    // Check for responsive grid classes
-    expect(component.html()).toContain('grid-cols-1')
-    expect(component.html()).toContain('sm:grid-cols-2')
-    expect(component.html()).toContain('lg:grid-cols-2')
-    expect(component.html()).toContain('lg:grid-cols-4')
+    // Check for mobile layout (hidden on lg+)
+    expect(component.html()).toContain('block lg:hidden')
     
-    // Check for responsive text sizes
-    expect(component.html()).toContain('text-sm sm:text-base')
-    expect(component.html()).toContain('text-xs sm:text-sm')
+    // Check for desktop table layout (hidden until lg)
+    expect(component.html()).toContain('hidden lg:block')
+    
+    // Check for table headers
+    expect(component.html()).toContain('Price')
+    expect(component.html()).toContain('Shards')
+    expect(component.html()).toContain('Warps')
+    expect(component.html()).toContain('Leftover')
   })
 
   it('should have responsive back button', async () => {
@@ -36,5 +38,14 @@ describe('HSR Analysis Page Responsive', () => {
     
     expect(component.html()).toContain('hidden sm:inline')
     expect(component.html()).toContain('sm:hidden')
+  })
+
+  it('should handle packages with zero warps correctly', async () => {
+    const component = await mountSuspended(() => import('~/pages/games/[gameId]/analysis.vue'), {
+      route: { params: { gameId: 'hsr' } }
+    })
+    
+    // Should have styling for zero warps
+    expect(component.html()).toContain('text-red-500')
   })
 })
