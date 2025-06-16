@@ -7,7 +7,7 @@
       </h2>
     </template>
 
-    <!-- Overall Best Value Card (only one card now) -->
+    <!-- Overall Best Value Card -->
     <div class="grid grid-cols-1 gap-3 sm:gap-4 mb-6">
       <UCard v-if="overallStats" :class="overallStats.bgClass">
         <div class="text-center p-2 sm:p-3">
@@ -39,7 +39,10 @@
                 {{ typeStats.bestPackageName }}
               </div>
               <div class="text-xs text-gray-500 dark:text-gray-400">
-                {{ typeStats.bestCostPerPull }}
+                {{ typeStats.bestCostPerPull }} per {{ gameData.metadata.pull.name.toLowerCase() }}
+              </div>
+              <div class="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                This means each {{ gameData.metadata.pull.name.toLowerCase() }} costs {{ typeStats.bestCostPerPull }}
               </div>
             </div>
           </div>
@@ -48,71 +51,46 @@
     </div>
 
     <!-- Savings Analysis - Normal vs First-Time Bonus Comparison -->
-    <div v-if="tierSavingsAnalysis?.length" class="pt-6 border-t border-gray-200 dark:border-gray-700">
+    <div v-if="packageSavingsAnalysis?.length" class="pt-6 border-t border-gray-200 dark:border-gray-700">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
         <UIcon name="i-heroicons-calculator" class="w-4 h-4" />
         Savings Analysis - Normal vs First-Time Bonus
       </h3>
       
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-        <UCard v-for="(tier, index) in tierSavingsAnalysis" :key="index" class="bg-green-50 dark:bg-green-900/20">
-          <div class="text-center p-2 sm:p-3">
-            <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-1 sm:mb-2">{{ tier.tierName }}</div>
-            <div class="text-lg sm:text-xl font-bold text-green-600 dark:text-green-400">{{ tier.savings }}</div>
-            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              {{ tier.explanation }}
-            </div>
-            <div class="text-xs text-gray-600 dark:text-gray-300 mt-2">
-              {{ tier.comparison }}
-            </div>
-          </div>
-        </UCard>
-      </div>
-    </div>
-
-    <!-- Monthly vs One-time Analysis -->
-    <div v-if="monthlyAnalysis" class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-        <UIcon name="i-heroicons-calendar" class="w-4 h-4" />
-        Monthly vs One-time Analysis
-      </h3>
-      
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-        <UCard class="bg-blue-50 dark:bg-blue-900/20">
+        <UCard v-for="(savings, index) in packageSavingsAnalysis" :key="index" class="bg-green-50 dark:bg-green-900/20">
           <div class="p-3 sm:p-4">
-            <h4 class="font-medium text-blue-600 dark:text-blue-400 mb-2">Monthly Subscriptions</h4>
-            <div class="space-y-2 text-sm">
-              <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-300">Monthly Cost:</span>
-                <span class="font-semibold text-gray-900 dark:text-white">{{ monthlyAnalysis.monthlyCost }}</span>
+            <div class="text-center mb-3">
+              <div class="text-sm font-medium text-green-600 dark:text-green-400 mb-1">
+                {{ savings.normalPackage }} vs {{ savings.bonusPackage }}
               </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-300">Monthly {{ gameData.metadata.pull.name }}s:</span>
-                <span class="font-semibold text-gray-900 dark:text-white">{{ monthlyAnalysis.monthlyPulls }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-300">Annual Cost:</span>
-                <span class="font-semibold text-gray-900 dark:text-white">{{ monthlyAnalysis.annualCost }}</span>
+              <div class="text-lg font-bold text-green-600 dark:text-green-400">
+                Save {{ savings.savingsAmount }}
               </div>
             </div>
-          </div>
-        </UCard>
-
-        <UCard class="bg-purple-50 dark:bg-purple-900/20">
-          <div class="p-3 sm:p-4">
-            <h4 class="font-medium text-purple-600 dark:text-purple-400 mb-2">One-time Purchases</h4>
-            <div class="space-y-2 text-sm">
+            
+            <div class="space-y-2 text-xs">
               <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-300">Best One-time Deal:</span>
-                <span class="font-semibold text-gray-900 dark:text-white">{{ monthlyAnalysis.bestOneTime }}</span>
+                <span class="text-gray-600 dark:text-gray-300">Normal Cost:</span>
+                <span class="font-medium text-red-600 dark:text-red-400">{{ savings.normalCost }}</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-300">Cost per {{ gameData.metadata.pull.name }}:</span>
-                <span class="font-semibold text-gray-900 dark:text-white">{{ monthlyAnalysis.bestOneTimeCostPerPull }}</span>
+                <span class="text-gray-600 dark:text-gray-300">Bonus Cost:</span>
+                <span class="font-medium text-green-600 dark:text-green-400">{{ savings.bonusCost }}</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-300">Break-even:</span>
-                <span class="font-semibold text-gray-900 dark:text-white">{{ monthlyAnalysis.breakEven }}</span>
+                <span class="text-gray-600 dark:text-gray-300">You Get:</span>
+                <span class="font-medium text-gray-900 dark:text-white">{{ savings.bonusPulls }} {{ gameData.metadata.pull.name.toLowerCase() }}s</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600 dark:text-gray-300">Savings:</span>
+                <span class="font-bold text-green-600 dark:text-green-400">{{ savings.savingsPercentage }}%</span>
+              </div>
+            </div>
+            
+            <div class="mt-3 pt-2 border-t border-green-200 dark:border-green-800">
+              <div class="text-xs text-gray-500 dark:text-gray-400 text-center">
+                {{ savings.explanation }}
               </div>
             </div>
           </div>
@@ -191,7 +169,7 @@ const overallStats = computed(() => {
     value: overallAnalysis.value.bestValue.name,
     color: 'text-green-600 dark:text-green-400',
     bgClass: 'bg-green-50 dark:bg-green-900/20',
-    explanation: `Best cost per ${props.gameData.metadata.pull.name.toLowerCase()}`
+    explanation: `Best cost per ${props.gameData.metadata.pull.name.toLowerCase()}: $${overallAnalysis.value.bestValue.costPerPull.toFixed(2)}`
   }
 })
 
@@ -226,81 +204,42 @@ const packageTypeStats = computed(() => {
   })
 })
 
-// Tier-based savings analysis - comparing normal vs first-time bonus for each tier
-const tierSavingsAnalysis = computed(() => {
+// Package-specific savings analysis - comparing actual packages by name
+const packageSavingsAnalysis = computed(() => {
   const normalPackages = props.processedPackages.normal?.filter(pkg => pkg.pullsFromPackage > 0) || []
   const bonusPackages = props.processedPackages.first_time_bonus?.filter(pkg => pkg.pullsFromPackage > 0) || []
 
   if (normalPackages.length === 0 || bonusPackages.length === 0) return []
 
-  // Sort packages by price to match tiers
+  // Sort packages by price to match corresponding packages
   const sortedNormal = [...normalPackages].sort((a, b) => a.price - b.price)
   const sortedBonus = [...bonusPackages].sort((a, b) => a.price - b.price)
 
-  const tierComparisons = []
-  const maxTiers = Math.min(sortedNormal.length, sortedBonus.length)
+  const packageComparisons = []
+  const maxComparisons = Math.min(sortedNormal.length, sortedBonus.length)
 
-  for (let i = 0; i < maxTiers; i++) {
+  for (let i = 0; i < maxComparisons; i++) {
     const normalPkg = sortedNormal[i]
     const bonusPkg = sortedBonus[i]
     
     const savingsPerPull = normalPkg.costPerPull - bonusPkg.costPerPull
     const savingsPercentage = (savingsPerPull / normalPkg.costPerPull) * 100
+    const totalSavings = savingsPerPull * bonusPkg.pullsFromPackage
     
     if (savingsPerPull > 0) {
-      tierComparisons.push({
-        tierName: `Tier ${i + 1} ($${normalPkg.price.toFixed(2)})`,
-        savings: `$${savingsPerPull.toFixed(2)}`,
-        explanation: `${savingsPercentage.toFixed(1)}% savings per ${props.gameData.metadata.pull.name.toLowerCase()}`,
-        comparison: `${normalPkg.costPerPull.toFixed(2)} → ${bonusPkg.costPerPull.toFixed(2)}`
+      packageComparisons.push({
+        normalPackage: normalPkg.name.replace(' (First Purchase)', ''),
+        bonusPackage: bonusPkg.name,
+        normalCost: `$${normalPkg.costPerPull.toFixed(2)} per ${props.gameData.metadata.pull.name.toLowerCase()}`,
+        bonusCost: `$${bonusPkg.costPerPull.toFixed(2)} per ${props.gameData.metadata.pull.name.toLowerCase()}`,
+        bonusPulls: bonusPkg.pullsFromPackage,
+        savingsAmount: `$${totalSavings.toFixed(2)}`,
+        savingsPercentage: savingsPercentage.toFixed(1),
+        explanation: `First-time bonus gives you ${bonusPkg.pullsFromPackage} ${props.gameData.metadata.pull.name.toLowerCase()}s for the same price as ${normalPkg.pullsFromPackage} ${props.gameData.metadata.pull.name.toLowerCase()}s`
       })
     }
   }
 
-  return tierComparisons
-})
-
-// Monthly vs one-time analysis (unchanged)
-const monthlyAnalysis = computed(() => {
-  const subscriptions = props.processedPackages.subscription?.filter(pkg => pkg.pullsFromPackage > 0) || []
-  const battlePasses = props.processedPackages.battle_pass?.filter(pkg => pkg.pullsFromPackage > 0) || []
-  const oneTimePackages = [
-    ...(props.processedPackages.normal?.filter(pkg => pkg.pullsFromPackage > 0) || []),
-    ...(props.processedPackages.first_time_bonus?.filter(pkg => pkg.pullsFromPackage > 0) || [])
-  ]
-
-  if (subscriptions.length === 0 && battlePasses.length === 0) return null
-
-  // Monthly recurring costs
-  const monthlySubscriptionCost = subscriptions.reduce((sum, pkg) => sum + pkg.price, 0)
-  const monthlySubscriptionPulls = subscriptions.reduce((sum, pkg) => sum + pkg.pullsFromPackage, 0)
-  
-  // Battle passes (assuming quarterly)
-  const monthlyBattlePassCost = battlePasses.reduce((sum, pkg) => sum + pkg.price, 0) / 3
-  const monthlyBattlePassPulls = battlePasses.reduce((sum, pkg) => sum + pkg.pullsFromPackage, 0) / 3
-
-  const totalMonthlyCost = monthlySubscriptionCost + monthlyBattlePassCost
-  const totalMonthlyPulls = monthlySubscriptionPulls + monthlyBattlePassPulls
-
-  // Best one-time deal
-  const bestOneTime = oneTimePackages.length > 0 
-    ? oneTimePackages.reduce((best, pkg) => pkg.costPerPull < best.costPerPull ? pkg : best)
-    : null
-
-  const formatValue = (value: number, prefix = '$') => 
-    Number.isFinite(value) ? `${prefix}${value.toFixed(2)}` : 'N/A'
-
-  const breakEvenMonths = bestOneTime && totalMonthlyCost > 0 
-    ? Math.ceil(bestOneTime.price / totalMonthlyCost)
-    : null
-
-  return {
-    monthlyCost: formatValue(totalMonthlyCost),
-    monthlyPulls: Math.round(totalMonthlyPulls).toString(),
-    annualCost: formatValue(totalMonthlyCost * 12),
-    bestOneTime: bestOneTime?.name || 'N/A',
-    bestOneTimeCostPerPull: bestOneTime ? formatValue(bestOneTime.costPerPull) : 'N/A',
-    breakEven: breakEvenMonths ? `${breakEvenMonths} months` : 'N/A'
-  }
+  return packageComparisons
 })
 </script>

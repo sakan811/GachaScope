@@ -37,7 +37,7 @@
       :processed-packages="processedPackages"
     />
 
-    <!-- Package Overview -->
+    <!-- Package Overview - Show All Packages -->
     <UCard class="mb-8">
       <template #header>
         <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
@@ -45,26 +45,74 @@
         </h2>
       </template>
       
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Package Type Cards -->
-        <div v-for="(packages, type) in filteredPackages" :key="type" 
-             :class="getPackageTypeStyle(type).card">
-          <div class="p-4">
-            <h3 class="font-medium mb-3" :class="getPackageTypeStyle(type).title">
-              {{ getPackageTypeName(type) }}
-            </h3>
-            <div class="space-y-2">
-              <div v-for="pkg in packages.slice(0, 2)" :key="pkg.id" 
-                   class="text-sm border rounded p-2 bg-white dark:bg-gray-800">
-                <div class="flex justify-between items-center">
-                  <span class="font-medium">${{ pkg.price.toFixed(2) }}</span>
-                  <span :class="pkg.pullsFromPackage === 0 ? 'text-red-500' : 'text-gray-600 dark:text-gray-300'">
+      <div class="space-y-6">
+        <div v-for="(packages, type) in filteredPackages" :key="type" class="space-y-4">
+          <h3 class="text-lg font-medium flex items-center gap-2" :class="getPackageTypeStyle(type).title">
+            <UIcon :name="getPackageTypeIcon(type)" class="w-4 h-4" />
+            {{ getPackageTypeName(type) }}
+          </h3>
+          
+          <!-- Mobile View: Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:hidden">
+            <div v-for="pkg in packages" :key="pkg.id" 
+                 :class="[getPackageTypeStyle(type).card, 'p-3 rounded-lg']">
+              <div class="flex justify-between items-start mb-2">
+                <div class="text-sm font-bold text-gray-900 dark:text-white">${{ pkg.price.toFixed(2) }}</div>
+                <div class="text-right">
+                  <div :class="pkg.pullsFromPackage === 0 ? 'text-red-500 font-medium' : 'text-gray-600 dark:text-gray-300'">
                     {{ pkg.pullsFromPackage }} {{ gameData.metadata.pull.name.toLowerCase() }}s
-                  </span>
+                  </div>
                 </div>
               </div>
-              <div v-if="packages.length > 2" class="text-xs text-gray-500 text-center">
-                +{{ packages.length - 2 }} more
+              <div class="text-xs text-gray-600 dark:text-gray-300 mb-1">
+                {{ pkg.totalAmount.toLocaleString() }} {{ gameData.metadata.currency.shortName.toLowerCase() }}
+              </div>
+              <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                {{ pkg.leftoverAmount }} leftover
+              </div>
+              <div class="text-xs font-medium" :class="getPackageTypeStyle(type).title">
+                ${{ pkg.costPerPull.toFixed(2) }} per {{ gameData.metadata.pull.name.toLowerCase() }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Desktop View: Table -->
+          <div class="hidden lg:block">
+            <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div :class="[getPackageTypeStyle(type).card, 'px-4 py-3 border-b']">
+                <div class="grid grid-cols-6 gap-4 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <div>Package Name</div>
+                  <div>Price</div>
+                  <div>{{ gameData.metadata.currency.shortName }}</div>
+                  <div>{{ gameData.metadata.pull.name }}s</div>
+                  <div>Leftover</div>
+                  <div>Cost per {{ gameData.metadata.pull.name }}</div>
+                </div>
+              </div>
+              <div class="divide-y divide-gray-200 dark:divide-gray-700">
+                <div v-for="pkg in packages" :key="pkg.id" 
+                     class="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                  <div class="grid grid-cols-6 gap-4 items-center">
+                    <div class="font-medium text-gray-900 dark:text-white text-sm">
+                      {{ pkg.name }}
+                    </div>
+                    <div class="font-semibold text-gray-900 dark:text-white">
+                      ${{ pkg.price.toFixed(2) }}
+                    </div>
+                    <div class="text-gray-600 dark:text-gray-300">
+                      {{ pkg.totalAmount.toLocaleString() }}
+                    </div>
+                    <div :class="pkg.pullsFromPackage === 0 ? 'text-red-500 font-medium' : 'text-gray-900 dark:text-white'">
+                      {{ pkg.pullsFromPackage }}
+                    </div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400">
+                      {{ pkg.leftoverAmount }}
+                    </div>
+                    <div class="font-medium" :class="getPackageTypeStyle(type).title">
+                      ${{ pkg.costPerPull.toFixed(2) }}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -170,14 +218,22 @@ const packageTypeStyles = {
 }
 
 const packageTypeNames = {
-  normal: 'Normal',
-  first_time_bonus: 'First-Time Bonus',
-  subscription: 'Subscriptions',
-  battle_pass: 'Battle Pass'
+  normal: 'Normal Packages',
+  first_time_bonus: 'First-Time Bonus Packages',
+  subscription: 'Subscription Packages',
+  battle_pass: 'Battle Pass Packages'
+}
+
+const packageTypeIcons = {
+  normal: 'i-heroicons-shopping-bag',
+  first_time_bonus: 'i-heroicons-gift',
+  subscription: 'i-heroicons-calendar',
+  battle_pass: 'i-heroicons-trophy'
 }
 
 const getPackageTypeStyle = (type) => packageTypeStyles[type] || packageTypeStyles.normal
 const getPackageTypeName = (type) => packageTypeNames[type] || type
+const getPackageTypeIcon = (type) => packageTypeIcons[type] || 'i-heroicons-cube'
 
 // Chart data and options
 const { packageTypeColors, typeLabels, createChartOptions } = useChartConfig(gameData)
