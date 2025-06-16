@@ -91,7 +91,7 @@ export const useGameAnalysis = () => {
 
       scenarios.sort((a, b) => a.totalCost - b.totalCost)
 
-      if (['normal', 'first_time_bonus', 'limited_time', 'subscription'].includes(groupKey)) {
+      if (['normal', 'first_time_bonus', 'limited_time', 'subscription', 'battle_pass'].includes(groupKey)) {
         scenarioGroups[groupKey as PurchaseType] = scenarios.slice(0, config.maxScenarios)
       }
     }

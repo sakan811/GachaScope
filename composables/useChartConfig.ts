@@ -8,6 +8,7 @@ export const useChartConfig = (gameData: Ref<GameData>) => {
     normal: { bg: 'rgba(239, 68, 68, 0.8)', border: 'rgb(239, 68, 68)' },
     first_time_bonus: { bg: 'rgba(34, 197, 94, 0.8)', border: 'rgb(34, 197, 94)' },
     subscription: { bg: 'rgba(59, 130, 246, 0.8)', border: 'rgb(59, 130, 246)' },
+    battle_pass: { bg: 'rgba(147, 51, 234, 0.8)', border: 'rgb(147, 51, 234)' },
     limited_time: { bg: 'rgba(168, 85, 247, 0.8)', border: 'rgb(168, 85, 247)' }
   }
 
@@ -15,6 +16,7 @@ export const useChartConfig = (gameData: Ref<GameData>) => {
     normal: 'Normal Packages',
     first_time_bonus: 'First-Time Bonus',
     subscription: 'Subscription',
+    battle_pass: 'Battle Pass',
     limited_time: 'Limited Time'
   }
 

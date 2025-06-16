@@ -49,6 +49,12 @@
       :subscription-packages="processedPackages.subscription || []" 
     />
 
+    <!-- Battle Pass -->
+    <AnalysisBattlePassSection 
+      :game-data="gameData" 
+      :battle-pass-packages="processedPackages.battle_pass || []" 
+    />
+
     <!-- Package Comparison -->
     <UCard class="mb-6 sm:mb-8">
       <template #header>
@@ -137,7 +143,7 @@
       />
     </div>
     <div class="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-600 dark:text-gray-300">
-      Shows cost vs {{ gameData?.metadata?.pull?.name?.toLowerCase() || 'pull' }}s for all package types including subscriptions. Different colors represent different package types.
+      Shows cost vs {{ gameData?.metadata?.pull?.name?.toLowerCase() || 'pull' }}s for all package types including subscriptions and battle passes. Different colors represent different package types.
     </div>
       </UCard>
 
@@ -145,7 +151,7 @@
       <UCard>
         <template #header>
           <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <UIcon name="i-heroicons-chart-pie" class="w-4 h-4 sm:w-5 sm:h-5" />Package and Subscription Efficiency
+            <UIcon name="i-heroicons-chart-pie" class="w-4 h-4 sm:w-5 sm:h-5" />Package Efficiency Comparison
           </h3>
         </template>
         <div class="h-64 sm:h-80 w-full">
@@ -156,7 +162,7 @@
           />
         </div>
         <div class="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-600 dark:text-gray-300">
-          Cost per {{ gameData?.metadata?.pull?.name?.toLowerCase() || 'pull' }} grouped by package and subscription type. Lower is better.
+          Cost per {{ gameData?.metadata?.pull?.name?.toLowerCase() || 'pull' }} grouped by package type. Lower is better.
         </div>
         <div v-if="hasZeroPullPackages" 
              class="mt-2 text-xs sm:text-sm text-gray-600 dark:text-gray-300 italic">
@@ -189,6 +195,8 @@ import { getGameById } from '~/utils/gameRegistry'
 import { useGameAnalysis } from '~/composables/useGameAnalysis'
 import PackageCard from '~/components/analysis/PackageCard.vue'
 import PackageTable from '~/components/analysis/PackageTable.vue'
+import AnalysisSubscriptionSection from '~/components/analysis/SubscriptionSection.vue'
+import AnalysisBattlePassSection from '~/components/analysis/BattlePassSection.vue'
 import { useChartConfig } from '~/composables/useChartConfig'
 import {
   Chart as ChartJS,
@@ -284,9 +292,9 @@ const scatterChartData = computed(() => {
 })
 
 const barChartData = computed(() => {
-  if (!chartsData) return { labels: [], datasets: [] }
+  if (!chartsData?.barData) return { labels: [], datasets: [] }
   
-  // Get all unique package names across all types
+  // Use the correctly calculated data from generateChartsFromPackages
   const allPackageNames = new Set()
   Object.values(chartsData.barData).forEach(packages => {
     packages.forEach(pkg => allPackageNames.add(pkg.package))
@@ -295,7 +303,7 @@ const barChartData = computed(() => {
   const labels = Array.from(allPackageNames)
   
   const datasets = Object.entries(chartsData.barData).map(([type, packages]) => ({
-    label: `${typeLabels[type] || type} Cost/${gameData?.metadata?.pull?.name || 'Pull'}`,
+    label: `${typeLabels[type] || type} Cost/${gameData.value?.metadata?.pull?.name || 'Pull'}`,
     data: labels.map(label => {
       const pkg = packages.find(p => p.package === label)
       return pkg ? parseFloat(pkg.costPerPull.toFixed(2)) : null
@@ -336,7 +344,7 @@ const insightStats = computed(() => {
       color: 'text-purple-600 dark:text-purple-400' 
     },
     { 
-      label: `Best Cost/${gameData?.metadata?.pull?.name || 'Pull'}`, 
+      label: `Best Cost/${gameData.value?.metadata?.pull?.name || 'Pull'}`, 
       value: formatValue(analysisResult.insights.bestScenario?.costPerPull), 
       color: 'text-gray-900 dark:text-white' 
     }

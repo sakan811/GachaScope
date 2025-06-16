@@ -1,4 +1,4 @@
-export type PurchaseType = 'normal' | 'first_time_bonus' | 'limited_time' | 'subscription';
+export type PurchaseType = 'normal' | 'first_time_bonus' | 'battle_pass' | 'subscription';
 
 export interface GameCurrency {
   name: string;

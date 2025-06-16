@@ -1,26 +1,26 @@
 <template>
-  <UCard v-if="subscriptionPackages?.length" class="mb-6 sm:mb-8">
+  <UCard v-if="battlePassPackages?.length" class="mb-6 sm:mb-8">
     <template #header>
       <h2 class="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-        <UIcon name="i-heroicons-calendar" class="w-5 h-5 sm:w-6 sm:h-6" />
-        Subscription Packages
+        <UIcon name="i-heroicons-trophy" class="w-5 h-5 sm:w-6 sm:h-6" />
+        Battle Pass
       </h2>
     </template>
     
     <!-- Mobile View: Stacked Cards -->
     <div class="block lg:hidden space-y-4">
-      <div v-for="(pkg, index) in subscriptionPackages" :key="index" 
-           class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+      <div v-for="(pkg, index) in battlePassPackages" :key="index" 
+           class="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
         <div class="flex justify-between items-start mb-2">
           <div class="text-lg font-bold text-gray-900 dark:text-white">${{ pkg.price.toFixed(2) }}</div>
           <div class="text-right">
-            <div :class="pkg.pullsFromPackage === 0 ? 'text-red-500 font-medium' : 'text-blue-600 dark:text-blue-400 font-semibold'">
+            <div :class="pkg.pullsFromPackage === 0 ? 'text-red-500 font-medium' : 'text-purple-600 dark:text-purple-400 font-semibold'">
               {{ pkg.pullsFromPackage }} {{ gameData.metadata.pull.name.toLowerCase() }}s
             </div>
           </div>
         </div>
         <div class="text-sm font-medium text-gray-900 dark:text-white mb-2">
-          {{ pkg.name }}
+          {{ formatBattlePassName(pkg.name) }}
         </div>
         <div class="text-sm text-gray-600 dark:text-gray-300 mb-1">
           {{ pkg.totalAmount }} {{ gameData.metadata.currency.shortName.toLowerCase() }}
@@ -28,7 +28,7 @@
         <div class="text-xs text-gray-500 dark:text-gray-400 mb-2">
           {{ pkg.leftoverAmount }} leftover
         </div>
-        <div v-if="pkg.description" class="text-xs text-blue-600 dark:text-blue-300 italic">
+        <div v-if="pkg.description" class="text-xs text-purple-600 dark:text-purple-300 italic">
           {{ pkg.description }}
         </div>
       </div>
@@ -37,9 +37,9 @@
     <!-- Desktop View: Table Layout -->
     <div class="hidden lg:block">
       <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div class="bg-blue-50 dark:bg-blue-900/20 px-4 py-3 border-b border-blue-200 dark:border-blue-800">
+        <div class="bg-purple-50 dark:bg-purple-900/20 px-4 py-3 border-b border-purple-200 dark:border-purple-800">
           <div class="grid grid-cols-6 gap-4 text-sm font-medium text-gray-700 dark:text-gray-300">
-            <div>Package Name</div>
+            <div>Battle Pass Name</div>
             <div>Price</div>
             <div>{{ gameData.metadata.currency.shortName }}</div>
             <div>{{ gameData.metadata.pull.name }}s</div>
@@ -48,11 +48,11 @@
           </div>
         </div>
         <div class="divide-y divide-gray-200 dark:divide-gray-700">
-          <div v-for="(pkg, index) in subscriptionPackages" :key="index" 
+          <div v-for="(pkg, index) in battlePassPackages" :key="index" 
                class="px-4 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
             <div class="grid grid-cols-6 gap-4 items-center">
               <div class="font-medium text-gray-900 dark:text-white">
-                {{ pkg.name }}
+                {{ formatBattlePassName(pkg.name) }}
               </div>
               <div class="font-semibold text-gray-900 dark:text-white">
                 ${{ pkg.price.toFixed(2) }}
@@ -60,13 +60,13 @@
               <div class="text-gray-600 dark:text-gray-300">
                 {{ pkg.totalAmount.toLocaleString() }}
               </div>
-              <div :class="pkg.pullsFromPackage === 0 ? 'text-red-500 font-medium' : 'text-blue-600 dark:text-blue-400 font-medium'">
+              <div :class="pkg.pullsFromPackage === 0 ? 'text-red-500 font-medium' : 'text-purple-600 dark:text-purple-400 font-medium'">
                 {{ pkg.pullsFromPackage }}
               </div>
               <div class="text-sm text-gray-500 dark:text-gray-400">
                 {{ pkg.leftoverAmount }}
               </div>
-              <div class="text-xs text-blue-600 dark:text-blue-300">
+              <div class="text-xs text-purple-600 dark:text-purple-300">
                 {{ pkg.description || 'N/A' }}
               </div>
             </div>
@@ -75,15 +75,15 @@
       </div>
     </div>
 
-    <!-- Subscription Value Analysis -->
-    <div v-if="subscriptionAnalysis" class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+    <!-- Battle Pass Value Analysis -->
+    <div v-if="battlePassAnalysis" class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
         <UIcon name="i-heroicons-calculator" class="w-4 h-4" />
-        Subscription Value Analysis
+        Battle Pass Value Analysis
       </h3>
       
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <UCard v-for="stat in subscriptionStats" :key="stat.label" class="bg-blue-50 dark:bg-blue-900/20">
+        <UCard v-for="stat in battlePassStats" :key="stat.label" class="bg-purple-50 dark:bg-purple-900/20">
           <div class="text-center p-2 sm:p-3">
             <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-1 sm:mb-2">{{ stat.label }}</div>
             <div class="text-lg sm:text-xl font-bold break-words" :class="stat.color">{{ stat.value }}</div>
@@ -102,16 +102,25 @@ import type { GameData, ProcessedPackage } from '~/types/games'
 
 interface Props {
   gameData: GameData
-  subscriptionPackages: ProcessedPackage[]
+  battlePassPackages: ProcessedPackage[]
 }
 
 const props = defineProps<Props>()
 
-// Subscription analysis
-const subscriptionAnalysis = computed(() => {
-  if (!props.subscriptionPackages?.length) return null
+// Format battle pass names for better display
+const formatBattlePassName = (name: string): string => {
+  return name
+    .replace(/Nameless/g, 'Nameless')
+    .replace(/Glory/g, 'Glory')
+    .replace(/Medal/g, 'Medal')
+    .trim()
+}
+
+// Battle pass analysis
+const battlePassAnalysis = computed(() => {
+  if (!props.battlePassPackages?.length) return null
   
-  const validPackages = props.subscriptionPackages.filter(pkg => pkg.pullsFromPackage > 0)
+  const validPackages = props.battlePassPackages.filter(pkg => pkg.pullsFromPackage > 0)
   if (!validPackages.length) return null
   
   return {
@@ -119,13 +128,16 @@ const subscriptionAnalysis = computed(() => {
       pkg.costPerPull < best.costPerPull ? pkg : best
     ),
     avgCostPerPull: validPackages.reduce((sum, pkg) => sum + pkg.costPerPull, 0) / validPackages.length,
-    totalMonthlyValue: validPackages.reduce((sum, pkg) => sum + pkg.price, 0),
-    totalMonthlyPulls: validPackages.reduce((sum, pkg) => sum + pkg.pullsFromPackage, 0)
+    totalValue: validPackages.reduce((sum, pkg) => sum + pkg.price, 0),
+    totalPulls: validPackages.reduce((sum, pkg) => sum + pkg.pullsFromPackage, 0),
+    mostExpensive: validPackages.reduce((most, pkg) => 
+      pkg.price > most.price ? pkg : most
+    )
   }
 })
 
-const subscriptionStats = computed(() => {
-  if (!subscriptionAnalysis.value) return []
+const battlePassStats = computed(() => {
+  if (!battlePassAnalysis.value) return []
   
   const formatValue = (value: number, prefix = '$') => 
     Number.isFinite(value) ? `${prefix}${value.toFixed(2)}` : 'N/A'
@@ -133,25 +145,25 @@ const subscriptionStats = computed(() => {
   return [
     { 
       label: 'Best Value', 
-      value: subscriptionAnalysis.value.bestValue.name, 
-      color: 'text-blue-600 dark:text-blue-400' 
+      value: formatBattlePassName(battlePassAnalysis.value.bestValue.name), 
+      color: 'text-purple-600 dark:text-purple-400' 
     },
     { 
       label: `Best Cost/${props.gameData.metadata.pull.name}`, 
-      value: formatValue(subscriptionAnalysis.value.bestValue.costPerPull), 
+      value: formatValue(battlePassAnalysis.value.bestValue.costPerPull), 
       color: 'text-green-600 dark:text-green-400' 
     },
     { 
-      label: 'Monthly Total', 
-      value: formatValue(subscriptionAnalysis.value.totalMonthlyValue), 
-      color: 'text-purple-600 dark:text-purple-400',
-      explanation: 'Total monthly cost for all subscriptions'
+      label: 'Total Value', 
+      value: formatValue(battlePassAnalysis.value.totalValue), 
+      color: 'text-amber-600 dark:text-amber-400',
+      explanation: 'Combined cost of all battle passes'
     },
     { 
-      label: `Monthly ${props.gameData.metadata.pull.name}s`, 
-      value: subscriptionAnalysis.value.totalMonthlyPulls.toString(), 
+      label: `Total ${props.gameData.metadata.pull.name}s`, 
+      value: battlePassAnalysis.value.totalPulls.toString(), 
       color: 'text-gray-900 dark:text-white',
-      explanation: 'Total pulls per month from all subscriptions'
+      explanation: 'Total pulls from all battle passes'
     }
   ]
 })

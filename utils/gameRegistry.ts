@@ -48,9 +48,11 @@ const hsrGameData: GameData = {
 
     subscription: [
       { id: 'hsr_s1', name: 'Express Supply Pass', baseAmount: 300, price: 4.99, extraAmount: 2700, purchaseType: 'subscription', currency: 'shards', description: '300 Oneiric Shards immediately + 90 Stellar Jade daily for 30 days' },
-      { id: 'hsr_s2', name: 'Nameless Glory', baseAmount: 680, price: 9.99, extraAmount: 0, purchaseType: 'subscription', currency: 'shards', description: 'Battle Pass with Stellar Jade ×680 + additional rewards' },
-      { id: 'hsr_s3', name: 'Nameless Medal', baseAmount: 200, price: 19.99, extraAmount: 0, purchaseType: 'subscription', currency: 'shards', description: '+10 Battle Pass levels + Stellar Jade ×200' },
-      { id: 'hsr_s4', name: 'Nameless Medal (with Glory)', baseAmount: 200, price: 11.99, extraAmount: 0, purchaseType: 'subscription', currency: 'shards', description: '+10 Battle Pass levels + Stellar Jade ×200 (requires Nameless Glory)' },
+    ],
+
+    battle_pass: [
+      { id: 'hsr_bp1', name: 'Nameless Glory', baseAmount: 680, price: 9.99, extraAmount: 640, purchaseType: 'battle_pass', currency: 'shards', description: '680 Stellar Jade plus 4 Star Rail Special Pass' },
+      { id: 'hsr_bp2', name: 'Nameless Medal', baseAmount: 880, price: 19.99, extraAmount: 640, purchaseType: 'battle_pass', currency: 'shards', description: '880 Stellar Jade plus 4 Star Rail Special Pass' },
     ]
   }
 }
