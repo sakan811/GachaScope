@@ -7,14 +7,14 @@
       </h2>
     </template>
 
-    <!-- Overall Best Value Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
-      <UCard v-for="stat in overallStats" :key="stat.label" :class="stat.bgClass">
+    <!-- Overall Best Value Card (only one card now) -->
+    <div class="grid grid-cols-1 gap-3 sm:gap-4 mb-6">
+      <UCard v-if="overallStats" :class="overallStats.bgClass">
         <div class="text-center p-2 sm:p-3">
-          <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-1 sm:mb-2">{{ stat.label }}</div>
-          <div class="text-lg sm:text-xl font-bold break-words" :class="stat.color">{{ stat.value }}</div>
-          <div v-if="stat.explanation" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            {{ stat.explanation }}
+          <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-1 sm:mb-2">{{ overallStats.label }}</div>
+          <div class="text-lg sm:text-xl font-bold break-words" :class="overallStats.color">{{ overallStats.value }}</div>
+          <div v-if="overallStats.explanation" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            {{ overallStats.explanation }}
           </div>
         </div>
       </UCard>
@@ -33,13 +33,13 @@
             <div class="text-sm font-medium mb-2" :class="typeStats.titleColor">{{ typeStats.displayName }}</div>
             <div class="space-y-1">
               <div class="text-xs text-gray-600 dark:text-gray-300">
-                Best Cost/{{ gameData.metadata.pull.name }}
+                Best Package
               </div>
-              <div class="text-lg font-bold" :class="typeStats.valueColor">
-                {{ typeStats.bestCostPerPull }}
+              <div class="text-sm font-bold" :class="typeStats.valueColor">
+                {{ typeStats.bestPackageName }}
               </div>
               <div class="text-xs text-gray-500 dark:text-gray-400">
-                {{ typeStats.packageCount }} package{{ typeStats.packageCount !== 1 ? 's' : '' }}
+                {{ typeStats.bestCostPerPull }}
               </div>
             </div>
           </div>
@@ -47,20 +47,23 @@
       </div>
     </div>
 
-    <!-- Savings Analysis -->
-    <div v-if="savingsAnalysis" class="pt-6 border-t border-gray-200 dark:border-gray-700">
+    <!-- Savings Analysis - Normal vs First-Time Bonus Comparison -->
+    <div v-if="tierSavingsAnalysis?.length" class="pt-6 border-t border-gray-200 dark:border-gray-700">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
         <UIcon name="i-heroicons-calculator" class="w-4 h-4" />
-        Savings Analysis
+        Savings Analysis - Normal vs First-Time Bonus
       </h3>
       
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-        <UCard v-for="saving in savingsStats" :key="saving.label" class="bg-green-50 dark:bg-green-900/20">
+        <UCard v-for="(tier, index) in tierSavingsAnalysis" :key="index" class="bg-green-50 dark:bg-green-900/20">
           <div class="text-center p-2 sm:p-3">
-            <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-1 sm:mb-2">{{ saving.label }}</div>
-            <div class="text-lg sm:text-xl font-bold text-green-600 dark:text-green-400">{{ saving.value }}</div>
-            <div v-if="saving.explanation" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              {{ saving.explanation }}
+            <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-1 sm:mb-2">{{ tier.tierName }}</div>
+            <div class="text-lg sm:text-xl font-bold text-green-600 dark:text-green-400">{{ tier.savings }}</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              {{ tier.explanation }}
+            </div>
+            <div class="text-xs text-gray-600 dark:text-gray-300 mt-2">
+              {{ tier.comparison }}
             </div>
           </div>
         </UCard>
@@ -168,71 +171,31 @@ const allValidPackages = computed(() => {
   return packages
 })
 
-// Overall analysis
+// Overall analysis - simplified to only show best overall value
 const overallAnalysis = computed(() => {
   if (!allValidPackages.value.length) return null
 
   const bestValue = allValidPackages.value.reduce((best, pkg) => 
     pkg.costPerPull < best.costPerPull ? pkg : best
   )
-  
-  const worstValue = allValidPackages.value.reduce((worst, pkg) => 
-    pkg.costPerPull > worst.costPerPull ? pkg : worst
-  )
 
-  const avgCostPerPull = allValidPackages.value.reduce((sum, pkg) => sum + pkg.costPerPull, 0) / allValidPackages.value.length
+  return { bestValue }
+})
 
-  const totalPackages = allValidPackages.value.length
+// Overall stats - only one card now
+const overallStats = computed(() => {
+  if (!overallAnalysis.value) return null
 
   return {
-    bestValue,
-    worstValue,
-    avgCostPerPull,
-    totalPackages,
-    savings: worstValue.costPerPull - bestValue.costPerPull
+    label: 'Best Overall Value',
+    value: overallAnalysis.value.bestValue.name,
+    color: 'text-green-600 dark:text-green-400',
+    bgClass: 'bg-green-50 dark:bg-green-900/20',
+    explanation: `Best cost per ${props.gameData.metadata.pull.name.toLowerCase()}`
   }
 })
 
-// Overall stats for top cards
-const overallStats = computed(() => {
-  if (!overallAnalysis.value) return []
-
-  const formatValue = (value: number, prefix = '$') => 
-    Number.isFinite(value) ? `${prefix}${value.toFixed(2)}` : 'N/A'
-
-  return [
-    {
-      label: 'Best Overall Value',
-      value: overallAnalysis.value.bestValue.name,
-      color: 'text-green-600 dark:text-green-400',
-      bgClass: 'bg-green-50 dark:bg-green-900/20',
-      explanation: `Best cost per ${props.gameData.metadata.pull.name.toLowerCase()}`
-    },
-    {
-      label: `Best Cost/${props.gameData.metadata.pull.name}`,
-      value: formatValue(overallAnalysis.value.bestValue.costPerPull),
-      color: 'text-blue-600 dark:text-blue-400',
-      bgClass: 'bg-blue-50 dark:bg-blue-900/20',
-      explanation: 'Lowest cost per pull across all types'
-    },
-    {
-      label: 'Maximum Savings',
-      value: formatValue(overallAnalysis.value.savings),
-      color: 'text-purple-600 dark:text-purple-400',
-      bgClass: 'bg-purple-50 dark:bg-purple-900/20',
-      explanation: 'Difference between best and worst value'
-    },
-    {
-      label: 'Total Packages',
-      value: overallAnalysis.value.totalPackages.toString(),
-      color: 'text-gray-900 dark:text-white',
-      bgClass: 'bg-gray-50 dark:bg-gray-800/50',
-      explanation: 'Available packages across all types'
-    }
-  ]
-})
-
-// Package type comparison stats
+// Package type comparison stats - now shows package names instead of counts
 const packageTypeStats = computed(() => {
   const stats = []
   
@@ -250,8 +213,8 @@ const packageTypeStats = computed(() => {
         bgClass: config.bgClass,
         titleColor: config.titleColor,
         valueColor: config.valueColor,
-        bestCostPerPull: `$${bestPackage.costPerPull.toFixed(2)}`,
-        packageCount: packages.length
+        bestPackageName: bestPackage.name,
+        bestCostPerPull: `$${bestPackage.costPerPull.toFixed(2)}`
       })
     }
   }
@@ -263,60 +226,41 @@ const packageTypeStats = computed(() => {
   })
 })
 
-// Savings analysis
-const savingsAnalysis = computed(() => {
-  if (!overallAnalysis.value) return null
-
+// Tier-based savings analysis - comparing normal vs first-time bonus for each tier
+const tierSavingsAnalysis = computed(() => {
   const normalPackages = props.processedPackages.normal?.filter(pkg => pkg.pullsFromPackage > 0) || []
   const bonusPackages = props.processedPackages.first_time_bonus?.filter(pkg => pkg.pullsFromPackage > 0) || []
 
-  if (normalPackages.length === 0 || bonusPackages.length === 0) return null
+  if (normalPackages.length === 0 || bonusPackages.length === 0) return []
 
-  const bestNormal = normalPackages.reduce((best, pkg) => 
-    pkg.costPerPull < best.costPerPull ? pkg : best
-  )
-  
-  const bestBonus = bonusPackages.reduce((best, pkg) => 
-    pkg.costPerPull < best.costPerPull ? pkg : best
-  )
+  // Sort packages by price to match tiers
+  const sortedNormal = [...normalPackages].sort((a, b) => a.price - b.price)
+  const sortedBonus = [...bonusPackages].sort((a, b) => a.price - b.price)
 
-  const savings = bestNormal.costPerPull - bestBonus.costPerPull
-  const savingsPercentage = (savings / bestNormal.costPerPull) * 100
+  const tierComparisons = []
+  const maxTiers = Math.min(sortedNormal.length, sortedBonus.length)
 
-  return {
-    bestNormal,
-    bestBonus,
-    savings,
-    savingsPercentage
-  }
-})
-
-const savingsStats = computed(() => {
-  if (!savingsAnalysis.value) return []
-
-  const formatValue = (value: number, prefix = '$') => 
-    Number.isFinite(value) ? `${prefix}${value.toFixed(2)}` : 'N/A'
-
-  return [
-    {
-      label: 'First-Time Bonus Savings',
-      value: formatValue(savingsAnalysis.value.savings),
-      explanation: `Per ${props.gameData.metadata.pull.name.toLowerCase()} vs normal packages`
-    },
-    {
-      label: 'Savings Percentage',
-      value: `${savingsAnalysis.value.savingsPercentage.toFixed(1)}%`,
-      explanation: 'First-time bonus discount'
-    },
-    {
-      label: 'Best Normal vs Bonus',
-      value: `${formatValue(savingsAnalysis.value.bestNormal.costPerPull)} → ${formatValue(savingsAnalysis.value.bestBonus.costPerPull)}`,
-      explanation: 'Cost comparison'
+  for (let i = 0; i < maxTiers; i++) {
+    const normalPkg = sortedNormal[i]
+    const bonusPkg = sortedBonus[i]
+    
+    const savingsPerPull = normalPkg.costPerPull - bonusPkg.costPerPull
+    const savingsPercentage = (savingsPerPull / normalPkg.costPerPull) * 100
+    
+    if (savingsPerPull > 0) {
+      tierComparisons.push({
+        tierName: `Tier ${i + 1} ($${normalPkg.price.toFixed(2)})`,
+        savings: `$${savingsPerPull.toFixed(2)}`,
+        explanation: `${savingsPercentage.toFixed(1)}% savings per ${props.gameData.metadata.pull.name.toLowerCase()}`,
+        comparison: `${normalPkg.costPerPull.toFixed(2)} → ${bonusPkg.costPerPull.toFixed(2)}`
+      })
     }
-  ]
+  }
+
+  return tierComparisons
 })
 
-// Monthly vs one-time analysis
+// Monthly vs one-time analysis (unchanged)
 const monthlyAnalysis = computed(() => {
   const subscriptions = props.processedPackages.subscription?.filter(pkg => pkg.pullsFromPackage > 0) || []
   const battlePasses = props.processedPackages.battle_pass?.filter(pkg => pkg.pullsFromPackage > 0) || []
