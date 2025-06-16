@@ -3,7 +3,7 @@
     <template #header>
       <h2 class="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
         <UIcon name="i-heroicons-currency-dollar" class="w-5 h-5 sm:w-6 sm:h-6" />
-        Combined Value Analysis
+        In-App Purchase Value Analysis
       </h2>
     </template>
 
@@ -24,7 +24,7 @@
     <div class="mb-6 pt-6 border-t border-gray-200 dark:border-gray-700">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
         <UIcon name="i-heroicons-chart-bar" class="w-4 h-4" />
-        Package Type Comparison
+        In-App Purchase Type Comparison
       </h3>
       
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -33,7 +33,7 @@
             <div class="text-sm font-medium mb-2" :class="typeStats.titleColor">{{ typeStats.displayName }}</div>
             <div class="space-y-1">
               <div class="text-xs text-gray-600 dark:text-gray-300">
-                Best Package
+                Best In-App Purchase
               </div>
               <div class="text-sm font-bold" :class="typeStats.valueColor">
                 {{ typeStats.bestPackageName }}
@@ -54,7 +54,7 @@
     <div v-if="packageSavingsAnalysis?.length" class="pt-6 border-t border-gray-200 dark:border-gray-700">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
         <UIcon name="i-heroicons-calculator" class="w-4 h-4" />
-        Savings Analysis - Normal vs First-Time Bonus
+        Savings Analysis - Normal vs First-Time Bonus for Oneiric Shard Purchases
       </h3>
       
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
