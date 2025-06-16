@@ -41,7 +41,7 @@
     <UCard class="mb-8">
       <template #header>
         <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-          <UIcon name="i-heroicons-cube" class="w-5 h-5" />Package Overview
+          <UIcon name="i-heroicons-cube" class="w-5 h-5" />In-App Purchase Overview
         </h2>
       </template>
       
@@ -81,7 +81,7 @@
             <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
               <div :class="[getPackageTypeStyle(type).card, 'px-4 py-3 border-b']">
                 <div class="grid grid-cols-6 gap-4 text-sm font-medium text-gray-700 dark:text-gray-300">
-                  <div>Package Name</div>
+                  <div>In-App Purchase Name</div>
                   <div>Price</div>
                   <div>{{ gameData.metadata.currency.shortName }}</div>
                   <div>{{ gameData.metadata.pull.name }}s</div>
@@ -218,10 +218,10 @@ const packageTypeStyles = {
 }
 
 const packageTypeNames = {
-  normal: 'Normal Packages',
-  first_time_bonus: 'First-Time Bonus Packages',
-  subscription: 'Subscription Packages',
-  battle_pass: 'Battle Pass Packages'
+  normal: 'Normal Oneiric Shard Purchase',
+  first_time_bonus: 'First-Time Bonus Oneiric Shard Purchase',
+  subscription: 'Subscription',
+  battle_pass: 'Battle Pass'
 }
 
 const packageTypeIcons = {
