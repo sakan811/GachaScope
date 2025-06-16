@@ -24,10 +24,10 @@
     <!-- Header -->
     <div class="text-center mb-8">
       <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-        {{ gameData.metadata.name }} Analysis
+        {{ gameData.metadata.name }} In-App Purchase Analysis
       </h1>
-      <p class="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-        Comprehensive {{ gameData.metadata.currency.name.toLowerCase() }} package analysis to optimize your spending.
+      <p class="text-gray-600 dark:text-gray-300 max-w-3xl mx-auto text-base sm:text-lg">
+        Compare {{ gameData.metadata.currency.name.toLowerCase() }} from in-app purchases to find the best value for your {{ gameData.metadata.pull.name.toLowerCase() }}s. 
       </p>
     </div>
 
@@ -71,7 +71,7 @@
                 {{ pkg.leftoverAmount }} leftover
               </div>
               <div class="text-xs font-medium" :class="getPackageTypeStyle(type).title">
-                ${{ pkg.costPerPull.toFixed(2) }} per {{ gameData.metadata.pull.name.toLowerCase() }}
+                {{ formatCostPerPull(pkg.costPerPull) }}
               </div>
             </div>
           </div>
@@ -109,7 +109,7 @@
                       {{ pkg.leftoverAmount }}
                     </div>
                     <div class="font-medium" :class="getPackageTypeStyle(type).title">
-                      ${{ pkg.costPerPull.toFixed(2) }}
+                      {{ formatCostPerPull(pkg.costPerPull) }}
                     </div>
                   </div>
                 </div>
@@ -196,6 +196,14 @@ const filteredPackages = computed(() => {
     Object.entries(processedPackages).filter(([_, packages]) => packages && packages.length > 0)
   )
 })
+
+// Format cost per pull to handle infinity
+const formatCostPerPull = (costPerPull) => {
+  if (!Number.isFinite(costPerPull) || costPerPull === Infinity) {
+    return 'no warp for the cost'
+  }
+  return `$${costPerPull.toFixed(2)} per ${gameData.value.metadata.pull.name.toLowerCase()}`
+}
 
 // Package type styling
 const packageTypeStyles = {
