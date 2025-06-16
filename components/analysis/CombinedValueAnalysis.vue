@@ -42,7 +42,7 @@
                 {{ typeStats.bestCostPerPull }} per {{ gameData.metadata.pull.name.toLowerCase() }}
               </div>
               <div class="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                This means each {{ gameData.metadata.pull.name.toLowerCase() }} costs {{ typeStats.bestCostPerPull }}
+                {{ typeStats.explanation }}
               </div>
             </div>
           </div>
@@ -110,6 +110,14 @@ interface Props {
 
 const props = defineProps<Props>()
 
+// Format cost per pull to handle infinity
+const formatCostPerPull = (costPerPull: number): string => {
+  if (!Number.isFinite(costPerPull) || costPerPull === Infinity) {
+    return 'no warp for the cost'
+  }
+  return `$${costPerPull.toFixed(2)}`
+}
+
 // Package type configurations
 const packageTypeConfig = {
   normal: {
@@ -169,7 +177,7 @@ const overallStats = computed(() => {
     value: overallAnalysis.value.bestValue.name,
     color: 'text-green-600 dark:text-green-400',
     bgClass: 'bg-green-50 dark:bg-green-900/20',
-    explanation: `Best cost per ${props.gameData.metadata.pull.name.toLowerCase()}: $${overallAnalysis.value.bestValue.costPerPull.toFixed(2)}`
+    explanation: `Best cost per ${props.gameData.metadata.pull.name.toLowerCase()}: ${formatCostPerPull(overallAnalysis.value.bestValue.costPerPull)}`
   }
 })
 
@@ -185,6 +193,11 @@ const packageTypeStats = computed(() => {
         pkg.costPerPull < best.costPerPull ? pkg : best
       )
       
+      const costDisplay = formatCostPerPull(bestPackage.costPerPull)
+      const explanation = costDisplay === 'no warp for the cost' 
+        ? 'This package provides no warps for the cost'
+        : `Each ${props.gameData.metadata.pull.name.toLowerCase()} costs ${costDisplay}`
+      
       stats.push({
         type,
         displayName: config.displayName,
@@ -192,12 +205,18 @@ const packageTypeStats = computed(() => {
         titleColor: config.titleColor,
         valueColor: config.valueColor,
         bestPackageName: bestPackage.name,
-        bestCostPerPull: `$${bestPackage.costPerPull.toFixed(2)}`
+        bestCostPerPull: costDisplay,
+        explanation
       })
     }
   }
   
   return stats.sort((a, b) => {
+    // Handle 'no warp for the cost' by putting them at the end
+    if (a.bestCostPerPull === 'no warp for the cost' && b.bestCostPerPull !== 'no warp for the cost') return 1
+    if (b.bestCostPerPull === 'no warp for the cost' && a.bestCostPerPull !== 'no warp for the cost') return -1
+    if (a.bestCostPerPull === 'no warp for the cost' && b.bestCostPerPull === 'no warp for the cost') return 0
+    
     const aValue = parseFloat(a.bestCostPerPull.replace('$', ''))
     const bValue = parseFloat(b.bestCostPerPull.replace('$', ''))
     return aValue - bValue
@@ -230,8 +249,8 @@ const packageSavingsAnalysis = computed(() => {
       packageComparisons.push({
         normalPackage: normalPkg.name.replace(' (First Purchase)', ''),
         bonusPackage: bonusPkg.name,
-        normalCost: `$${normalPkg.costPerPull.toFixed(2)} per ${props.gameData.metadata.pull.name.toLowerCase()}`,
-        bonusCost: `$${bonusPkg.costPerPull.toFixed(2)} per ${props.gameData.metadata.pull.name.toLowerCase()}`,
+        normalCost: formatCostPerPull(normalPkg.costPerPull) + ` per ${props.gameData.metadata.pull.name.toLowerCase()}`,
+        bonusCost: formatCostPerPull(bonusPkg.costPerPull) + ` per ${props.gameData.metadata.pull.name.toLowerCase()}`,
         bonusPulls: bonusPkg.pullsFromPackage,
         savingsAmount: `$${totalSavings.toFixed(2)}`,
         savingsPercentage: savingsPercentage.toFixed(1),
