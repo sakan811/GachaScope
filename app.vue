@@ -1,19 +1,98 @@
 <template>
   <UContainer>
     <!-- Navigation -->
-    <nav class="flex items-center justify-between py-4 mb-8">
-      <div class="flex items-center gap-4">
-        <NuxtLink to="/" class="text-2xl font-bold text-gray-900 dark:text-white">
+    <nav class="flex items-center justify-between py-3 sm:py-4 mb-6 sm:mb-8">
+      <div class="flex items-center gap-2 sm:gap-4">
+        <NuxtLink to="/" class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
           <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
             GachaScope
           </span>
         </NuxtLink>
       </div>
+
+      <!-- Desktop Navigation -->
+      <div class="hidden md:flex items-center gap-6">
+        <NuxtLink 
+          to="/" 
+          class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+          :class="{ 'text-blue-600 dark:text-blue-400': $route.path === '/' }"
+        >
+          Home
+        </NuxtLink>
+        <NuxtLink 
+          to="/games/hsr/analysis" 
+          class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+          :class="{ 'text-blue-600 dark:text-blue-400': $route.path.includes('/analysis') }"
+        >
+          HSR Analysis
+        </NuxtLink>
+        <UColorModeButton class="ml-2" />
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <div class="flex items-center gap-2 md:hidden">
+        <UColorModeButton />
+        <UButton 
+          variant="ghost" 
+          size="sm"
+          :icon="isMobileMenuOpen ? 'i-heroicons-x-mark' : 'i-heroicons-bars-3'"
+          @click="toggleMobileMenu"
+          class="p-2"
+          :aria-label="isMobileMenuOpen ? 'Close menu' : 'Open menu'"
+        />
+      </div>
     </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div 
+      v-if="isMobileMenuOpen" 
+      class="fixed inset-0 z-50 md:hidden"
+      @click="closeMobileMenu"
+    >
+      <!-- Backdrop -->
+      <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+      
+      <!-- Menu Panel -->
+      <div class="absolute top-0 right-0 h-full w-64 bg-white dark:bg-gray-900 shadow-xl">
+        <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+          <span class="text-lg font-semibold text-gray-900 dark:text-white">Menu</span>
+          <UButton 
+            variant="ghost" 
+            size="sm"
+            icon="i-heroicons-x-mark"
+            @click="closeMobileMenu"
+            class="p-1"
+          />
+        </div>
+        
+        <nav class="p-4 space-y-4">
+          <NuxtLink 
+            to="/" 
+            @click="closeMobileMenu"
+            class="block py-3 px-4 text-base font-medium rounded-lg transition-colors"
+            :class="$route.path === '/' 
+              ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' 
+              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'"
+          >
+            🏠 Home
+          </NuxtLink>
+          <NuxtLink 
+            to="/games/hsr/analysis" 
+            @click="closeMobileMenu"
+            class="block py-3 px-4 text-base font-medium rounded-lg transition-colors"
+            :class="$route.path.includes('/analysis')
+              ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' 
+              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'"
+          >
+            ⭐ HSR Analysis
+          </NuxtLink>
+        </nav>
+      </div>
+    </div>
 
     <!-- Page Content -->
     <NuxtPage />
-
+    
   </UContainer>
 </template>
 
@@ -30,4 +109,38 @@ useHead({
     lang: 'en'
   }
 })
+
+// Mobile menu state
+const isMobileMenuOpen = ref(false)
+
+const toggleMobileMenu = () => {
+  isMobileMenuOpen.value = !isMobileMenuOpen.value
+}
+
+const closeMobileMenu = () => {
+  isMobileMenuOpen.value = false
+}
+
+// Close mobile menu on route change
+const route = useRoute()
+watch(() => route.path, () => {
+  isMobileMenuOpen.value = false
+})
+
+// Close mobile menu on escape key
+if (process.client) {
+  const handleEscape = (e) => {
+    if (e.key === 'Escape') {
+      isMobileMenuOpen.value = false
+    }
+  }
+  
+  onMounted(() => {
+    document.addEventListener('keydown', handleEscape)
+  })
+  
+  onUnmounted(() => {
+    document.removeEventListener('keydown', handleEscape)
+  })
+}
 </script>
