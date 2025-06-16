@@ -8,195 +8,103 @@
     </UAlert>
   </div>
 
-  <div v-else-if="!analysisResult" class="container mx-auto px-4 py-8">
-    <div class="text-center">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-      <p class="text-gray-600 dark:text-gray-400">Loading analysis...</p>
-    </div>
-  </div>
-
-  <div v-else class="container mx-auto px-4 py-8 max-w-7xl">
+  <div v-else class="container mx-auto px-4 py-8 max-w-6xl">
     <!-- Back Button -->
-    <div class="mb-4 sm:mb-6">
-      <UButton 
-        variant="ghost" 
-        icon="i-heroicons-arrow-left" 
-        size="sm"
-        @click="navigateTo('/')"
-      >
-        <span class="hidden sm:inline">Back to Home</span>
-        <span class="sm:hidden">Back</span>
-      </UButton>
-    </div>
+    <UButton 
+      variant="ghost" 
+      icon="i-heroicons-arrow-left" 
+      size="sm"
+      @click="navigateTo('/')"
+      class="mb-6"
+    >
+      <span class="hidden sm:inline">Back to Home</span>
+      <span class="sm:hidden">Back</span>
+    </UButton>
 
     <!-- Header -->
-    <div class="text-center mb-6 sm:mb-8">
-      <div class="text-4xl sm:text-6xl mb-4">🌟</div>
-      <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4 px-2">
-        <span class="block sm:inline">{{ gameData?.metadata?.name || 'Unknown Game' }}</span>
-        <span class="block sm:inline sm:before:content-[' - ']">{{ " " }}</span>
-        <span class="block sm:inline">{{ gameData?.metadata?.currency?.name || 'Currency' }} Analysis</span>
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+        {{ gameData.metadata.name }} Analysis
       </h1>
-      <p class="text-sm sm:text-base lg:text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto px-4">
-        Comprehensive analysis of {{ gameData?.metadata?.currency?.name?.toLowerCase() || 'currency' }} packages for {{ gameData?.metadata?.name || 'this game' }}. 
-        See exactly how many {{ gameData?.metadata?.pull?.name?.toLowerCase() || 'pull' }}s you get from different package combinations.
+      <p class="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+        Comprehensive {{ gameData.metadata.currency.name.toLowerCase() }} package analysis to optimize your spending.
       </p>
     </div>
 
-    <!-- Subscription Packages -->
-    <AnalysisSubscriptionSection 
+    <!-- Combined Value Analysis -->
+    <CombinedValueAnalysis 
       :game-data="gameData" 
-      :subscription-packages="processedPackages.subscription || []" 
+      :processed-packages="processedPackages"
     />
 
-    <!-- Battle Pass -->
-    <AnalysisBattlePassSection 
-      :game-data="gameData" 
-      :battle-pass-packages="processedPackages.battle_pass || []" 
-    />
-
-    <!-- Package Comparison -->
-    <UCard class="mb-6 sm:mb-8">
+    <!-- Package Overview -->
+    <UCard class="mb-8">
       <template #header>
-        <h2 class="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-          <UIcon name="i-heroicons-cube" class="w-5 h-5 sm:w-6 sm:h-6" />Available Packages
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+          <UIcon name="i-heroicons-cube" class="w-5 h-5" />Package Overview
         </h2>
       </template>
       
-      <!-- Mobile View: Stacked Cards -->
-      <div class="block lg:hidden space-y-6">
-        <!-- Normal Packages Mobile -->
-        <div v-if="processedPackages.normal">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Normal Packages</h3>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <PackageCard 
-              v-for="(pkg, index) in processedPackages.normal"
-              :key="index"
-              :pkg="pkg"
-              :pull-name="gameData?.metadata?.pull?.name || 'Pull'"
-              :currency-name="gameData?.metadata?.currency?.shortName || 'Currency'"
-              bg-color="bg-red-50 dark:bg-red-900/20"
-              border-color="border-red-200 dark:border-red-800"
-            />
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Package Type Cards -->
+        <div v-for="(packages, type) in filteredPackages" :key="type" 
+             :class="getPackageTypeStyle(type).card">
+          <div class="p-4">
+            <h3 class="font-medium mb-3" :class="getPackageTypeStyle(type).title">
+              {{ getPackageTypeName(type) }}
+            </h3>
+            <div class="space-y-2">
+              <div v-for="pkg in packages.slice(0, 2)" :key="pkg.id" 
+                   class="text-sm border rounded p-2 bg-white dark:bg-gray-800">
+                <div class="flex justify-between items-center">
+                  <span class="font-medium">${{ pkg.price.toFixed(2) }}</span>
+                  <span :class="pkg.pullsFromPackage === 0 ? 'text-red-500' : 'text-gray-600 dark:text-gray-300'">
+                    {{ pkg.pullsFromPackage }} {{ gameData.metadata.pull.name.toLowerCase() }}s
+                  </span>
+                </div>
+              </div>
+              <div v-if="packages.length > 2" class="text-xs text-gray-500 text-center">
+                +{{ packages.length - 2 }} more
+              </div>
+            </div>
           </div>
-        </div>
-
-        <!-- First-Time Bonus Packages Mobile -->
-        <div v-if="processedPackages.first_time_bonus">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">First-Time Bonus Packages</h3>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <PackageCard 
-              v-for="(pkg, index) in processedPackages.first_time_bonus"
-              :key="index"
-              :pkg="pkg"
-              :pull-name="gameData?.metadata?.pull?.name || 'Pull'"
-              :currency-name="gameData?.metadata?.currency?.shortName || 'Currency'"
-              bg-color="bg-green-50 dark:bg-green-900/20"
-              border-color="border-green-200 dark:border-green-800"
-              text-color="text-green-600 dark:text-green-400"
-            />
-          </div>
-        </div>
-      </div>
-
-      <!-- Desktop View: Table Layout -->
-      <div class="hidden lg:block">
-        <div class="grid grid-cols-2 gap-8">
-          <PackageTable 
-            v-if="processedPackages?.normal"
-            :packages="processedPackages.normal"
-            :pull-name="gameData?.metadata?.pull?.name || 'Pull'"
-            :currency-name="gameData?.metadata?.currency?.shortName || 'Currency'"
-            title="Normal Packages"
-            header-bg="bg-red-50 dark:bg-red-900/20"
-            header-border="border-red-200 dark:border-red-800"
-          />
-
-          <PackageTable 
-            v-if="processedPackages?.first_time_bonus"
-            :packages="processedPackages.first_time_bonus"
-            :pull-name="gameData?.metadata?.pull?.name || 'Pull'"
-            :currency-name="gameData?.metadata?.currency?.shortName || 'Currency'"
-            title="First-Time Bonus Packages"
-            header-bg="bg-green-50 dark:bg-green-900/20"
-            header-border="border-green-200 dark:border-green-800"
-            text-color="text-green-600 dark:text-green-400"
-          />
         </div>
       </div>
     </UCard>
 
     <!-- Charts -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-6 sm:mb-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
       <!-- Cost vs Pulls Chart -->
       <UCard>
         <template #header>
-          <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <UIcon name="i-heroicons-chart-bar" class="w-4 h-4 sm:w-5 sm:h-5" />Cost vs {{ gameData?.metadata?.pull?.name || 'Pulls' }}s Obtained
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+            Cost vs {{ gameData.metadata.pull.name }}s
           </h3>
         </template>
-        <div class="h-64 sm:h-80 w-full">
-      <Scatter 
-        :data="scatterChartData" 
-        :options="scatterChartOptions" 
-        :height="256"
-      />
-    </div>
-    <div class="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-600 dark:text-gray-300">
-      Shows cost vs {{ gameData?.metadata?.pull?.name?.toLowerCase() || 'pull' }}s for all package types including subscriptions and battle passes. Different colors represent different package types.
-    </div>
+        <div class="h-80 w-full">
+          <Scatter :data="scatterChartData" :options="scatterChartOptions" />
+        </div>
       </UCard>
 
-      <!-- Efficiency Comparison -->
+      <!-- Efficiency Chart -->
       <UCard>
         <template #header>
-          <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <UIcon name="i-heroicons-chart-pie" class="w-4 h-4 sm:w-5 sm:h-5" />Package Efficiency Comparison
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+            Package Efficiency
           </h3>
         </template>
-        <div class="h-64 sm:h-80 w-full">
-          <Bar 
-            :data="barChartData" 
-            :options="barChartOptions" 
-            :height="256"
-          />
-        </div>
-        <div class="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-600 dark:text-gray-300">
-          Cost per {{ gameData?.metadata?.pull?.name?.toLowerCase() || 'pull' }} grouped by package type. Lower is better.
-        </div>
-        <div v-if="hasZeroPullPackages" 
-             class="mt-2 text-xs sm:text-sm text-gray-600 dark:text-gray-300 italic">
-          Note: Packages with 0 pulls are not included in efficiency calculations
+        <div class="h-80 w-full">
+          <Bar :data="barChartData" :options="barChartOptions" />
         </div>
       </UCard>
     </div>
-
-    <!-- Insights Section -->
-    <UCard class="mb-6 sm:mb-8">
-      <template #header>
-        <h2 class="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-          <UIcon name="i-heroicons-currency-dollar" class="w-5 h-5 sm:w-6 sm:h-6" />Package Value Analysis
-        </h2>
-      </template>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
-        <UCard v-for="stat in insightStats" :key="stat.label" class="bg-gray-50 dark:bg-gray-800/50">
-          <div class="text-center p-2 sm:p-3">
-            <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-1 sm:mb-2">{{ stat.label }}</div>
-            <div class="text-lg sm:text-xl font-bold break-words" :class="stat.color">{{ stat.value }}</div>
-          </div>
-        </UCard>
-      </div>
-    </UCard>
   </div>
 </template>
 
 <script setup>
 import { getGameById } from '~/utils/gameRegistry'
 import { useGameAnalysis } from '~/composables/useGameAnalysis'
-import PackageCard from '~/components/analysis/PackageCard.vue'
-import PackageTable from '~/components/analysis/PackageTable.vue'
-import AnalysisSubscriptionSection from '~/components/analysis/SubscriptionSection.vue'
-import AnalysisBattlePassSection from '~/components/analysis/BattlePassSection.vue'
+import CombinedValueAnalysis from '~/components/analysis/CombinedValueAnalysis.vue'
 import { useChartConfig } from '~/composables/useChartConfig'
 import {
   Chart as ChartJS,
@@ -211,71 +119,75 @@ import {
 } from 'chart.js'
 import { Bar, Scatter } from 'vue-chartjs'
 
-// Register Chart.js components
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-)
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend)
 
 const route = useRoute()
-const { analyzeGame, getProcessedPackages, generateChartsFromPackages } = useGameAnalysis()
+const { getProcessedPackages, generateChartsFromPackages } = useGameAnalysis()
 const gameId = route.params.gameId
-
-// Get game data
 const gameData = ref(getGameById(gameId))
 
-// Validate game exists
 if (!gameData.value) {
-  throw createError({
-    statusCode: 404,
-    statusMessage: `Game "${gameId}" not found`
-  })
+  throw createError({ statusCode: 404, statusMessage: `Game "${gameId}" not found` })
 }
 
-// Set page meta
-if (gameData.value?.metadata) {
-  useHead({
-    title: `${gameData.value.metadata.name} Analysis`,
-    meta: [
-      { 
-        name: 'description', 
-        content: `Comprehensive ${gameData.value.metadata.currency.name} package analysis for ${gameData.value.metadata.name}` 
-      }
-    ]
-  })
-}
+useHead({
+  title: `${gameData.value.metadata.name} Analysis`,
+  meta: [{ 
+    name: 'description', 
+    content: `${gameData.value.metadata.currency.name} package analysis for ${gameData.value.metadata.name}` 
+  }]
+})
 
-// Get analysis data
-const analysisResult = analyzeGame(gameId)
 const processedPackages = getProcessedPackages(gameId)
 const chartsData = processedPackages ? generateChartsFromPackages(processedPackages) : null
 
-// Computed properties
-const hasZeroPullPackages = computed(() => {
-  if (!processedPackages) return false
-  return Object.values(processedPackages).some(packages => 
-    packages?.some(pkg => pkg.pullsFromPackage === 0)
+// Filter out empty package types
+const filteredPackages = computed(() => {
+  if (!processedPackages) return {}
+  return Object.fromEntries(
+    Object.entries(processedPackages).filter(([_, packages]) => packages && packages.length > 0)
   )
 })
 
-const { packageTypeColors, typeLabels } = useChartConfig(gameData)
+// Package type styling
+const packageTypeStyles = {
+  normal: { 
+    card: 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800',
+    title: 'text-red-600 dark:text-red-400'
+  },
+  first_time_bonus: { 
+    card: 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800',
+    title: 'text-green-600 dark:text-green-400'
+  },
+  subscription: { 
+    card: 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800',
+    title: 'text-blue-600 dark:text-blue-400'
+  },
+  battle_pass: { 
+    card: 'bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800',
+    title: 'text-purple-600 dark:text-purple-400'
+  }
+}
+
+const packageTypeNames = {
+  normal: 'Normal',
+  first_time_bonus: 'First-Time Bonus',
+  subscription: 'Subscriptions',
+  battle_pass: 'Battle Pass'
+}
+
+const getPackageTypeStyle = (type) => packageTypeStyles[type] || packageTypeStyles.normal
+const getPackageTypeName = (type) => packageTypeNames[type] || type
+
+// Chart data and options
+const { packageTypeColors, typeLabels, createChartOptions } = useChartConfig(gameData)
 
 const scatterChartData = computed(() => {
   if (!chartsData) return { datasets: [] }
   
   const groupedData = chartsData.scatterData.reduce((acc, point) => {
     acc[point.type] = acc[point.type] || []
-    acc[point.type].push({
-      x: point.x,
-      y: parseFloat(point.y.toFixed(2)),
-      packageName: point.packageName
-    })
+    acc[point.type].push({ x: point.x, y: point.y, packageName: point.packageName })
     return acc
   }, {})
   
@@ -285,8 +197,7 @@ const scatterChartData = computed(() => {
       data,
       backgroundColor: packageTypeColors[type]?.bg || 'rgba(156, 163, 175, 0.8)',
       borderColor: packageTypeColors[type]?.border || 'rgb(156, 163, 175)',
-      pointRadius: 6,
-      pointHoverRadius: 10
+      pointRadius: 6
     }))
   }
 })
@@ -294,16 +205,14 @@ const scatterChartData = computed(() => {
 const barChartData = computed(() => {
   if (!chartsData?.barData) return { labels: [], datasets: [] }
   
-  // Use the correctly calculated data from generateChartsFromPackages
   const allPackageNames = new Set()
   Object.values(chartsData.barData).forEach(packages => {
     packages.forEach(pkg => allPackageNames.add(pkg.package))
   })
   
   const labels = Array.from(allPackageNames)
-  
   const datasets = Object.entries(chartsData.barData).map(([type, packages]) => ({
-    label: `${typeLabels[type] || type} Cost/${gameData.value?.metadata?.pull?.name || 'Pull'}`,
+    label: typeLabels[type] || type,
     data: labels.map(label => {
       const pkg = packages.find(p => p.package === label)
       return pkg ? parseFloat(pkg.costPerPull.toFixed(2)) : null
@@ -316,38 +225,6 @@ const barChartData = computed(() => {
   return { labels, datasets }
 })
 
-const { createChartOptions } = useChartConfig(gameData)
-
 const scatterChartOptions = computed(() => createChartOptions(true))
 const barChartOptions = computed(() => createChartOptions(false))
-
-const insightStats = computed(() => {
-  if (!analysisResult) return []
-  
-  const formatValue = (value, prefix = '$') => 
-    Number.isFinite(value) ? `${prefix}${value.toFixed(2)}` : 'N/A'
-
-  return [
-    { 
-      label: 'Max Savings', 
-      value: formatValue(analysisResult.insights.maxSavings), 
-      color: 'text-green-600 dark:text-green-400' 
-    },
-    { 
-      label: 'Best Package', 
-      value: analysisResult.insights.bestPackageName || 'N/A', 
-      color: 'text-blue-600 dark:text-blue-400' 
-    },
-    { 
-      label: 'Avg Savings', 
-      value: formatValue(analysisResult.insights.avgSavings), 
-      color: 'text-purple-600 dark:text-purple-400' 
-    },
-    { 
-      label: `Best Cost/${gameData.value?.metadata?.pull?.name || 'Pull'}`, 
-      value: formatValue(analysisResult.insights.bestScenario?.costPerPull), 
-      color: 'text-gray-900 dark:text-white' 
-    }
-  ]
-})
 </script>
