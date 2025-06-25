@@ -45,10 +45,10 @@
     <!-- Combined Value Analysis -->
     <CombinedValueAnalysis
       :game-data="gameData"
-      :processed-packages="processedPackages"
+      :processed-purchases="processedPurchases"
     />
 
-    <!-- Package Overview - Show All Packages -->
+    <!-- Purchase Overview - Show All Purchases -->
     <UCard class="mb-8">
       <template #header>
         <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
@@ -61,35 +61,35 @@
 
       <div class="space-y-6">
         <div
-          v-for="(packages, type) in filteredPackages"
+          v-for="(purchases, type) in filteredPurchases"
           :key="type"
           class="space-y-4"
         >
           <h3
             class="text-lg font-medium flex items-center gap-2"
-            :class="getPackageTypeStyle(type).title"
+            :class="getPurchaseTypeStyle(type).title"
           >
             <UIcon
-              :name="getPackageTypeIcon(type)"
+              :name="getPurchaseTypeIcon(type)"
               class="w-4 h-4"
             />
-            {{ getPackageTypeName(type) }}
+            {{ getPurchaseTypeName(type) }}
           </h3>
 
           <!-- Mobile View: Cards -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:hidden">
             <div
-              v-for="pkg in packages"
+              v-for="pkg in purchases"
               :key="pkg.id"
-              :class="[getPackageTypeStyle(type).card, 'p-3 rounded-lg']"
+              :class="[getPurchaseTypeStyle(type).card, 'p-3 rounded-lg']"
             >
               <div class="flex justify-between items-start mb-2">
                 <div class="text-sm font-bold text-gray-900 dark:text-white">
                   ${{ pkg.price.toFixed(2) }}
                 </div>
                 <div class="text-right">
-                  <div :class="pkg.pullsFromPackage === 0 ? 'text-red-500 font-medium' : 'text-gray-600 dark:text-gray-300'">
-                    {{ pkg.pullsFromPackage }} {{ gameData.metadata.pull.name.toLowerCase() }}s
+                  <div :class="pkg.pullsFromPurchase === 0 ? 'text-red-500 font-medium' : 'text-gray-600 dark:text-gray-300'">
+                    {{ pkg.pullsFromPurchase }} {{ gameData.metadata.pull.name.toLowerCase() }}s
                   </div>
                 </div>
               </div>
@@ -101,7 +101,7 @@
               </div>
               <div
                 class="text-xs font-medium"
-                :class="getPackageTypeStyle(type).title"
+                :class="getPurchaseTypeStyle(type).title"
               >
                 {{ formatCostPerPull(pkg.costPerPull) }}
               </div>
@@ -111,7 +111,7 @@
           <!-- Desktop View: Table -->
           <div class="hidden lg:block">
             <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-              <div :class="[getPackageTypeStyle(type).card, 'px-4 py-3 border-b']">
+              <div :class="[getPurchaseTypeStyle(type).card, 'px-4 py-3 border-b']">
                 <div class="grid grid-cols-6 gap-4 text-sm font-medium text-gray-700 dark:text-gray-300">
                   <div>In-App Purchase Name</div>
                   <div>Price</div>
@@ -123,7 +123,7 @@
               </div>
               <div class="divide-y divide-gray-200 dark:divide-gray-700">
                 <div
-                  v-for="pkg in packages"
+                  v-for="pkg in purchases"
                   :key="pkg.id"
                   class="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                 >
@@ -137,15 +137,15 @@
                     <div class="text-gray-600 dark:text-gray-300">
                       {{ pkg.totalAmount.toLocaleString() }}
                     </div>
-                    <div :class="pkg.pullsFromPackage === 0 ? 'text-red-500 font-medium' : 'text-gray-900 dark:text-white'">
-                      {{ pkg.pullsFromPackage }}
+                    <div :class="pkg.pullsFromPurchase === 0 ? 'text-red-500 font-medium' : 'text-gray-900 dark:text-white'">
+                      {{ pkg.pullsFromPurchase }}
                     </div>
                     <div class="text-sm text-gray-500 dark:text-gray-400">
                       {{ pkg.leftoverAmount }}
                     </div>
                     <div
                       class="font-medium"
-                      :class="getPackageTypeStyle(type).title"
+                      :class="getPurchaseTypeStyle(type).title"
                     >
                       {{ formatCostPerPull(pkg.costPerPull) }}
                     </div>
@@ -179,7 +179,7 @@
       <UCard>
         <template #header>
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-            Package Efficiency
+            Purchase Efficiency
           </h3>
         </template>
         <div class="h-80 w-full">
@@ -214,7 +214,7 @@ import { useChartConfig } from '~/composables/useChartConfig'
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend)
 
 const route = useRoute()
-const { getProcessedPackages, generateChartsFromPackages } = useGameAnalysis()
+const { getProcessedPurchases, generateChartsFromPurchases } = useGameAnalysis()
 const gameId = route.params.gameId
 const gameData = ref(getGameById(gameId))
 
@@ -226,18 +226,18 @@ useHead({
   title: `${gameData.value.metadata.name} Analysis`,
   meta: [{
     name: 'description',
-    content: `${gameData.value.metadata.currency.name} package analysis for ${gameData.value.metadata.name}`,
+    content: `${gameData.value.metadata.currency.name} purchase analysis for ${gameData.value.metadata.name}`,
   }],
 })
 
-const processedPackages = getProcessedPackages(gameId)
-const chartsData = processedPackages ? generateChartsFromPackages(processedPackages) : null
+const processedPurchases = getProcessedPurchases(gameId)
+const chartsData = processedPurchases ? generateChartsFromPurchases(processedPurchases) : null
 
-// Filter out empty package types
-const filteredPackages = computed(() => {
-  if (!processedPackages) return {}
+// Filter out empty purchase types
+const filteredPurchases = computed(() => {
+  if (!processedPurchases) return {}
   return Object.fromEntries(
-    Object.entries(processedPackages).filter(([_, packages]) => packages && packages.length > 0),
+    Object.entries(processedPurchases).filter(([_, purchases]) => purchases && purchases.length > 0),
   )
 })
 
@@ -249,8 +249,8 @@ const formatCostPerPull = (costPerPull) => {
   return `$${costPerPull.toFixed(2)} per ${gameData.value.metadata.pull.name.toLowerCase()}`
 }
 
-// Package type styling
-const packageTypeStyles = {
+// Purchase type styling
+const purchaseTypeStyles = {
   normal: {
     card: 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800',
     title: 'text-red-600 dark:text-red-400',
@@ -269,23 +269,23 @@ const packageTypeStyles = {
   },
 }
 
-const packageTypeNames = {
+const purchaseTypeNames = {
   normal: 'Normal Oneiric Shard Purchase',
   first_time_bonus: 'First-Time Bonus Oneiric Shard Purchase',
   subscription: 'Subscription',
   battle_pass: 'Battle Pass',
 }
 
-const packageTypeIcons = {
+const purchaseTypeIcons = {
   normal: 'i-heroicons-shopping-bag',
   first_time_bonus: 'i-heroicons-gift',
   subscription: 'i-heroicons-calendar',
   battle_pass: 'i-heroicons-trophy',
 }
 
-const getPackageTypeStyle = type => packageTypeStyles[type] || packageTypeStyles.normal
-const getPackageTypeName = type => packageTypeNames[type] || type
-const getPackageTypeIcon = type => packageTypeIcons[type] || 'i-heroicons-cube'
+const getPurchaseTypeStyle = type => purchaseTypeStyles[type] || purchaseTypeStyles.normal
+const getPurchaseTypeName = type => purchaseTypeNames[type] || type
+const getPurchaseTypeIcon = type => purchaseTypeIcons[type] || 'i-heroicons-cube'
 
 // Chart data and options
 const { packageTypeColors, typeLabels, createChartOptions } = useChartConfig(gameData)
@@ -295,7 +295,7 @@ const scatterChartData = computed(() => {
 
   const groupedData = chartsData.scatterData.reduce((acc, point) => {
     acc[point.type] = acc[point.type] || []
-    acc[point.type].push({ x: point.x, y: point.y, packageName: point.packageName })
+    acc[point.type].push({ x: point.x, y: point.y, purchaseName: point.purchaseName })
     return acc
   }, {})
 
@@ -313,17 +313,17 @@ const scatterChartData = computed(() => {
 const barChartData = computed(() => {
   if (!chartsData?.barData) return { labels: [], datasets: [] }
 
-  const allPackageNames = new Set()
-  Object.values(chartsData.barData).forEach((packages) => {
-    packages.forEach(pkg => allPackageNames.add(pkg.package))
+  const allPurchaseNames = new Set()
+  Object.values(chartsData.barData).forEach((purchases) => {
+    purchases.forEach(purchase => allPurchaseNames.add(purchase.purchase))
   })
 
-  const labels = Array.from(allPackageNames)
-  const datasets = Object.entries(chartsData.barData).map(([type, packages]) => ({
+  const labels = Array.from(allPurchaseNames)
+  const datasets = Object.entries(chartsData.barData).map(([type, purchases]) => ({
     label: typeLabels[type] || type,
     data: labels.map((label) => {
-      const pkg = packages.find(p => p.package === label)
-      return pkg ? parseFloat(pkg.costPerPull.toFixed(2)) : null
+      const purchase = purchases.find(p => p.purchase === label)
+      return purchase ? parseFloat(purchase.costPerPull.toFixed(2)) : null
     }),
     backgroundColor: packageTypeColors[type]?.bg || 'rgba(156, 163, 175, 0.7)',
     borderColor: packageTypeColors[type]?.border || 'rgb(156, 163, 175)',

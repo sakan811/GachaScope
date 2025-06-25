@@ -1,6 +1,6 @@
 import type {
   PurchasePackage,
-  ProcessedPackage,
+  ProcessedPurchase,
   PurchaseScenario,
   GameData,
   GameAnalysisResult,
@@ -10,19 +10,19 @@ import type {
 import { getGameById } from '~/utils/gameRegistry'
 
 export const useGameAnalysis = () => {
-  function processPackage(rawPackage: PurchasePackage, pullCost: number): ProcessedPackage {
-    const totalAmount = rawPackage.baseAmount + rawPackage.extraAmount
-    const amountPerDollar = totalAmount / rawPackage.price
-    const pullsFromPackage = Math.floor(totalAmount / pullCost)
+  function processPurchase(rawPurchase: PurchasePackage, pullCost: number): ProcessedPurchase {
+    const totalAmount = rawPurchase.baseAmount + rawPurchase.extraAmount
+    const amountPerDollar = totalAmount / rawPurchase.price
+    const pullsFromPurchase = Math.floor(totalAmount / pullCost)
     const leftoverAmount = totalAmount % pullCost
-    const costPerPull = pullsFromPackage > 0 ? rawPackage.price / pullsFromPackage : Infinity
+    const costPerPull = pullsFromPurchase > 0 ? rawPurchase.price / pullsFromPurchase : Infinity
     const efficiency = amountPerDollar
 
     return {
-      ...rawPackage,
+      ...rawPurchase,
       totalAmount,
       amountPerDollar,
-      pullsFromPackage,
+      pullsFromPurchase,
       costPerPull,
       leftoverAmount,
       efficiency,
@@ -30,12 +30,12 @@ export const useGameAnalysis = () => {
   }
 
   function createScenario(
-    purchases: Array<{ package: ProcessedPackage, count: number }>,
+    purchases: Array<{ purchase: ProcessedPurchase, count: number }>,
     scenarioName: string,
     pullCost: number,
   ): PurchaseScenario {
-    const totalCost = purchases.reduce((sum, { package: pkg, count }) => sum + (pkg.price * count), 0)
-    const totalAmount = purchases.reduce((sum, { package: pkg, count }) => sum + (pkg.totalAmount * count), 0)
+    const totalCost = purchases.reduce((sum, { purchase: pkg, count }) => sum + (pkg.price * count), 0)
+    const totalAmount = purchases.reduce((sum, { purchase: pkg, count }) => sum + (pkg.totalAmount * count), 0)
     const totalPulls = Math.floor(totalAmount / pullCost)
     const leftoverAmount = totalAmount % pullCost
     const efficiency = totalAmount / totalCost
@@ -44,8 +44,8 @@ export const useGameAnalysis = () => {
     return {
       id: `scenario_${scenarioName.toLowerCase().replace(/\s+/g, '_')}`,
       name: scenarioName,
-      description: `Purchasing ${purchases.map(p => `${p.count}x ${p.package.name}`).join(', ')}`,
-      packages: purchases,
+      description: `Purchasing ${purchases.map(p => `${p.count}x ${p.purchase.name}`).join(', ')}`,
+      purchases,
       totalCost,
       totalAmount,
       totalPulls,
@@ -61,27 +61,27 @@ export const useGameAnalysis = () => {
 
     const scenarioGroups: Partial<Record<PurchaseType, PurchaseScenario[]>> = {}
 
-    for (const [groupKey, rawPackages] of Object.entries(gameData.packages)) {
-      if (!rawPackages) continue
+    for (const [groupKey, rawPurchases] of Object.entries(gameData.packages)) {
+      if (!rawPurchases) continue
 
-      const processedPackages = rawPackages.map(pkg => processPackage(pkg, pullCost))
+      const processedPurchases = rawPurchases.map(pkg => processPurchase(pkg, pullCost))
       const scenarios: PurchaseScenario[] = []
 
-      processedPackages.forEach((pkg, index) => {
-        scenarios.push(createScenario([{ package: pkg, count: 1 }], `${groupKey} package ${index + 1}`, pullCost))
+      processedPurchases.forEach((pkg, index) => {
+        scenarios.push(createScenario([{ purchase: pkg, count: 1 }], `${groupKey} purchase ${index + 1}`, pullCost))
 
         if (config.includeMultiPackage) {
           for (let count = 2; count <= config.maxPackageMultiplier; count++) {
-            scenarios.push(createScenario([{ package: pkg, count }], `${count}x ${groupKey} package ${index + 1}`, pullCost))
+            scenarios.push(createScenario([{ purchase: pkg, count }], `${count}x ${groupKey} purchase ${index + 1}`, pullCost))
           }
         }
       })
 
-      if (config.includeMultiPackage && processedPackages.length >= 3) {
+      if (config.includeMultiPackage && processedPurchases.length >= 3) {
         scenarios.push(createScenario(
           [
-            { package: processedPackages[1], count: 1 },
-            { package: processedPackages[2], count: 1 },
+            { purchase: processedPurchases[1], count: 1 },
+            { purchase: processedPurchases[2], count: 1 },
           ],
           `${groupKey} combo 2+3`,
           pullCost,
@@ -102,22 +102,22 @@ export const useGameAnalysis = () => {
     scenariosByType: Partial<Record<ChartKey, PurchaseScenario[]>>,
   ): {
       costVsPulls: Array<{ pulls: number, cost: number, scenario: string, type: ChartKey }>
-      efficiency: Array<{ package: string, costPerPull: number, type: ChartKey }>
-      savings: Array<{ package: string, savings: number, pulls: number }>
+      efficiency: Array<{ purchase: string, costPerPull: number, type: ChartKey }>
+      savings: Array<{ purchase: string, savings: number, pulls: number }>
     } {
     const costVsPulls: Array<{ pulls: number, cost: number, scenario: string, type: ChartKey }> = []
-    const efficiency: Array<{ package: string, costPerPull: number, type: ChartKey }> = []
+    const efficiency: Array<{ purchase: string, costPerPull: number, type: ChartKey }> = []
 
     for (const [type, scenarios] of Object.entries(scenariosByType) as [ChartKey, PurchaseScenario[]][]) {
       scenarios.forEach((s, i) => {
         costVsPulls.push({ pulls: s.totalPulls, cost: s.totalCost, scenario: s.name, type })
         if (s.costPerPull !== Infinity) {
-          efficiency.push({ package: `${type} ${i + 1}`, costPerPull: s.costPerPull, type })
+          efficiency.push({ purchase: `${type} ${i + 1}`, costPerPull: s.costPerPull, type })
         }
       })
     }
 
-    const savings: Array<{ package: string, savings: number, pulls: number }> = []
+    const savings: Array<{ purchase: string, savings: number, pulls: number }> = []
     const normal = scenariosByType['normal'] || []
     const bonus = scenariosByType['first_time_bonus'] || []
 
@@ -126,7 +126,7 @@ export const useGameAnalysis = () => {
       const savingsAmount = Math.max(0, pullDiff * normal[i].costPerPull)
       if (savingsAmount > 0) {
         savings.push({
-          package: `Package ${i + 1}`,
+          purchase: `Purchase ${i + 1}`,
           savings: savingsAmount,
           pulls: bonus[i].totalPulls,
         })
@@ -143,13 +143,13 @@ export const useGameAnalysis = () => {
     const normalScenarios = scenarios.normal ?? []
     const bonusScenarios = scenarios.first_time_bonus ?? []
 
-    // Find all valid packages from scenarios
-    const allPackages = [...normalScenarios, ...bonusScenarios]
-      .flatMap(scenario => scenario.packages.map(({ package: pkg }) => pkg))
-      .filter(pkg => pkg.pullsFromPackage > 0)
+    // Find all valid purchases from scenarios
+    const allPurchases = [...normalScenarios, ...bonusScenarios]
+      .flatMap(scenario => scenario.purchases.map(({ purchase: pkg }) => pkg))
+      .filter(pkg => pkg.pullsFromPurchase > 0)
 
-    const bestPackage = allPackages.length > 0
-      ? allPackages.reduce((best, curr) => curr.costPerPull < best.costPerPull ? curr : best)
+    const bestPurchase = allPurchases.length > 0
+      ? allPurchases.reduce((best, curr) => curr.costPerPull < best.costPerPull ? curr : best)
       : null
 
     // Find best normal cost per pull for savings calculation
@@ -174,10 +174,10 @@ export const useGameAnalysis = () => {
 
     return {
       maxSavings,
-      bestPackage,
+      bestPurchase,
       bestScenario,
       avgSavings,
-      bestPackageName: bestPackage?.name || '',
+      bestPurchaseName: bestPurchase?.name || '',
     }
   }
 
@@ -206,48 +206,48 @@ export const useGameAnalysis = () => {
     }
   }
 
-  function getProcessedPackages(gameId: string): Record<string, ProcessedPackage[]> | null {
+  function getProcessedPurchases(gameId: string): Record<string, ProcessedPurchase[]> | null {
     const gameData = getGameById(gameId)
     if (!gameData) {
       return null
     }
 
     const pullCost = gameData.metadata.pull.cost
-    const result: Record<string, ProcessedPackage[]> = {}
+    const result: Record<string, ProcessedPurchase[]> = {}
 
-    for (const [type, packages] of Object.entries(gameData.packages)) {
-      if (packages) {
-        result[type] = packages.map(pkg => processPackage(pkg, pullCost))
+    for (const [type, purchases] of Object.entries(gameData.packages)) {
+      if (purchases) {
+        result[type] = purchases.map(pkg => processPurchase(pkg, pullCost))
       }
     }
 
     return result
   }
 
-  function generateChartsFromPackages(
-    processedPackages: Record<string, ProcessedPackage[]>,
+  function generateChartsFromPurchases(
+    processedPurchases: Record<string, ProcessedPurchase[]>,
   ) {
-    const scatterData: Array<{ x: number, y: number, packageName: string, type: string }> = []
-    const barData: Record<string, Array<{ package: string, costPerPull: number }>> = {}
+    const scatterData: Array<{ x: number, y: number, purchaseName: string, type: string }> = []
+    const barData: Record<string, Array<{ purchase: string, costPerPull: number }>> = {}
 
-    // Process all package types
-    for (const [type, packages] of Object.entries(processedPackages)) {
-      if (!packages) continue
+    // Process all purchase types
+    for (const [type, purchases] of Object.entries(processedPurchases)) {
+      if (!purchases) continue
 
-      packages.forEach((pkg) => {
+      purchases.forEach((pkg) => {
         // Add to scatter chart data
         scatterData.push({
-          x: pkg.pullsFromPackage,
+          x: pkg.pullsFromPurchase,
           y: pkg.price,
-          packageName: pkg.name,
+          purchaseName: pkg.name,
           type,
         })
 
         // Add to bar chart data (only if has pulls)
-        if (pkg.pullsFromPackage > 0) {
+        if (pkg.pullsFromPurchase > 0) {
           if (!barData[type]) barData[type] = []
           barData[type].push({
-            package: pkg.name,
+            purchase: pkg.name,
             costPerPull: pkg.costPerPull,
           })
         }
@@ -258,13 +258,13 @@ export const useGameAnalysis = () => {
   }
 
   return {
-    processPackage,
+    processPurchase,
     createScenario,
     generateScenarios,
     generateChartData,
-    generateChartsFromPackages,
+    generateChartsFromPurchases,
     generateInsights,
     analyzeGame,
-    getProcessedPackages,
+    getProcessedPurchases,
   }
 }
