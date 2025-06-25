@@ -13,7 +13,7 @@ export const useChartConfig = (gameData: Ref<GameData>) => {
   }
 
   const typeLabels = {
-    normal: 'Normal Packages',
+    normal: 'Normal Purchases',
     first_time_bonus: 'First-Time Bonus',
     subscription: 'Subscription',
     battle_pass: 'Battle Pass',
@@ -44,7 +44,7 @@ export const useChartConfig = (gameData: Ref<GameData>) => {
           position: 'bottom' as const,
           title: {
             display: !isMobile,
-            text: isScatter ? `${pullName}s from Package` : 'Package',
+            text: isScatter ? `${pullName}s from Purchase` : 'Purchase',
             font: { size: isMobile ? 10 : 12 },
           },
           ticks: {
@@ -57,7 +57,7 @@ export const useChartConfig = (gameData: Ref<GameData>) => {
           beginAtZero: true,
           title: {
             display: !isMobile,
-            text: isScatter ? 'Package Cost ($)' : `Cost per ${gameData.value.metadata.pull.name} ($)`,
+            text: isScatter ? 'Purchase Cost ($)' : `Cost per ${gameData.value.metadata.pull.name} ($)`,
             font: { size: isMobile ? 10 : 12 },
           },
           ticks: { font: { size: isMobile ? 9 : 11 } },
@@ -81,7 +81,7 @@ export const useChartConfig = (gameData: Ref<GameData>) => {
         titleFont: { size: isMobile ? 11 : 13 },
         bodyFont: { size: isMobile ? 10 : 12 },
         callbacks: {
-          title: (context: any) => context[0].raw.packageName,
+          title: (context: any) => context[0].raw.purchaseName,
           label: (context: any) => `$${context.parsed.y.toFixed(2)} for ${context.parsed.x} ${pullName.toLowerCase()}s`,
         },
       }

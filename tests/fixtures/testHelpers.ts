@@ -1,10 +1,10 @@
 import { expect } from 'vitest'
-import type { ProcessedPackage, GameData } from '~/types/games'
+import type { ProcessedPurchase, GameData } from '~/types/games'
 
 // Simplified mock data for testing
-export const createMockPackage = (overrides: Partial<ProcessedPackage> = {}): ProcessedPackage => ({
-  id: 'test_pkg',
-  name: 'Test Package',
+export const createMockPurchase = (overrides: Partial<ProcessedPurchase> = {}): ProcessedPurchase => ({
+  id: 'test_purchase',
+  name: 'Test Purchase',
   baseAmount: 1000,
   price: 10.00,
   extraAmount: 100,
@@ -12,7 +12,7 @@ export const createMockPackage = (overrides: Partial<ProcessedPackage> = {}): Pr
   currency: 'test_currency',
   totalAmount: 1100,
   amountPerDollar: 110,
-  pullsFromPackage: 6,
+  pullsFromPurchase: 6,
   costPerPull: 1.67,
   leftoverAmount: 40,
   efficiency: 110,
@@ -28,24 +28,24 @@ export const createMockGameData = (overrides: Partial<GameData> = {}): GameData 
     pull: { name: 'Pull', cost: 160 },
     analysisConfig: {
       maxScenarios: 10,
-      includeMultiPackage: true,
-      maxPackageMultiplier: 2,
+      includeMultiPurchase: true,
+      maxPurchaseMultiplier: 2,
     },
   },
   packages: {
-    normal: [createMockPackage()],
-    first_time_bonus: [createMockPackage({ purchaseType: 'first_time_bonus', extraAmount: 1000 })],
+    normal: [createMockPurchase()],
+    first_time_bonus: [createMockPurchase({ purchaseType: 'first_time_bonus', extraAmount: 1000 })],
   },
   ...overrides,
 })
 
 // Test utilities
-export const expectValidPackage = (pkg: ProcessedPackage) => {
-  expect(pkg.id).toBeTruthy()
-  expect(pkg.name).toBeTruthy()
-  expect(pkg.price).toBeGreaterThan(0)
-  expect(pkg.totalAmount).toBeGreaterThan(0)
-  expect(pkg.costPerPull).toBeTypeOf('number')
+export const expectValidPurchase = (purchase: ProcessedPurchase) => {
+  expect(purchase.id).toBeTruthy()
+  expect(purchase.name).toBeTruthy()
+  expect(purchase.price).toBeGreaterThan(0)
+  expect(purchase.totalAmount).toBeGreaterThan(0)
+  expect(purchase.costPerPull).toBeTypeOf('number')
 }
 
 export const expectValidAnalysis = (analysis: any) => {
@@ -63,3 +63,7 @@ export const measurePerformance = async <T>(fn: () => T | Promise<T>, maxMs = 10
   expect(duration).toBeLessThan(maxMs)
   return result
 }
+
+// Legacy helper for backward compatibility
+export const createMockPackage = createMockPurchase
+export const expectValidPackage = expectValidPurchase
