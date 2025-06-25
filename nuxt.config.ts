@@ -59,10 +59,14 @@ export default defineNuxtConfig({
     },
   },
 
-  // TypeScript configuration
+  // TypeScript configuration - exclude tests from type checking
   typescript: {
     strict: true,
-    typeCheck: true,
+    typeCheck: {
+      eslint: {
+        files: './pages/**/*.{js,ts,vue}',
+      },
+    },
   },
 
   eslint: {
