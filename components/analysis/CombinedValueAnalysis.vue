@@ -48,7 +48,7 @@
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <UCard
-          v-for="typeStats in packageTypeStats"
+          v-for="typeStats in purchaseTypeStats"
           :key="typeStats.type"
           :class="typeStats.bgClass"
         >
@@ -67,7 +67,7 @@
                 class="text-sm font-bold"
                 :class="typeStats.valueColor"
               >
-                {{ typeStats.bestPackageName }}
+                {{ typeStats.bestPurchaseName }}
               </div>
               <div class="text-xs text-gray-500 dark:text-gray-400">
                 {{ typeStats.bestCostPerPull }} per {{ gameData.metadata.pull.name.toLowerCase() }}
@@ -83,7 +83,7 @@
 
     <!-- Savings Analysis - Normal vs First-Time Bonus Comparison -->
     <div
-      v-if="packageSavingsAnalysis?.length"
+      v-if="purchaseSavingsAnalysis?.length"
       class="pt-6 border-t border-gray-200 dark:border-gray-700"
     >
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
@@ -96,14 +96,14 @@
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         <UCard
-          v-for="(savings, index) in packageSavingsAnalysis"
+          v-for="(savings, index) in purchaseSavingsAnalysis"
           :key="index"
           class="bg-green-50 dark:bg-green-900/20"
         >
           <div class="p-3 sm:p-4">
             <div class="text-center mb-3">
               <div class="text-sm font-medium text-green-600 dark:text-green-400 mb-1">
-                {{ savings.normalPackage }} vs {{ savings.bonusPackage }}
+                {{ savings.normalPurchase }} vs {{ savings.bonusPurchase }}
               </div>
               <div class="text-lg font-bold text-green-600 dark:text-green-400">
                 Save {{ savings.savingsAmount }}
@@ -142,11 +142,11 @@
 </template>
 
 <script setup lang="ts">
-import type { GameData, ProcessedPackage } from '~/types/games'
+import type { GameData, ProcessedPurchase } from '~/types/games'
 
 interface Props {
   gameData: GameData
-  processedPackages: Record<string, ProcessedPackage[]>
+  processedPurchases: Record<string, ProcessedPurchase[]>
 }
 
 const props = defineProps<Props>()
@@ -159,10 +159,10 @@ const formatCostPerPull = (costPerPull: number): string => {
   return `$${costPerPull.toFixed(2)}`
 }
 
-// Package type configurations
-const packageTypeConfig = {
+// Purchase type configurations
+const purchaseTypeConfig = {
   normal: {
-    displayName: 'Normal Packages',
+    displayName: 'Normal Purchases',
     bgClass: 'bg-red-50 dark:bg-red-900/20',
     titleColor: 'text-red-600 dark:text-red-400',
     valueColor: 'text-red-700 dark:text-red-300',
@@ -187,23 +187,23 @@ const packageTypeConfig = {
   },
 }
 
-// Get all valid packages across all types
-const allValidPackages = computed(() => {
-  const packages: ProcessedPackage[] = []
-  Object.values(props.processedPackages).forEach((typePackages) => {
-    if (typePackages) {
-      packages.push(...typePackages.filter(pkg => pkg.pullsFromPackage > 0))
+// Get all valid purchases across all types
+const allValidPurchases = computed(() => {
+  const purchases: ProcessedPurchase[] = []
+  Object.values(props.processedPurchases).forEach((typePurchases) => {
+    if (typePurchases) {
+      purchases.push(...typePurchases.filter(purchase => purchase.pullsFromPurchase > 0))
     }
   })
-  return packages
+  return purchases
 })
 
 // Overall analysis - simplified to only show best overall value
 const overallAnalysis = computed(() => {
-  if (!allValidPackages.value.length) return null
+  if (!allValidPurchases.value.length) return null
 
-  const bestValue = allValidPackages.value.reduce((best, pkg) =>
-    pkg.costPerPull < best.costPerPull ? pkg : best,
+  const bestValue = allValidPurchases.value.reduce((best, purchase) =>
+    purchase.costPerPull < best.costPerPull ? purchase : best,
   )
 
   return { bestValue }
@@ -222,21 +222,21 @@ const overallStats = computed(() => {
   }
 })
 
-// Package type comparison stats - now shows package names instead of counts
-const packageTypeStats = computed(() => {
+// Purchase type comparison stats - now shows purchase names instead of counts
+const purchaseTypeStats = computed(() => {
   const stats = []
 
-  for (const [type, config] of Object.entries(packageTypeConfig)) {
-    const packages = props.processedPackages[type]?.filter(pkg => pkg.pullsFromPackage > 0) || []
+  for (const [type, config] of Object.entries(purchaseTypeConfig)) {
+    const purchases = props.processedPurchases[type]?.filter(purchase => purchase.pullsFromPurchase > 0) || []
 
-    if (packages.length > 0) {
-      const bestPackage = packages.reduce((best, pkg) =>
-        pkg.costPerPull < best.costPerPull ? pkg : best,
+    if (purchases.length > 0) {
+      const bestPurchase = purchases.reduce((best, purchase) =>
+        purchase.costPerPull < best.costPerPull ? purchase : best,
       )
 
-      const costDisplay = formatCostPerPull(bestPackage.costPerPull)
+      const costDisplay = formatCostPerPull(bestPurchase.costPerPull)
       const explanation = costDisplay === 'no warp for the cost'
-        ? 'This package provides no warps for the cost'
+        ? 'This purchase provides no warps for the cost'
         : `Each ${props.gameData.metadata.pull.name.toLowerCase()} costs ${costDisplay}`
 
       stats.push({
@@ -245,7 +245,7 @@ const packageTypeStats = computed(() => {
         bgClass: config.bgClass,
         titleColor: config.titleColor,
         valueColor: config.valueColor,
-        bestPackageName: bestPackage.name,
+        bestPurchaseName: bestPurchase.name,
         bestCostPerPull: costDisplay,
         explanation,
       })
@@ -264,42 +264,42 @@ const packageTypeStats = computed(() => {
   })
 })
 
-// Package-specific savings analysis - comparing actual packages by name
-const packageSavingsAnalysis = computed(() => {
-  const normalPackages = props.processedPackages.normal?.filter(pkg => pkg.pullsFromPackage > 0) || []
-  const bonusPackages = props.processedPackages.first_time_bonus?.filter(pkg => pkg.pullsFromPackage > 0) || []
+// Purchase-specific savings analysis - comparing actual purchases by name
+const purchaseSavingsAnalysis = computed(() => {
+  const normalPurchases = props.processedPurchases.normal?.filter(purchase => purchase.pullsFromPurchase > 0) || []
+  const bonusPurchases = props.processedPurchases.first_time_bonus?.filter(purchase => purchase.pullsFromPurchase > 0) || []
 
-  if (normalPackages.length === 0 || bonusPackages.length === 0) return []
+  if (normalPurchases.length === 0 || bonusPurchases.length === 0) return []
 
-  // Sort packages by price to match corresponding packages
-  const sortedNormal = [...normalPackages].sort((a, b) => a.price - b.price)
-  const sortedBonus = [...bonusPackages].sort((a, b) => a.price - b.price)
+  // Sort purchases by price to match corresponding purchases
+  const sortedNormal = [...normalPurchases].sort((a, b) => a.price - b.price)
+  const sortedBonus = [...bonusPurchases].sort((a, b) => a.price - b.price)
 
-  const packageComparisons = []
+  const purchaseComparisons = []
   const maxComparisons = Math.min(sortedNormal.length, sortedBonus.length)
 
   for (let i = 0; i < maxComparisons; i++) {
-    const normalPkg = sortedNormal[i]
-    const bonusPkg = sortedBonus[i]
+    const normalPurchase = sortedNormal[i]
+    const bonusPurchase = sortedBonus[i]
 
-    const savingsPerPull = normalPkg.costPerPull - bonusPkg.costPerPull
-    const savingsPercentage = (savingsPerPull / normalPkg.costPerPull) * 100
-    const totalSavings = savingsPerPull * bonusPkg.pullsFromPackage
+    const savingsPerPull = normalPurchase.costPerPull - bonusPurchase.costPerPull
+    const savingsPercentage = (savingsPerPull / normalPurchase.costPerPull) * 100
+    const totalSavings = savingsPerPull * bonusPurchase.pullsFromPurchase
 
     if (savingsPerPull > 0) {
-      packageComparisons.push({
-        normalPackage: normalPkg.name.replace(' (First Purchase)', ''),
-        bonusPackage: bonusPkg.name,
-        normalCost: formatCostPerPull(normalPkg.costPerPull) + ` per ${props.gameData.metadata.pull.name.toLowerCase()}`,
-        bonusCost: formatCostPerPull(bonusPkg.costPerPull) + ` per ${props.gameData.metadata.pull.name.toLowerCase()}`,
-        bonusPulls: bonusPkg.pullsFromPackage,
+      purchaseComparisons.push({
+        normalPurchase: normalPurchase.name.replace(' (First Purchase)', ''),
+        bonusPurchase: bonusPurchase.name,
+        normalCost: formatCostPerPull(normalPurchase.costPerPull) + ` per ${props.gameData.metadata.pull.name.toLowerCase()}`,
+        bonusCost: formatCostPerPull(bonusPurchase.costPerPull) + ` per ${props.gameData.metadata.pull.name.toLowerCase()}`,
+        bonusPulls: bonusPurchase.pullsFromPurchase,
         savingsAmount: `$${totalSavings.toFixed(2)}`,
         savingsPercentage: savingsPercentage.toFixed(1),
-        explanation: `First-time bonus gives you ${bonusPkg.pullsFromPackage} ${props.gameData.metadata.pull.name.toLowerCase()}s for the same price as ${normalPkg.pullsFromPackage} ${props.gameData.metadata.pull.name.toLowerCase()}s`,
+        explanation: `First-time bonus gives you ${bonusPurchase.pullsFromPurchase} ${props.gameData.metadata.pull.name.toLowerCase()}s for the same price as ${normalPurchase.pullsFromPurchase} ${props.gameData.metadata.pull.name.toLowerCase()}s`,
       })
     }
   }
 
-  return packageComparisons
+  return purchaseComparisons
 })
 </script>
