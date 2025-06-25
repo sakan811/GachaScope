@@ -82,25 +82,25 @@ vi.mock('~/utils/gameRegistry', () => ({
 // Lightweight mock data for composables
 const mockProcessedPurchases = {
   subscription: [
-    { 
-      id: 1, 
-      name: 'Express Supply Pass', 
-      price: 4.99, 
-      totalAmount: 300, 
-      pullsFromPurchase: 0, 
-      leftoverAmount: 300, 
-      costPerPull: Infinity 
+    {
+      id: 1,
+      name: 'Express Supply Pass',
+      price: 4.99,
+      totalAmount: 300,
+      pullsFromPurchase: 0,
+      leftoverAmount: 300,
+      costPerPull: Infinity,
     },
   ],
   battle_pass: [
-    { 
-      id: 3, 
-      name: 'Nameless Medal', 
-      price: 9.99, 
-      totalAmount: 680, 
-      pullsFromPurchase: 4, 
-      leftoverAmount: 40, 
-      costPerPull: 2.50 
+    {
+      id: 3,
+      name: 'Nameless Medal',
+      price: 9.99,
+      totalAmount: 680,
+      pullsFromPurchase: 4,
+      leftoverAmount: 40,
+      costPerPull: 2.50,
     },
   ],
 }
@@ -135,14 +135,14 @@ vi.mock('~/composables/useChartConfig', () => ({
 const TestAnalysisPage = defineComponent({
   props: ['gameId'],
   setup(props) {
-    const gameData = { 
-      metadata: { 
+    const gameData = {
+      metadata: {
         name: 'Honkai: Star Rail',
         pull: { name: 'Warp' },
         currency: { name: 'Oneiric Shard', shortName: 'OS' },
-      } 
+      },
     }
-    
+
     return () => h('div', { 'data-testid': 'analysis-page' }, [
       h('h1', `${gameData.metadata.name} In-App Purchase Analysis`),
       h('button', { 'data-testid': 'back-button' }, 'Back to Home'),

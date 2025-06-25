@@ -58,7 +58,7 @@ describe('Composables Unit Tests', () => {
 
     it('handles edge cases', () => {
       const { getProcessedPurchases, analyzeGame } = useGameAnalysis()
-      
+
       const purchases = getProcessedPurchases('invalid_game')
       expect(purchases).toBeNull()
 
