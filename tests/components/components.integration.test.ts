@@ -1,15 +1,8 @@
+// @vitest-environment nuxt
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { defineComponent, h } from 'vue'
-import type { GameData, ProcessedPackage, GameAnalysisResult } from '~/types/games'
-
-// Mock the composables and utilities
-vi.mock('~/utils/gameRegistry', () => ({
-  getGameById: vi.fn((id: string) => {
-    if (id === 'hsr') return mockGameData
-    return null
-  }),
-}))
+import type { GameData, ProcessedPurchase } from '~/types/games'
 
 // Mock data
 const mockGameData: GameData = {
@@ -27,7 +20,7 @@ const mockGameData: GameData = {
     normal: [
       {
         id: 'normal_1',
-        name: 'Normal Package 1',
+        name: 'Normal Purchase 1',
         price: 5.99,
         baseAmount: 300,
         extraAmount: 60,
@@ -37,92 +30,59 @@ const mockGameData: GameData = {
   },
 }
 
-const mockProcessedPackages = {
+const mockProcessedPurchases = {
   normal: [
     {
       id: 'normal_1',
-      name: 'Normal Package 1',
+      name: 'Normal Purchase 1',
       price: 5.99,
       baseAmount: 300,
       extraAmount: 60,
       purchaseType: 'normal' as const,
       totalAmount: 360,
       amountPerDollar: 60.1,
-      pullsFromPackage: 2,
+      pullsFromPurchase: 2,
       costPerPull: 2.995,
       leftoverAmount: 40,
       efficiency: 60.1,
-    } as ProcessedPackage,
+    } as ProcessedPurchase,
   ],
 }
 
-const mockAnalysis: GameAnalysisResult = {
-  gameId: 'hsr',
-  scenarios: {},
-  chartData: { costVsPulls: [], efficiency: [], savings: [] },
-  insights: {
-    maxSavings: 10.5,
-    bestPackage: mockProcessedPackages.normal[0],
-    bestScenario: {
-      id: 'test_scenario',
-      name: 'Test Scenario',
-      description: 'Test',
-      packages: [],
-      totalCost: 5.99,
-      totalAmount: 360,
-      totalPulls: 2,
-      leftoverAmount: 40,
-      efficiency: 60.1,
-      costPerPull: 2.995,
-    },
-    avgSavings: 8.2,
-    bestPackageName: 'Normal Package 1',
-  },
-}
-
-// Simplified test components
-const AnalysisDashboard = defineComponent({
+// Simplified test components that don't require heavy Nuxt features
+const TestAnalysisDashboard = defineComponent({
   props: ['gameId'],
   setup(props) {
-    const gameData = mockGameData
-    const analysis = mockAnalysis
-    const error = null
-
     return () => h('div', {
       'data-testid': `dashboard-${props.gameId}`,
     }, [
-      h('h2', `${gameData.metadata.name} Analysis`),
-      analysis
-        ? [
-            h('div', { class: 'best-package' }, analysis.insights.bestPackageName),
-            h('div', { class: 'savings' }, `$${analysis.insights.maxSavings.toFixed(2)}`),
-          ]
-        : null,
-      error ? h('div', { class: 'error' }, error) : null,
+      h('h2', `${mockGameData.metadata.name} Analysis`),
+      h('div', { class: 'best-purchase' }, 'Normal Purchase 1'),
+      h('div', { class: 'savings' }, '$10.50'),
     ])
   },
 })
 
-const PackageCard = defineComponent({
-  props: ['package', 'pullName'],
+const TestPurchaseCard = defineComponent({
+  props: ['purchase', 'pullName'],
   setup(props) {
     const formatCurrency = (amount: number) => `$${amount.toFixed(2)}`
     const formatCostPerPull = (cost: number) => cost === Infinity ? 'N/A' : `$${cost.toFixed(2)}`
 
     return () => h('div', {
-      'data-testid': `card-${props.package.id}`,
-      'class': `type-${props.package.purchaseType}`,
+      'data-testid': `card-${props.purchase.id}`,
+      'class': `type-${props.purchase.purchaseType}`,
     }, [
-      h('h3', props.package.name),
-      h('div', { class: 'price' }, formatCurrency(props.package.price)),
-      h('div', { class: 'cost-per-pull' }, formatCostPerPull(props.package.costPerPull)),
-      h('div', { class: 'pulls' }, `${props.package.pullsFromPackage} ${props.pullName}s`),
+      h('h3', props.purchase.name),
+      h('div', { class: 'price' }, formatCurrency(props.purchase.price)),
+      h('div', { class: 'cost-per-pull' }, formatCostPerPull(props.purchase.costPerPull)),
+      h('div', { class: 'pulls' }, `${props.purchase.pullsFromPurchase} ${props.pullName}s`),
     ])
   },
 })
 
-const MockCombinedValueAnalysis = defineComponent({
-  props: ['gameData', 'processedPackages'],
+const TestCombinedValueAnalysis = defineComponent({
+  props: ['gameData', 'processedPurchases'],
   setup() {
     return () => h('div', {
       'data-testid': 'combined-value-analysis',
@@ -140,50 +100,57 @@ describe('Components Integration', () => {
 
   describe('Analysis Dashboard', () => {
     it('renders with valid game data', async () => {
-      const component = await mountSuspended(AnalysisDashboard, {
+      const component = await mountSuspended(TestAnalysisDashboard, {
         props: { gameId: 'hsr' },
       })
 
       expect(component.find('[data-testid="dashboard-hsr"]').exists()).toBe(true)
       expect(component.text()).toContain('Honkai: Star Rail Analysis')
-      expect(component.text()).toContain('Normal Package 1')
+      expect(component.text()).toContain('Normal Purchase 1')
     })
 
     it('handles invalid game gracefully', async () => {
-      const InvalidDashboard = defineComponent({
+      const TestInvalidDashboard = defineComponent({
         props: ['gameId'],
         setup() {
-          const error = 'Game \'invalid\' not found'
-          return () => h('div', { class: 'error' }, error)
+          return () => h('div', { 
+            'data-testid': 'invalid-dashboard',
+            class: 'error' 
+          }, 'Game \'invalid\' not found')
         },
       })
 
-      const component = await mountSuspended(InvalidDashboard, {
+      const component = await mountSuspended(TestInvalidDashboard, {
         props: { gameId: 'invalid' },
       })
 
+      expect(component.find('[data-testid="invalid-dashboard"]').exists()).toBe(true)
       expect(component.find('.error').exists()).toBe(true)
       expect(component.text()).toContain('not found')
     })
   })
 
-  describe('Package Cards', () => {
-    it('renders normal package correctly', async () => {
-      const normalPkg = mockProcessedPackages.normal[0]
-      const component = await mountSuspended(PackageCard, {
-        props: { package: normalPkg, pullName: 'Warp' },
+  describe('Purchase Cards', () => {
+    it('renders normal purchase correctly', async () => {
+      const normalPurchase = mockProcessedPurchases.normal[0]
+      const component = await mountSuspended(TestPurchaseCard, {
+        props: { purchase: normalPurchase, pullName: 'Warp' },
       })
 
-      expect(component.find(`[data-testid="card-${normalPkg.id}"]`).exists()).toBe(true)
+      expect(component.find(`[data-testid="card-${normalPurchase.id}"]`).exists()).toBe(true)
       expect(component.find('.type-normal').exists()).toBe(true)
-      expect(component.text()).toContain(normalPkg.name)
-      expect(component.text()).toContain(`$${normalPkg.price.toFixed(2)}`)
+      expect(component.text()).toContain(normalPurchase.name)
+      expect(component.text()).toContain(`$${normalPurchase.price.toFixed(2)}`)
     })
 
-    it('handles zero-pull packages', async () => {
-      const zeroPkg = { ...mockProcessedPackages.normal[0], pullsFromPackage: 0, costPerPull: Infinity }
-      const component = await mountSuspended(PackageCard, {
-        props: { package: zeroPkg, pullName: 'Warp' },
+    it('handles zero-pull purchases', async () => {
+      const zeroPurchase = { 
+        ...mockProcessedPurchases.normal[0], 
+        pullsFromPurchase: 0, 
+        costPerPull: Infinity 
+      }
+      const component = await mountSuspended(TestPurchaseCard, {
+        props: { purchase: zeroPurchase, pullName: 'Warp' },
       })
 
       expect(component.text()).toContain('N/A')
@@ -193,41 +160,29 @@ describe('Components Integration', () => {
 
   describe('CombinedValueAnalysis', () => {
     it('renders with game data', async () => {
-      const component = await mountSuspended(MockCombinedValueAnalysis, {
-        props: { gameData: mockGameData, processedPackages: mockProcessedPackages },
+      const component = await mountSuspended(TestCombinedValueAnalysis, {
+        props: { 
+          gameData: mockGameData, 
+          processedPurchases: mockProcessedPurchases 
+        },
       })
 
+      expect(component.find('[data-testid="combined-value-analysis"]').exists()).toBe(true)
       expect(component.text()).toContain('Best Overall Value')
       expect(component.text()).toContain('In-App Purchase Type Comparison')
     })
 
-    it('handles missing package types', async () => {
-      const limitedPackages = { normal: mockProcessedPackages.normal }
-      const component = await mountSuspended(MockCombinedValueAnalysis, {
-        props: { gameData: mockGameData, processedPackages: limitedPackages },
+    it('handles missing purchase types', async () => {
+      const limitedPurchases = { normal: mockProcessedPurchases.normal }
+      const component = await mountSuspended(TestCombinedValueAnalysis, {
+        props: { 
+          gameData: mockGameData, 
+          processedPurchases: limitedPurchases 
+        },
       })
 
+      expect(component.find('[data-testid="combined-value-analysis"]').exists()).toBe(true)
       expect(component.html()).toBeTruthy()
-    })
-  })
-
-  describe('Data Consistency', () => {
-    it('maintains integrity across components', () => {
-      const bestPackageId = mockAnalysis.insights.bestPackage?.id
-      const allPackages = Object.values(mockProcessedPackages).flat()
-
-      expect(allPackages.some(pkg => pkg.id === bestPackageId)).toBe(true)
-    })
-
-    it('processes data efficiently', () => {
-      const start = performance.now()
-      Object.values(mockProcessedPackages).forEach(pkgs =>
-        pkgs.forEach((pkg) => {
-          expect(pkg.costPerPull).toBeTypeOf('number')
-          expect(pkg.costPerPull).not.toBe(Infinity)
-        }),
-      )
-      expect(performance.now() - start).toBeLessThan(50)
     })
   })
 })

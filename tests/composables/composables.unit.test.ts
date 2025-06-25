@@ -8,23 +8,22 @@ import { useChartConfig } from '~/composables/useChartConfig'
 vi.unmock('~/composables/useGameAnalysis')
 vi.unmock('~/composables/useChartConfig')
 
-
 describe('Composables Unit Tests', () => {
   describe('useGameAnalysis', () => {
-    it('processes HSR packages correctly', () => {
-      const { getProcessedPackages } = useGameAnalysis()
-      const packages = getProcessedPackages('hsr')
+    it('processes HSR purchases correctly', () => {
+      const { getProcessedPurchases } = useGameAnalysis()
+      const purchases = getProcessedPurchases('hsr')
 
-      expect(packages).toBeTruthy()
-      expect(packages?.normal.length).toBeGreaterThan(0)
-      expect(packages?.first_time_bonus.length).toBeGreaterThan(0)
+      expect(purchases).toBeTruthy()
+      expect(purchases?.normal.length).toBeGreaterThan(0)
+      expect(purchases?.first_time_bonus.length).toBeGreaterThan(0)
 
       // Check cost per pull calculations
-      packages?.normal.forEach((pkg) => {
+      purchases?.normal.forEach((pkg) => {
         expect(pkg.costPerPull).toBeTypeOf('number')
 
         // Only check for non-Infinity values when pulls > 0
-        if (pkg.pullsFromPackage > 0) {
+        if (pkg.pullsFromPurchase > 0) {
           expect(pkg.costPerPull).toBeGreaterThan(0)
           expect(pkg.costPerPull).not.toBe(Infinity)
         }
@@ -32,7 +31,7 @@ describe('Composables Unit Tests', () => {
           expect(pkg.costPerPull).toBe(Infinity)
         }
 
-        expect(pkg.pullsFromPackage).toBeGreaterThanOrEqual(0)
+        expect(pkg.pullsFromPurchase).toBeGreaterThanOrEqual(0)
       })
     })
 
@@ -41,27 +40,27 @@ describe('Composables Unit Tests', () => {
       const analysis = await measurePerformance(() => analyzeGame('hsr'))
       expectValidAnalysis(analysis)
 
-      expect(analysis?.insights.bestPackage).toBeTruthy()
+      expect(analysis?.insights.bestPurchase).toBeTruthy()
       expect(analysis?.insights.maxSavings).toBeGreaterThanOrEqual(0)
     })
 
-    it('generates chart data from packages', () => {
-      const { getProcessedPackages, generateChartsFromPackages } = useGameAnalysis()
-      const packages = getProcessedPackages('hsr')
-      expect(packages).toBeTruthy()
+    it('generates chart data from purchases', () => {
+      const { getProcessedPurchases, generateChartsFromPurchases } = useGameAnalysis()
+      const purchases = getProcessedPurchases('hsr')
+      expect(purchases).toBeTruthy()
 
-      if (packages) {
-        const chartData = generateChartsFromPackages(packages)
+      if (purchases) {
+        const chartData = generateChartsFromPurchases(purchases)
         expect(chartData.scatterData).toBeInstanceOf(Array)
         expect(chartData.barData).toBeTypeOf('object')
       }
     })
 
     it('handles edge cases', () => {
-      const { getProcessedPackages, analyzeGame } = useGameAnalysis()
+      const { getProcessedPurchases, analyzeGame } = useGameAnalysis()
       
-      const packages = getProcessedPackages('invalid_game')
-      expect(packages).toBeNull()
+      const purchases = getProcessedPurchases('invalid_game')
+      expect(purchases).toBeNull()
 
       const analysis = analyzeGame('invalid_game')
       expect(analysis).toBeNull()
@@ -72,7 +71,7 @@ describe('Composables Unit Tests', () => {
     const mockGameData = ref(createMockGameData())
     const { packageTypeColors, typeLabels, createChartOptions } = useChartConfig(mockGameData)
 
-    it('provides package type colors', () => {
+    it('provides purchase type colors', () => {
       expect(packageTypeColors).toBeTypeOf('object')
       expect(packageTypeColors.normal).toHaveProperty('bg')
       expect(packageTypeColors.normal).toHaveProperty('border')
@@ -80,7 +79,7 @@ describe('Composables Unit Tests', () => {
 
     it('provides type labels', () => {
       expect(typeLabels).toBeTypeOf('object')
-      expect(typeLabels.normal).toBe('Normal Packages')
+      expect(typeLabels.normal).toBe('Normal Purchases')
       expect(typeLabels.first_time_bonus).toBe('First-Time Bonus')
     })
 

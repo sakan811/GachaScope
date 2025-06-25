@@ -18,20 +18,22 @@ export default defineVitestConfig({
       ],
     },
     
-    // Test file patterns
+    // Test file patterns - using filename conventions instead of projects
     include: [
       'tests/**/*.{test,spec}.{js,ts}',
+      'tests/**/*.unit.{test,spec}.{js,ts}',
+      'tests/**/*.integration.{test,spec}.{js,ts}',
     ],
     
     // Setup files
     setupFiles: ['./tests/setup.ts'],
     
     // Performance optimizations
-    isolate: false, // Faster test execution
+    isolate: false, // Faster execution
     pool: 'threads',
     poolOptions: {
       threads: {
-        singleThread: true, // Prevent race conditions in E2E tests
+        singleThread: true, // Prevent race conditions
       },
     },
         
@@ -41,33 +43,35 @@ export default defineVitestConfig({
     // Global test configuration
     globals: true,
     
-    // Environment configuration - using separate environments for different test types
-    environment: 'nuxt', // Default environment for most tests
+    // Default environment
+    environment: 'happy-dom',
     
-    // Timeouts
+    // Projects configuration - replaces deprecated environmentMatchGlobs
+    projects: [
+      {
+        // Unit tests project
+        extends: true,
+        test: {
+          name: 'unit',
+          include: ['**/*.unit.{test,spec}.{js,ts}'],
+          environment: 'jsdom',
+          testTimeout: 10000,
+        },
+      },
+      {
+        // Integration tests project  
+        extends: true,
+        test: {
+          name: 'integration',
+          include: ['**/*.integration.{test,spec}.{js,ts}'],
+          environment: 'nuxt',
+          testTimeout: 15000,
+        },
+      },
+    ],
+    
+    // Timeouts (defaults for projects that don't override)
     testTimeout: 15000,
     hookTimeout: 10000,
   },
-
-  // Projects configuration (Vitest 3.x format) - separate config for different test types
-  projects: [
-    {
-      test: {
-        name: 'Unit Tests',
-        environment: 'jsdom',
-        include: ['tests/**/*.unit.test.{js,ts}'],
-        testTimeout: 10000,
-        hookTimeout: 8000,
-      },
-    },
-    {
-      test: {
-        name: 'Integration Tests', 
-        environment: 'nuxt',
-        include: ['tests/**/*.integration.test.{js,ts}'],
-        testTimeout: 20000,
-        hookTimeout: 15000,
-      },
-    },
-  ],
 })
