@@ -113,9 +113,9 @@ describe('Components Integration', () => {
       const TestInvalidDashboard = defineComponent({
         props: ['gameId'],
         setup() {
-          return () => h('div', { 
+          return () => h('div', {
             'data-testid': 'invalid-dashboard',
-            class: 'error' 
+            'class': 'error',
           }, 'Game \'invalid\' not found')
         },
       })
@@ -144,10 +144,10 @@ describe('Components Integration', () => {
     })
 
     it('handles zero-pull purchases', async () => {
-      const zeroPurchase = { 
-        ...mockProcessedPurchases.normal[0], 
-        pullsFromPurchase: 0, 
-        costPerPull: Infinity 
+      const zeroPurchase = {
+        ...mockProcessedPurchases.normal[0],
+        pullsFromPurchase: 0,
+        costPerPull: Infinity,
       }
       const component = await mountSuspended(TestPurchaseCard, {
         props: { purchase: zeroPurchase, pullName: 'Warp' },
@@ -161,9 +161,9 @@ describe('Components Integration', () => {
   describe('CombinedValueAnalysis', () => {
     it('renders with game data', async () => {
       const component = await mountSuspended(TestCombinedValueAnalysis, {
-        props: { 
-          gameData: mockGameData, 
-          processedPurchases: mockProcessedPurchases 
+        props: {
+          gameData: mockGameData,
+          processedPurchases: mockProcessedPurchases,
         },
       })
 
@@ -175,9 +175,9 @@ describe('Components Integration', () => {
     it('handles missing purchase types', async () => {
       const limitedPurchases = { normal: mockProcessedPurchases.normal }
       const component = await mountSuspended(TestCombinedValueAnalysis, {
-        props: { 
-          gameData: mockGameData, 
-          processedPurchases: limitedPurchases 
+        props: {
+          gameData: mockGameData,
+          processedPurchases: limitedPurchases,
         },
       })
 

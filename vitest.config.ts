@@ -17,17 +17,17 @@ export default defineVitestConfig({
         'tests/**',
       ],
     },
-    
+
     // Test file patterns - using filename conventions instead of projects
     include: [
       'tests/**/*.{test,spec}.{js,ts}',
       'tests/**/*.unit.{test,spec}.{js,ts}',
       'tests/**/*.integration.{test,spec}.{js,ts}',
     ],
-    
+
     // Setup files
     setupFiles: ['./tests/setup.ts'],
-    
+
     // Performance optimizations
     isolate: false, // Faster execution
     pool: 'threads',
@@ -36,16 +36,16 @@ export default defineVitestConfig({
         singleThread: true, // Prevent race conditions
       },
     },
-        
+
     // Retry flaky tests
     retry: 1,
-    
+
     // Global test configuration
     globals: true,
-    
+
     // Default environment
     environment: 'happy-dom',
-    
+
     // Projects configuration - replaces deprecated environmentMatchGlobs
     projects: [
       {
@@ -59,7 +59,7 @@ export default defineVitestConfig({
         },
       },
       {
-        // Integration tests project  
+        // Integration tests project
         extends: true,
         test: {
           name: 'integration',
@@ -69,7 +69,7 @@ export default defineVitestConfig({
         },
       },
     ],
-    
+
     // Timeouts (defaults for projects that don't override)
     testTimeout: 15000,
     hookTimeout: 10000,

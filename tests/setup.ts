@@ -67,7 +67,7 @@ vi.mock('vue-chartjs', () => ({
     props: ['data', 'options'],
   },
   Scatter: {
-    name: 'MockScatter', 
+    name: 'MockScatter',
     template: '<div data-testid="scatter-chart">Scatter Chart</div>',
     props: ['data', 'options'],
   },
@@ -81,7 +81,8 @@ if (isJsdomEnv) {
   // Unit tests - unmock composables to test real implementations
   vi.unmock('~/composables/useGameAnalysis')
   vi.unmock('~/composables/useChartConfig')
-} else if (isNuxtEnv) {
+}
+else if (isNuxtEnv) {
   // Integration tests - mock composables for lightweight testing
   vi.mock('~/composables/useChartConfig', () => ({
     useChartConfig: () => ({
@@ -104,14 +105,14 @@ if (isJsdomEnv) {
     useGameAnalysis: () => ({
       getProcessedPurchases: vi.fn(() => ({
         normal: [
-          { 
-            id: 'test1', 
-            name: 'Test Purchase 1', 
-            price: 9.99, 
-            totalAmount: 1000, 
-            pullsFromPurchase: 6, 
-            leftoverAmount: 40, 
-            costPerPull: 1.67 
+          {
+            id: 'test1',
+            name: 'Test Purchase 1',
+            price: 9.99,
+            totalAmount: 1000,
+            pullsFromPurchase: 6,
+            leftoverAmount: 40,
+            costPerPull: 1.67,
           },
         ],
       })),
@@ -119,7 +120,7 @@ if (isJsdomEnv) {
         scatterData: [
           { x: 6, y: 9.99, type: 'normal', purchaseName: 'Test Purchase 1' },
         ],
-        barData: { 
+        barData: {
           normal: [{ purchase: 'Test Purchase 1', costPerPull: 1.67 }],
         },
       })),
@@ -139,9 +140,9 @@ global.console = {
   warn: vi.fn(),
   error: (...args) => {
     const message = args.join(' ')
-    if (!message.includes('ResizeObserver') && 
-        !message.includes('Chart.js') && 
-        !message.includes('Context conflict')) {
+    if (!message.includes('ResizeObserver')
+      && !message.includes('Chart.js')
+      && !message.includes('Context conflict')) {
       originalConsole.error(...args)
     }
   },

@@ -33,7 +33,10 @@
           </h2>
         </div>
 
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="games-grid">
+        <div
+          class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+          data-testid="games-grid"
+        >
           <UCard
             v-for="game in supportedGames"
             :key="game.metadata.id"
