@@ -16,7 +16,7 @@ export const createMockPackage = (overrides: Partial<ProcessedPackage> = {}): Pr
   costPerPull: 1.67,
   leftoverAmount: 40,
   efficiency: 110,
-  ...overrides
+  ...overrides,
 })
 
 export const createMockGameData = (overrides: Partial<GameData> = {}): GameData => ({
@@ -29,14 +29,14 @@ export const createMockGameData = (overrides: Partial<GameData> = {}): GameData 
     analysisConfig: {
       maxScenarios: 10,
       includeMultiPackage: true,
-      maxPackageMultiplier: 2
-    }
+      maxPackageMultiplier: 2,
+    },
   },
   packages: {
     normal: [createMockPackage()],
-    first_time_bonus: [createMockPackage({ purchaseType: 'first_time_bonus', extraAmount: 1000 })]
+    first_time_bonus: [createMockPackage({ purchaseType: 'first_time_bonus', extraAmount: 1000 })],
   },
-  ...overrides
+  ...overrides,
 })
 
 // Test utilities

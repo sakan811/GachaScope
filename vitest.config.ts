@@ -15,17 +15,23 @@ export default defineVitestConfig({
         'coverage/',
         '**/*.d.ts',
         '**/*.config.*',
-        'tests/**'
-      ]
+        'tests/**',
+      ],
     },
     // Test file patterns
     include: [
       'tests/**/*.{test,spec}.{js,ts}',
-      '**/*.{test,spec}.{nuxt,}.{js,ts}'
+      '**/*.{test,spec}.{nuxt,}.{js,ts}',
     ],
-    // Global test timeout
-    testTimeout: 10000,
+    // Different timeouts for different test types
+    testTimeout: 15000, // Default timeout
     // Setup files
-    setupFiles: ['./tests/setup.ts']
-  }
+    setupFiles: ['./tests/setup.ts'],
+    // Environment for different test patterns
+    environmentMatchGlobs: [
+      ['tests/e2e/**', 'nuxt'],
+      ['tests/unit/**', 'jsdom'],
+      ['tests/integration/**', 'nuxt'],
+    ],
+  },
 })

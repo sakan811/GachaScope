@@ -9,24 +9,24 @@ const hsrGameData: GameData = {
     id: 'hsr',
     name: 'Honkai: Star Rail',
     shortName: 'HSR',
-    
+
     currency: {
       name: 'Oneiric Shards',
-      shortName: 'Shards'
+      shortName: 'Shards',
     },
-    
+
     pull: {
       name: 'Warp',
       cost: 160, // 160 shards per pull
     },
-    
+
     analysisConfig: {
       maxScenarios: 50,
       includeMultiPackage: true,
-      maxPackageMultiplier: 3
-    }
+      maxPackageMultiplier: 3,
+    },
   },
-  
+
   packages: {
     normal: [
       { id: 'hsr_n1', name: 'Oneiric Shard ×60', baseAmount: 60, price: 0.99, extraAmount: 0, purchaseType: 'normal', currency: 'shards' },
@@ -36,7 +36,7 @@ const hsrGameData: GameData = {
       { id: 'hsr_n5', name: 'Oneiric Shard ×3280', baseAmount: 3280, price: 49.99, extraAmount: 600, purchaseType: 'normal', currency: 'shards' },
       { id: 'hsr_n6', name: 'Oneiric Shard ×6480', baseAmount: 6480, price: 99.99, extraAmount: 1600, purchaseType: 'normal', currency: 'shards' },
     ],
-    
+
     first_time_bonus: [
       { id: 'hsr_b1', name: 'Oneiric Shard ×60 (First Purchase)', baseAmount: 60, price: 0.99, extraAmount: 60, purchaseType: 'first_time_bonus', currency: 'shards' },
       { id: 'hsr_b2', name: 'Oneiric Shard ×300 (First Purchase)', baseAmount: 300, price: 4.99, extraAmount: 300, purchaseType: 'first_time_bonus', currency: 'shards' },
@@ -53,8 +53,8 @@ const hsrGameData: GameData = {
     battle_pass: [
       { id: 'hsr_bp1', name: 'Nameless Glory', baseAmount: 680, price: 9.99, extraAmount: 640, purchaseType: 'battle_pass', currency: 'shards', description: '680 Stellar Jade plus 4 Star Rail Special Pass' },
       { id: 'hsr_bp2', name: 'Nameless Medal', baseAmount: 880, price: 19.99, extraAmount: 640, purchaseType: 'battle_pass', currency: 'shards', description: '880 Stellar Jade plus 4 Star Rail Special Pass' },
-    ]
-  }
+    ],
+  },
 }
 
 // Register games
@@ -85,11 +85,11 @@ export function isValidGameId(gameId: string): boolean {
   return gameRegistry.has(gameId)
 }
 
-export function getGameNames(): Array<{ id: string; name: string; shortName: string }> {
+export function getGameNames(): Array<{ id: string, name: string, shortName: string }> {
   return Array.from(gameRegistry.values()).map(game => ({
     id: game.metadata.id,
     name: game.metadata.name,
-    shortName: game.metadata.shortName
+    shortName: game.metadata.shortName,
   }))
 }
 
