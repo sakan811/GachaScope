@@ -1,37 +1,27 @@
-import { vi } from 'vitest'
+import { beforeEach, vi } from 'vitest'
 
-// Mock console.warn to reduce noise during tests
-vi.spyOn(console, 'warn').mockImplementation(() => {})
-
-// Mock localStorage if needed
-Object.defineProperty(window, 'localStorage', {
-  value: {
-    getItem: vi.fn(),
-    setItem: vi.fn(),
-    removeItem: vi.fn(),
-    clear: vi.fn(),
-  },
-  writable: true,
+// Global test setup - simplified from original
+beforeEach(() => {
+  // Clear any previous mocks
+  vi.clearAllMocks()
 })
 
-// Mock Chart.js globally
-vi.mock('chart.js', () => ({
-  Chart: class MockChart {
-    static register = vi.fn()
-    constructor() {}
-    destroy = vi.fn()
-    update = vi.fn()
-    render = vi.fn()
-  },
-  LineElement: {},
-  PointElement: {},
-  LineController: {},
-  BarElement: {},
-  BarController: {},
-  CategoryScale: {},
-  LinearScale: {},
-  Title: {},
-  Tooltip: {},
-  Legend: {},
-  Filler: {}
+// Essential global mocks only
+globalThis.ResizeObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
 }))
+
+// Chart.js mock for testing
+vi.mock('chart.js', () => ({
+  Chart: vi.fn(),
+  registerables: []
+}))
+
+// Console cleanup for cleaner test output
+global.console = {
+  ...console,
+  warn: vi.fn(),
+  error: vi.fn()
+}
