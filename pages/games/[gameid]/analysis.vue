@@ -1,21 +1,32 @@
 <template>
-  <div v-if="!gameData" class="container mx-auto px-4 py-8">
-    <UAlert color="red" variant="solid">
-      <template #title>Game Not Found</template>
+  <div
+    v-if="!gameData"
+    class="container mx-auto px-4 py-8"
+  >
+    <UAlert
+      color="red"
+      variant="solid"
+    >
+      <template #title>
+        Game Not Found
+      </template>
       <template #description>
         The game "{{ route.params.gameId }}" is not supported yet.
       </template>
     </UAlert>
   </div>
 
-  <div v-else class="container mx-auto px-4 py-8 max-w-6xl">
+  <div
+    v-else
+    class="container mx-auto px-4 py-8 max-w-6xl"
+  >
     <!-- Back Button -->
-    <UButton 
-      variant="ghost" 
-      icon="i-heroicons-arrow-left" 
+    <UButton
+      variant="ghost"
+      icon="i-heroicons-arrow-left"
       size="sm"
-      @click="navigateTo('/')"
       class="mb-6"
+      @click="navigateTo('/')"
     >
       <span class="hidden sm:inline">Back to Home</span>
       <span class="sm:hidden">Back</span>
@@ -27,13 +38,13 @@
         {{ gameData.metadata.name }} In-App Purchase Analysis
       </h1>
       <p class="text-gray-600 dark:text-gray-300 max-w-3xl mx-auto text-base sm:text-lg">
-        Compare {{ gameData.metadata.currency.name.toLowerCase() }} from in-app purchases to find the best value for your {{ gameData.metadata.pull.name.toLowerCase() }}s. 
+        Compare {{ gameData.metadata.currency.name.toLowerCase() }} from in-app purchases to find the best value for your {{ gameData.metadata.pull.name.toLowerCase() }}s.
       </p>
     </div>
 
     <!-- Combined Value Analysis -->
-    <CombinedValueAnalysis 
-      :game-data="gameData" 
+    <CombinedValueAnalysis
+      :game-data="gameData"
       :processed-packages="processedPackages"
     />
 
@@ -41,23 +52,41 @@
     <UCard class="mb-8">
       <template #header>
         <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-          <UIcon name="i-heroicons-cube" class="w-5 h-5" />In-App Purchase Overview
+          <UIcon
+            name="i-heroicons-cube"
+            class="w-5 h-5"
+          />In-App Purchase Overview
         </h2>
       </template>
-      
+
       <div class="space-y-6">
-        <div v-for="(packages, type) in filteredPackages" :key="type" class="space-y-4">
-          <h3 class="text-lg font-medium flex items-center gap-2" :class="getPackageTypeStyle(type).title">
-            <UIcon :name="getPackageTypeIcon(type)" class="w-4 h-4" />
+        <div
+          v-for="(packages, type) in filteredPackages"
+          :key="type"
+          class="space-y-4"
+        >
+          <h3
+            class="text-lg font-medium flex items-center gap-2"
+            :class="getPackageTypeStyle(type).title"
+          >
+            <UIcon
+              :name="getPackageTypeIcon(type)"
+              class="w-4 h-4"
+            />
             {{ getPackageTypeName(type) }}
           </h3>
-          
+
           <!-- Mobile View: Cards -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:hidden">
-            <div v-for="pkg in packages" :key="pkg.id" 
-                 :class="[getPackageTypeStyle(type).card, 'p-3 rounded-lg']">
+            <div
+              v-for="pkg in packages"
+              :key="pkg.id"
+              :class="[getPackageTypeStyle(type).card, 'p-3 rounded-lg']"
+            >
               <div class="flex justify-between items-start mb-2">
-                <div class="text-sm font-bold text-gray-900 dark:text-white">${{ pkg.price.toFixed(2) }}</div>
+                <div class="text-sm font-bold text-gray-900 dark:text-white">
+                  ${{ pkg.price.toFixed(2) }}
+                </div>
                 <div class="text-right">
                   <div :class="pkg.pullsFromPackage === 0 ? 'text-red-500 font-medium' : 'text-gray-600 dark:text-gray-300'">
                     {{ pkg.pullsFromPackage }} {{ gameData.metadata.pull.name.toLowerCase() }}s
@@ -70,7 +99,10 @@
               <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">
                 {{ pkg.leftoverAmount }} leftover
               </div>
-              <div class="text-xs font-medium" :class="getPackageTypeStyle(type).title">
+              <div
+                class="text-xs font-medium"
+                :class="getPackageTypeStyle(type).title"
+              >
                 {{ formatCostPerPull(pkg.costPerPull) }}
               </div>
             </div>
@@ -90,8 +122,11 @@
                 </div>
               </div>
               <div class="divide-y divide-gray-200 dark:divide-gray-700">
-                <div v-for="pkg in packages" :key="pkg.id" 
-                     class="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                <div
+                  v-for="pkg in packages"
+                  :key="pkg.id"
+                  class="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                >
                   <div class="grid grid-cols-6 gap-4 items-center">
                     <div class="font-medium text-gray-900 dark:text-white text-sm">
                       {{ pkg.name }}
@@ -108,7 +143,10 @@
                     <div class="text-sm text-gray-500 dark:text-gray-400">
                       {{ pkg.leftoverAmount }}
                     </div>
-                    <div class="font-medium" :class="getPackageTypeStyle(type).title">
+                    <div
+                      class="font-medium"
+                      :class="getPackageTypeStyle(type).title"
+                    >
                       {{ formatCostPerPull(pkg.costPerPull) }}
                     </div>
                   </div>
@@ -130,7 +168,10 @@
           </h3>
         </template>
         <div class="h-80 w-full">
-          <Scatter :data="scatterChartData" :options="scatterChartOptions" />
+          <Scatter
+            :data="scatterChartData"
+            :options="scatterChartOptions"
+          />
         </div>
       </UCard>
 
@@ -142,7 +183,10 @@
           </h3>
         </template>
         <div class="h-80 w-full">
-          <Bar :data="barChartData" :options="barChartOptions" />
+          <Bar
+            :data="barChartData"
+            :options="barChartOptions"
+          />
         </div>
       </UCard>
     </div>
@@ -150,10 +194,6 @@
 </template>
 
 <script setup>
-import { getGameById } from '~/utils/gameRegistry'
-import { useGameAnalysis } from '~/composables/useGameAnalysis'
-import CombinedValueAnalysis from '~/components/analysis/CombinedValueAnalysis.vue'
-import { useChartConfig } from '~/composables/useChartConfig'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -166,6 +206,10 @@ import {
   Legend,
 } from 'chart.js'
 import { Bar, Scatter } from 'vue-chartjs'
+import { getGameById } from '~/utils/gameRegistry'
+import { useGameAnalysis } from '~/composables/useGameAnalysis'
+import CombinedValueAnalysis from '~/components/analysis/CombinedValueAnalysis.vue'
+import { useChartConfig } from '~/composables/useChartConfig'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend)
 
@@ -180,10 +224,10 @@ if (!gameData.value) {
 
 useHead({
   title: `${gameData.value.metadata.name} Analysis`,
-  meta: [{ 
-    name: 'description', 
-    content: `${gameData.value.metadata.currency.name} package analysis for ${gameData.value.metadata.name}` 
-  }]
+  meta: [{
+    name: 'description',
+    content: `${gameData.value.metadata.currency.name} package analysis for ${gameData.value.metadata.name}`,
+  }],
 })
 
 const processedPackages = getProcessedPackages(gameId)
@@ -193,7 +237,7 @@ const chartsData = processedPackages ? generateChartsFromPackages(processedPacka
 const filteredPackages = computed(() => {
   if (!processedPackages) return {}
   return Object.fromEntries(
-    Object.entries(processedPackages).filter(([_, packages]) => packages && packages.length > 0)
+    Object.entries(processedPackages).filter(([_, packages]) => packages && packages.length > 0),
   )
 })
 
@@ -207,85 +251,85 @@ const formatCostPerPull = (costPerPull) => {
 
 // Package type styling
 const packageTypeStyles = {
-  normal: { 
+  normal: {
     card: 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800',
-    title: 'text-red-600 dark:text-red-400'
+    title: 'text-red-600 dark:text-red-400',
   },
-  first_time_bonus: { 
+  first_time_bonus: {
     card: 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800',
-    title: 'text-green-600 dark:text-green-400'
+    title: 'text-green-600 dark:text-green-400',
   },
-  subscription: { 
+  subscription: {
     card: 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800',
-    title: 'text-blue-600 dark:text-blue-400'
+    title: 'text-blue-600 dark:text-blue-400',
   },
-  battle_pass: { 
+  battle_pass: {
     card: 'bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800',
-    title: 'text-purple-600 dark:text-purple-400'
-  }
+    title: 'text-purple-600 dark:text-purple-400',
+  },
 }
 
 const packageTypeNames = {
   normal: 'Normal Oneiric Shard Purchase',
   first_time_bonus: 'First-Time Bonus Oneiric Shard Purchase',
   subscription: 'Subscription',
-  battle_pass: 'Battle Pass'
+  battle_pass: 'Battle Pass',
 }
 
 const packageTypeIcons = {
   normal: 'i-heroicons-shopping-bag',
   first_time_bonus: 'i-heroicons-gift',
   subscription: 'i-heroicons-calendar',
-  battle_pass: 'i-heroicons-trophy'
+  battle_pass: 'i-heroicons-trophy',
 }
 
-const getPackageTypeStyle = (type) => packageTypeStyles[type] || packageTypeStyles.normal
-const getPackageTypeName = (type) => packageTypeNames[type] || type
-const getPackageTypeIcon = (type) => packageTypeIcons[type] || 'i-heroicons-cube'
+const getPackageTypeStyle = type => packageTypeStyles[type] || packageTypeStyles.normal
+const getPackageTypeName = type => packageTypeNames[type] || type
+const getPackageTypeIcon = type => packageTypeIcons[type] || 'i-heroicons-cube'
 
 // Chart data and options
 const { packageTypeColors, typeLabels, createChartOptions } = useChartConfig(gameData)
 
 const scatterChartData = computed(() => {
   if (!chartsData) return { datasets: [] }
-  
+
   const groupedData = chartsData.scatterData.reduce((acc, point) => {
     acc[point.type] = acc[point.type] || []
     acc[point.type].push({ x: point.x, y: point.y, packageName: point.packageName })
     return acc
   }, {})
-  
+
   return {
     datasets: Object.entries(groupedData).map(([type, data]) => ({
       label: typeLabels[type] || type,
       data,
       backgroundColor: packageTypeColors[type]?.bg || 'rgba(156, 163, 175, 0.8)',
       borderColor: packageTypeColors[type]?.border || 'rgb(156, 163, 175)',
-      pointRadius: 6
-    }))
+      pointRadius: 6,
+    })),
   }
 })
 
 const barChartData = computed(() => {
   if (!chartsData?.barData) return { labels: [], datasets: [] }
-  
+
   const allPackageNames = new Set()
-  Object.values(chartsData.barData).forEach(packages => {
+  Object.values(chartsData.barData).forEach((packages) => {
     packages.forEach(pkg => allPackageNames.add(pkg.package))
   })
-  
+
   const labels = Array.from(allPackageNames)
   const datasets = Object.entries(chartsData.barData).map(([type, packages]) => ({
     label: typeLabels[type] || type,
-    data: labels.map(label => {
+    data: labels.map((label) => {
       const pkg = packages.find(p => p.package === label)
       return pkg ? parseFloat(pkg.costPerPull.toFixed(2)) : null
     }),
     backgroundColor: packageTypeColors[type]?.bg || 'rgba(156, 163, 175, 0.7)',
     borderColor: packageTypeColors[type]?.border || 'rgb(156, 163, 175)',
-    borderWidth: 1
+    borderWidth: 1,
   }))
-  
+
   return { labels, datasets }
 })
 

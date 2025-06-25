@@ -1,18 +1,29 @@
 <template>
-  <UCard v-if="subscriptionPackages?.length" class="mb-6 sm:mb-8">
+  <UCard
+    v-if="subscriptionPackages?.length"
+    class="mb-6 sm:mb-8"
+  >
     <template #header>
       <h2 class="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-        <UIcon name="i-heroicons-calendar" class="w-5 h-5 sm:w-6 sm:h-6" />
+        <UIcon
+          name="i-heroicons-calendar"
+          class="w-5 h-5 sm:w-6 sm:h-6"
+        />
         Subscription Packages
       </h2>
     </template>
-    
+
     <!-- Mobile View: Stacked Cards -->
     <div class="block lg:hidden space-y-4">
-      <div v-for="(pkg, index) in subscriptionPackages" :key="index" 
-           class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+      <div
+        v-for="(pkg, index) in subscriptionPackages"
+        :key="index"
+        class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800"
+      >
         <div class="flex justify-between items-start mb-2">
-          <div class="text-lg font-bold text-gray-900 dark:text-white">${{ pkg.price.toFixed(2) }}</div>
+          <div class="text-lg font-bold text-gray-900 dark:text-white">
+            ${{ pkg.price.toFixed(2) }}
+          </div>
           <div class="text-right">
             <div :class="pkg.pullsFromPackage === 0 ? 'text-red-500 font-medium' : 'text-blue-600 dark:text-blue-400 font-semibold'">
               {{ pkg.pullsFromPackage }} {{ gameData.metadata.pull.name.toLowerCase() }}s
@@ -28,7 +39,10 @@
         <div class="text-xs text-gray-500 dark:text-gray-400 mb-2">
           {{ pkg.leftoverAmount }} leftover
         </div>
-        <div v-if="pkg.description" class="text-xs text-blue-600 dark:text-blue-300 italic">
+        <div
+          v-if="pkg.description"
+          class="text-xs text-blue-600 dark:text-blue-300 italic"
+        >
           {{ pkg.description }}
         </div>
       </div>
@@ -48,8 +62,11 @@
           </div>
         </div>
         <div class="divide-y divide-gray-200 dark:divide-gray-700">
-          <div v-for="(pkg, index) in subscriptionPackages" :key="index" 
-               class="px-4 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+          <div
+            v-for="(pkg, index) in subscriptionPackages"
+            :key="index"
+            class="px-4 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+          >
             <div class="grid grid-cols-6 gap-4 items-center">
               <div class="font-medium text-gray-900 dark:text-white">
                 {{ pkg.name }}
@@ -76,18 +93,38 @@
     </div>
 
     <!-- Subscription Value Analysis -->
-    <div v-if="subscriptionAnalysis" class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+    <div
+      v-if="subscriptionAnalysis"
+      class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700"
+    >
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-        <UIcon name="i-heroicons-calculator" class="w-4 h-4" />
+        <UIcon
+          name="i-heroicons-calculator"
+          class="w-4 h-4"
+        />
         Subscription Value Analysis
       </h3>
-      
+
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <UCard v-for="stat in subscriptionStats" :key="stat.label" class="bg-blue-50 dark:bg-blue-900/20">
+        <UCard
+          v-for="stat in subscriptionStats"
+          :key="stat.label"
+          class="bg-blue-50 dark:bg-blue-900/20"
+        >
           <div class="text-center p-2 sm:p-3">
-            <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-1 sm:mb-2">{{ stat.label }}</div>
-            <div class="text-lg sm:text-xl font-bold break-words" :class="stat.color">{{ stat.value }}</div>
-            <div v-if="stat.explanation" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-1 sm:mb-2">
+              {{ stat.label }}
+            </div>
+            <div
+              class="text-lg sm:text-xl font-bold break-words"
+              :class="stat.color"
+            >
+              {{ stat.value }}
+            </div>
+            <div
+              v-if="stat.explanation"
+              class="text-xs text-gray-500 dark:text-gray-400 mt-1"
+            >
               {{ stat.explanation }}
             </div>
           </div>
@@ -110,49 +147,49 @@ const props = defineProps<Props>()
 // Subscription analysis
 const subscriptionAnalysis = computed(() => {
   if (!props.subscriptionPackages?.length) return null
-  
+
   const validPackages = props.subscriptionPackages.filter(pkg => pkg.pullsFromPackage > 0)
   if (!validPackages.length) return null
-  
+
   return {
-    bestValue: validPackages.reduce((best, pkg) => 
-      pkg.costPerPull < best.costPerPull ? pkg : best
+    bestValue: validPackages.reduce((best, pkg) =>
+      pkg.costPerPull < best.costPerPull ? pkg : best,
     ),
     avgCostPerPull: validPackages.reduce((sum, pkg) => sum + pkg.costPerPull, 0) / validPackages.length,
     totalMonthlyValue: validPackages.reduce((sum, pkg) => sum + pkg.price, 0),
-    totalMonthlyPulls: validPackages.reduce((sum, pkg) => sum + pkg.pullsFromPackage, 0)
+    totalMonthlyPulls: validPackages.reduce((sum, pkg) => sum + pkg.pullsFromPackage, 0),
   }
 })
 
 const subscriptionStats = computed(() => {
   if (!subscriptionAnalysis.value) return []
-  
-  const formatValue = (value: number, prefix = '$') => 
+
+  const formatValue = (value: number, prefix = '$') =>
     Number.isFinite(value) ? `${prefix}${value.toFixed(2)}` : 'N/A'
 
   return [
-    { 
-      label: 'Best Value', 
-      value: subscriptionAnalysis.value.bestValue.name, 
-      color: 'text-blue-600 dark:text-blue-400' 
+    {
+      label: 'Best Value',
+      value: subscriptionAnalysis.value.bestValue.name,
+      color: 'text-blue-600 dark:text-blue-400',
     },
-    { 
-      label: `Best Cost/${props.gameData.metadata.pull.name}`, 
-      value: formatValue(subscriptionAnalysis.value.bestValue.costPerPull), 
-      color: 'text-green-600 dark:text-green-400' 
+    {
+      label: `Best Cost/${props.gameData.metadata.pull.name}`,
+      value: formatValue(subscriptionAnalysis.value.bestValue.costPerPull),
+      color: 'text-green-600 dark:text-green-400',
     },
-    { 
-      label: 'Monthly Total', 
-      value: formatValue(subscriptionAnalysis.value.totalMonthlyValue), 
+    {
+      label: 'Monthly Total',
+      value: formatValue(subscriptionAnalysis.value.totalMonthlyValue),
       color: 'text-purple-600 dark:text-purple-400',
-      explanation: 'Total monthly cost for all subscriptions'
+      explanation: 'Total monthly cost for all subscriptions',
     },
-    { 
-      label: `Monthly ${props.gameData.metadata.pull.name}s`, 
-      value: subscriptionAnalysis.value.totalMonthlyPulls.toString(), 
+    {
+      label: `Monthly ${props.gameData.metadata.pull.name}s`,
+      value: subscriptionAnalysis.value.totalMonthlyPulls.toString(),
       color: 'text-gray-900 dark:text-white',
-      explanation: 'Total pulls per month from all subscriptions'
-    }
+      explanation: 'Total pulls per month from all subscriptions',
+    },
   ]
 })
 </script>
