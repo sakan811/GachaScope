@@ -208,13 +208,17 @@ export const useGameAnalysis = () => {
 
   function getProcessedPackages(gameId: string): Record<string, ProcessedPackage[]> | null {
     const gameData = getGameById(gameId)
-    if (!gameData) return null
+    if (!gameData) {
+      return null
+    }
 
     const pullCost = gameData.metadata.pull.cost
     const result: Record<string, ProcessedPackage[]> = {}
 
     for (const [type, packages] of Object.entries(gameData.packages)) {
-      result[type] = packages.map(pkg => processPackage(pkg, pullCost))
+      if (packages) {
+        result[type] = packages.map(pkg => processPackage(pkg, pullCost))
+      }
     }
 
     return result

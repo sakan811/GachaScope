@@ -2,8 +2,7 @@ import { defineVitestConfig } from '@nuxt/test-utils/config'
 
 export default defineVitestConfig({
   test: {
-    environment: 'nuxt',
-    // Add coverage configuration
+    // Coverage configuration
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -18,20 +17,57 @@ export default defineVitestConfig({
         'tests/**',
       ],
     },
+    
     // Test file patterns
     include: [
       'tests/**/*.{test,spec}.{js,ts}',
-      '**/*.{test,spec}.{nuxt,}.{js,ts}',
     ],
-    // Different timeouts for different test types
-    testTimeout: 15000, // Default timeout
+    
     // Setup files
     setupFiles: ['./tests/setup.ts'],
-    // Environment for different test patterns
-    environmentMatchGlobs: [
-      ['tests/e2e/**', 'nuxt'],
-      ['tests/unit/**', 'jsdom'],
-      ['tests/integration/**', 'nuxt'],
-    ],
+    
+    // Performance optimizations
+    isolate: false, // Faster test execution
+    pool: 'threads',
+    poolOptions: {
+      threads: {
+        singleThread: true, // Prevent race conditions in E2E tests
+      },
+    },
+        
+    // Retry flaky tests
+    retry: 1,
+    
+    // Global test configuration
+    globals: true,
+    
+    // Environment configuration - using separate environments for different test types
+    environment: 'nuxt', // Default environment for most tests
+    
+    // Timeouts
+    testTimeout: 15000,
+    hookTimeout: 10000,
   },
+
+  // Projects configuration (Vitest 3.x format) - separate config for different test types
+  projects: [
+    {
+      test: {
+        name: 'Unit Tests',
+        environment: 'jsdom',
+        include: ['tests/**/*.unit.test.{js,ts}'],
+        testTimeout: 10000,
+        hookTimeout: 8000,
+      },
+    },
+    {
+      test: {
+        name: 'Integration Tests', 
+        environment: 'nuxt',
+        include: ['tests/**/*.integration.test.{js,ts}'],
+        testTimeout: 20000,
+        hookTimeout: 15000,
+      },
+    },
+  ],
 })

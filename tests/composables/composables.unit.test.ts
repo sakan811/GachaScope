@@ -1,14 +1,18 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { ref } from 'vue'
 import { createMockGameData, expectValidAnalysis, measurePerformance } from '../fixtures/testHelpers'
 import { useGameAnalysis } from '~/composables/useGameAnalysis'
 import { useChartConfig } from '~/composables/useChartConfig'
 
+// Import real composables by unmocking them for unit tests
+vi.unmock('~/composables/useGameAnalysis')
+vi.unmock('~/composables/useChartConfig')
+
+
 describe('Composables Unit Tests', () => {
   describe('useGameAnalysis', () => {
-    const { getProcessedPackages, analyzeGame, generateChartsFromPackages } = useGameAnalysis()
-
     it('processes HSR packages correctly', () => {
+      const { getProcessedPackages } = useGameAnalysis()
       const packages = getProcessedPackages('hsr')
 
       expect(packages).toBeTruthy()
@@ -33,6 +37,7 @@ describe('Composables Unit Tests', () => {
     })
 
     it('analyzes game data efficiently', async () => {
+      const { analyzeGame } = useGameAnalysis()
       const analysis = await measurePerformance(() => analyzeGame('hsr'))
       expectValidAnalysis(analysis)
 
@@ -41,6 +46,7 @@ describe('Composables Unit Tests', () => {
     })
 
     it('generates chart data from packages', () => {
+      const { getProcessedPackages, generateChartsFromPackages } = useGameAnalysis()
       const packages = getProcessedPackages('hsr')
       expect(packages).toBeTruthy()
 
@@ -52,6 +58,8 @@ describe('Composables Unit Tests', () => {
     })
 
     it('handles edge cases', () => {
+      const { getProcessedPackages, analyzeGame } = useGameAnalysis()
+      
       const packages = getProcessedPackages('invalid_game')
       expect(packages).toBeNull()
 
