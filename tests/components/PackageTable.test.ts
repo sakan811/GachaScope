@@ -7,7 +7,7 @@ import type { ProcessedPurchase } from '~/types/games'
 const mockPackages: ProcessedPurchase[] = [
   {
     id: 'pkg_1',
-    name: 'Small Package',
+    name: 'Small Purchase',
     price: 4.99,
     baseAmount: 300,
     extraAmount: 60,
@@ -21,7 +21,7 @@ const mockPackages: ProcessedPurchase[] = [
   },
   {
     id: 'pkg_2',
-    name: 'Large Package',
+    name: 'Large Purchase',
     price: 19.99,
     baseAmount: 1000,
     extraAmount: 600,
@@ -35,7 +35,7 @@ const mockPackages: ProcessedPurchase[] = [
   },
   {
     id: 'pkg_3',
-    name: 'Zero Pull Package',
+    name: 'Zero Pull Purchase',
     price: 0.99,
     baseAmount: 50,
     extraAmount: 0,
@@ -61,13 +61,13 @@ describe('PackageTable.vue', () => {
           packages: mockPackages,
           pullName: 'Warp',
           currencyName: 'OS',
-          title: 'Test Packages',
+          title: 'Test Purchases',
         },
       })
 
-      expect(component.text()).toContain('Test Packages')
-      expect(component.text()).toContain('Small Package')
-      expect(component.text()).toContain('Large Package')
+      expect(component.text()).toContain('Test Purchases')
+      expect(component.text()).toContain('Small Purchase')
+      expect(component.text()).toContain('Large Purchase')
     })
 
     it('renders with empty packages array', async () => {
@@ -94,11 +94,12 @@ describe('PackageTable.vue', () => {
           packages: mockPackages,
           pullName: 'Warp',
           currencyName: 'Oneiric Shard',
-          title: 'Package Analysis',
+          title: 'Purchase Analysis',
         },
       })
 
       // Check all column headers
+      expect(component.text()).toContain('Name')
       expect(component.text()).toContain('Price')
       expect(component.text()).toContain('Oneiric Shard')
       expect(component.text()).toContain('Warps')
@@ -111,30 +112,31 @@ describe('PackageTable.vue', () => {
           packages: [mockPackages[0]],
           pullName: 'Warp',
           currencyName: 'OS',
-          title: 'Single Package',
+          title: 'Single Purchase',
         },
       })
 
       const tableRow = component.find('.px-4.py-4')
       expect(tableRow.exists()).toBe(true)
 
-      // Check data in correct order: Price, Currency, Pulls, Leftover
+      // Check data in correct order: Name, Price, Currency, Pulls, Leftover
       const columns = tableRow.findAll('.grid > div')
-      expect(columns[0].text()).toContain('$4.99')
-      expect(columns[1].text()).toContain('360')
-      expect(columns[2].text()).toContain('2')
-      expect(columns[3].text()).toContain('40')
+      expect(columns[0].text()).toContain('Small Purchase')
+      expect(columns[1].text()).toContain('$4.99')
+      expect(columns[2].text()).toContain('360')
+      expect(columns[3].text()).toContain('2')
+      expect(columns[4].text()).toContain('40')
     })
 
     it('formats large numbers with commas', async () => {
-      const largePackage = {
+      const largePurchase = {
         ...mockPackages[0],
         totalAmount: 1234567,
       }
 
       const component = await mountSuspended(PackageTable, {
         props: {
-          packages: [largePackage],
+          packages: [largePurchase],
           pullName: 'Warp',
           currencyName: 'OS',
           title: 'Large Numbers',
@@ -145,11 +147,11 @@ describe('PackageTable.vue', () => {
     })
   })
 
-  describe('Zero Pull Packages', () => {
-    it('highlights zero-pull packages with red text', async () => {
+  describe('Zero Pull Purchases', () => {
+    it('highlights zero-pull purchases with red text', async () => {
       const component = await mountSuspended(PackageTable, {
         props: {
-          packages: [mockPackages[2]], // Zero pull package
+          packages: [mockPackages[2]], // Zero pull purchase
           pullName: 'Warp',
           currencyName: 'OS',
           title: 'Zero Pull Test',
@@ -161,10 +163,10 @@ describe('PackageTable.vue', () => {
       expect(redText.text()).toContain('0')
     })
 
-    it('applies normal styling to packages with pulls', async () => {
+    it('applies normal styling to purchases with pulls', async () => {
       const component = await mountSuspended(PackageTable, {
         props: {
-          packages: [mockPackages[0]], // Package with 2 pulls
+          packages: [mockPackages[0]], // Purchase with 2 pulls
           pullName: 'Warp',
           currencyName: 'OS',
           title: 'Normal Pull Test',
@@ -254,7 +256,7 @@ describe('PackageTable.vue', () => {
     })
 
     it('displays title correctly', async () => {
-      const testTitle = 'My Custom Package Analysis'
+      const testTitle = 'My Custom Purchase Analysis'
       const component = await mountSuspended(PackageTable, {
         props: {
           packages: mockPackages,
@@ -269,7 +271,7 @@ describe('PackageTable.vue', () => {
   })
 
   describe('Grid Layout', () => {
-    it('uses 4-column grid layout', async () => {
+    it('uses 5-column grid layout', async () => {
       const component = await mountSuspended(PackageTable, {
         props: {
           packages: mockPackages,
@@ -279,7 +281,7 @@ describe('PackageTable.vue', () => {
         },
       })
 
-      expect(component.find('.grid.grid-cols-4').exists()).toBe(true)
+      expect(component.find('.grid.grid-cols-5').exists()).toBe(true)
     })
 
     it('applies gap spacing correctly', async () => {
@@ -315,14 +317,14 @@ describe('PackageTable.vue', () => {
 
   describe('Price Formatting', () => {
     it('formats prices with two decimal places', async () => {
-      const packageWithOddPrice = {
+      const purchaseWithOddPrice = {
         ...mockPackages[0],
         price: 4.5,
       }
 
       const component = await mountSuspended(PackageTable, {
         props: {
-          packages: [packageWithOddPrice],
+          packages: [purchaseWithOddPrice],
           pullName: 'Warp',
           currencyName: 'OS',
           title: 'Price Format Test',
@@ -333,17 +335,17 @@ describe('PackageTable.vue', () => {
     })
 
     it('handles zero price correctly', async () => {
-      const freePackage = {
+      const freePurchase = {
         ...mockPackages[0],
         price: 0,
       }
 
       const component = await mountSuspended(PackageTable, {
         props: {
-          packages: [freePackage],
+          packages: [freePurchase],
           pullName: 'Warp',
           currencyName: 'OS',
-          title: 'Free Package Test',
+          title: 'Free Purchase Test',
         },
       })
 
@@ -351,24 +353,24 @@ describe('PackageTable.vue', () => {
     })
   })
 
-  describe('Multiple Packages', () => {
-    it('renders all packages in the array', async () => {
+  describe('Multiple Purchases', () => {
+    it('renders all purchases in the array', async () => {
       const component = await mountSuspended(PackageTable, {
         props: {
           packages: mockPackages,
           pullName: 'Warp',
           currencyName: 'OS',
-          title: 'Multiple Packages',
+          title: 'Multiple Purchases',
         },
       })
 
       const tableRows = component.findAll('.divide-y .px-4.py-4')
       expect(tableRows).toHaveLength(3)
 
-      // Check each package is rendered
-      expect(component.text()).toContain('Small Package')
-      expect(component.text()).toContain('Large Package')
-      expect(component.text()).toContain('Zero Pull Package')
+      // Check each purchase is rendered
+      expect(component.text()).toContain('Small Purchase')
+      expect(component.text()).toContain('Large Purchase')
+      expect(component.text()).toContain('Zero Pull Purchase')
     })
   })
 })

@@ -195,7 +195,7 @@ export const useGameAnalysis = () => {
   function analyzeGame(gameId: string): GameAnalysisResult | null {
     const gameData = getGameById(gameId)
     if (!gameData) {
-      throw new Error(`Game with ID '${gameId}' not found`)
+      return null
     }
 
     try {

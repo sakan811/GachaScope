@@ -90,7 +90,7 @@ describe('Bug Fixes Integration Tests', () => {
         normal: [
           {
             id: 'zero1',
-            name: 'Zero Pull Package 1',
+            name: 'Zero Pull Purchase 1',
             price: 4.99,
             baseAmount: 100,
             extraAmount: 0,
@@ -104,7 +104,7 @@ describe('Bug Fixes Integration Tests', () => {
           },
           {
             id: 'zero2',
-            name: 'Zero Pull Package 2',
+            name: 'Zero Pull Purchase 2',
             price: 2.99,
             baseAmount: 50,
             extraAmount: 0,
@@ -137,7 +137,7 @@ describe('Bug Fixes Integration Tests', () => {
         normal: [
           {
             id: 'valid',
-            name: 'Valid Package',
+            name: 'Valid Purchase',
             price: 9.99,
             baseAmount: 500,
             extraAmount: 180,
@@ -363,7 +363,7 @@ describe('Bug Fixes Integration Tests', () => {
       // PackageCard now properly validates ProcessedPurchase | null
       const validPackage: ProcessedPurchase = {
         id: 'typed',
-        name: 'TypeScript Package',
+        name: 'TypeScript Purchase',
         price: 9.99,
         baseAmount: 500,
         extraAmount: 180,
@@ -385,7 +385,7 @@ describe('Bug Fixes Integration Tests', () => {
       })
 
       expect(component.vm).toBeTruthy()
-      expect(component.text()).toContain('TypeScript Package')
+      expect(component.text()).toContain('TypeScript Purchase')
     })
   })
 
