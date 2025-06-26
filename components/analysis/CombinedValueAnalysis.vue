@@ -260,6 +260,12 @@ const purchaseTypeStats = computed(() => {
 
     const aValue = parseFloat(a.bestCostPerPull.replace('$', ''))
     const bValue = parseFloat(b.bestCostPerPull.replace('$', ''))
+    
+    // Handle NaN values by treating them as high values (put at end)
+    if (isNaN(aValue) && isNaN(bValue)) return 0
+    if (isNaN(aValue)) return 1
+    if (isNaN(bValue)) return -1
+    
     return aValue - bValue
   })
 })
