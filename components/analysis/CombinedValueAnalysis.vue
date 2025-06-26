@@ -122,7 +122,7 @@
                 ${{ purchase.price.toFixed(2) }} - no warps
               </div>
               <div class="text-xs text-red-600 dark:text-red-400 mt-1">
-                This purchase provides no warps for the cost
+                This purchase provides no warp for the cost
               </div>
             </div>
           </div>
@@ -287,7 +287,7 @@ const purchaseTypeStats = computed(() => {
 
       const costDisplay = formatCostPerPull(bestPurchase.costPerPull)
       const explanation = costDisplay === 'no warp for the cost'
-        ? 'This purchase provides no warps for the cost'
+        ? 'This purchase provides no warp for the cost'
         : `Each ${props.gameData.metadata.pull.name.toLowerCase()} costs ${costDisplay}`
 
       stats.push({
