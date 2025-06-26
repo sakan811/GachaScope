@@ -193,7 +193,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -231,18 +231,20 @@ useHead({
 })
 
 const processedPurchases = getProcessedPurchases(gameId)
-const chartsData = processedPurchases ? generateChartsFromPurchases(processedPurchases) : null
+if (!processedPurchases) {
+  throw createError({ statusCode: 500, statusMessage: `Failed to process purchases for game "${gameId}"` })
+}
+const chartsData = generateChartsFromPurchases(processedPurchases)
 
 // Filter out empty purchase types
 const filteredPurchases = computed(() => {
-  if (!processedPurchases) return {}
   return Object.fromEntries(
     Object.entries(processedPurchases).filter(([_, purchases]) => purchases && purchases.length > 0),
   )
 })
 
 // Format cost per pull to handle infinity
-const formatCostPerPull = (costPerPull) => {
+const formatCostPerPull = (costPerPull: number): string => {
   if (!Number.isFinite(costPerPull) || costPerPull === Infinity) {
     return 'no warp for the cost'
   }
@@ -283,9 +285,9 @@ const purchaseTypeIcons = {
   battle_pass: 'i-heroicons-trophy',
 }
 
-const getPurchaseTypeStyle = type => purchaseTypeStyles[type] || purchaseTypeStyles.normal
-const getPurchaseTypeName = type => purchaseTypeNames[type] || type
-const getPurchaseTypeIcon = type => purchaseTypeIcons[type] || 'i-heroicons-cube'
+const getPurchaseTypeStyle = (type: string) => purchaseTypeStyles[type] || purchaseTypeStyles.normal
+const getPurchaseTypeName = (type: string): string => purchaseTypeNames[type] || type
+const getPurchaseTypeIcon = (type: string): string => purchaseTypeIcons[type] || 'i-heroicons-cube'
 
 // Chart data and options
 const { packageTypeColors, typeLabels, createChartOptions } = useChartConfig(gameData)

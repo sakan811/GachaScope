@@ -122,13 +122,23 @@ export const useGameAnalysis = () => {
     const bonus = scenariosByType['first_time_bonus'] || []
 
     for (let i = 0; i < Math.min(normal.length, bonus.length); i++) {
-      const pullDiff = bonus[i].totalPulls - normal[i].totalPulls
-      const savingsAmount = Math.max(0, pullDiff * normal[i].costPerPull)
+      const normalScenario = normal[i]
+      const bonusScenario = bonus[i]
+      
+      if (!normalScenario || !bonusScenario || 
+          normalScenario.costPerPull === Infinity || 
+          bonusScenario.totalPulls === undefined ||
+          normalScenario.totalPulls === undefined) {
+        continue
+      }
+      
+      const pullDiff = bonusScenario.totalPulls - normalScenario.totalPulls
+      const savingsAmount = Math.max(0, pullDiff * normalScenario.costPerPull)
       if (savingsAmount > 0) {
         savings.push({
           purchase: `Purchase ${i + 1}`,
           savings: savingsAmount,
-          pulls: bonus[i].totalPulls,
+          pulls: bonusScenario.totalPulls,
         })
       }
     }
@@ -153,15 +163,16 @@ export const useGameAnalysis = () => {
       : null
 
     // Find best normal cost per pull for savings calculation
-    const bestNormal = normalScenarios
-      .filter(s => s.costPerPull !== Infinity)
-      .reduce((best, curr) => best.costPerPull < curr.costPerPull ? best : curr, { costPerPull: Infinity } as PurchaseScenario)
+    const validNormalScenarios = normalScenarios.filter(s => s.costPerPull !== Infinity)
+    const bestNormal = validNormalScenarios.length > 0
+      ? validNormalScenarios.reduce((best, curr) => best.costPerPull < curr.costPerPull ? best : curr)
+      : null
 
     const allBonusScenarios = bonusScenarios.filter(s => s.totalPulls > 0)
 
     // Calculate savings
     const savings = allBonusScenarios.map((bonus) => {
-      if (bestNormal.costPerPull === Infinity) return 0
+      if (!bestNormal || bestNormal.costPerPull === Infinity) return 0
       return Math.max(0, bonus.totalPulls * bestNormal.costPerPull - bonus.totalCost)
     })
 
@@ -170,7 +181,7 @@ export const useGameAnalysis = () => {
 
     const bestScenario = allBonusScenarios.length > 0
       ? allBonusScenarios.reduce((best, s) => s.costPerPull < best.costPerPull ? s : best)
-      : bonusScenarios[0] || normalScenarios[0]
+      : (bonusScenarios.length > 0 ? bonusScenarios[0] : (normalScenarios.length > 0 ? normalScenarios[0] : null))
 
     return {
       maxSavings,
@@ -184,8 +195,7 @@ export const useGameAnalysis = () => {
   function analyzeGame(gameId: string): GameAnalysisResult | null {
     const gameData = getGameById(gameId)
     if (!gameData) {
-      console.error(`Game with ID '${gameId}' not found`)
-      return null
+      throw new Error(`Game with ID '${gameId}' not found`)
     }
 
     try {
@@ -201,8 +211,7 @@ export const useGameAnalysis = () => {
       }
     }
     catch (error) {
-      console.error(`Error analyzing game '${gameId}':`, error)
-      return null
+      throw new Error(`Error analyzing game '${gameId}': ${error instanceof Error ? error.message : String(error)}`)
     }
   }
 

@@ -65,7 +65,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { getActiveGames } from '~/utils/gameRegistry'
 
 // Set page meta
@@ -79,7 +79,7 @@ useHead({
 // Get all supported games
 const supportedGames = getActiveGames()
 
-function navigateToGame(gameId) {
+function navigateToGame(gameId: string): void {
   navigateTo(`/games/${gameId}/analysis`)
 }
 </script>
