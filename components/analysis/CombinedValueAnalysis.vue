@@ -300,7 +300,6 @@ const purchaseTypeStats = computed(() => {
         bestCostPerPull: costDisplay,
         explanation,
       })
-      
     }
   }
 
@@ -312,12 +311,12 @@ const purchaseTypeStats = computed(() => {
 
     const aValue = parseFloat(a.bestCostPerPull.replace('$', ''))
     const bValue = parseFloat(b.bestCostPerPull.replace('$', ''))
-    
+
     // Handle NaN values by treating them as high values (put at end)
     if (isNaN(aValue) && isNaN(bValue)) return 0
     if (isNaN(aValue)) return 1
     if (isNaN(bValue)) return -1
-    
+
     return aValue - bValue
   })
 })
@@ -325,11 +324,11 @@ const purchaseTypeStats = computed(() => {
 // Zero-warp purchases for warning section
 const zeroWarpPurchases = computed(() => {
   const allZeroPurchases = []
-  
+
   for (const [type, config] of Object.entries(purchaseTypeConfig)) {
     const purchases = props.processedPurchases[type] || []
     const zeroPullPurchases = purchases.filter(purchase => purchase.pullsFromPurchase === 0)
-    
+
     for (const purchase of zeroPullPurchases) {
       allZeroPurchases.push({
         ...purchase,
@@ -337,7 +336,7 @@ const zeroWarpPurchases = computed(() => {
       })
     }
   }
-  
+
   return allZeroPurchases
 })
 

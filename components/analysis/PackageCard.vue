@@ -24,7 +24,10 @@
       {{ pkg.leftoverAmount || 0 }} leftover
     </div>
   </div>
-  <div v-else class="p-4 rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20">
+  <div
+    v-else
+    class="p-4 rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20"
+  >
     <div class="text-red-600 dark:text-red-400 text-center">
       Purchase data unavailable
     </div>

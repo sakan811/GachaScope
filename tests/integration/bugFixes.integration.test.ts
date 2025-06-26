@@ -192,7 +192,7 @@ describe('Bug Fixes Integration Tests', () => {
       // Should render without crashing during sorting
       expect(component.vm).toBeTruthy()
       expect(component.text()).toContain('In-App Purchase Type Comparison')
-      
+
       // Should handle both valid costs and "no warp for the cost" strings
       expect(component.text()).toContain('$2.50')
       expect(component.text()).toContain('no warp for the cost')

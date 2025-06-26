@@ -6,13 +6,13 @@ import type { GameData, PurchasePackage } from '~/types/games'
 vi.unmock('~/composables/useGameAnalysis')
 
 describe('useGameAnalysis Edge Cases & Bug Fixes', () => {
-  const { 
-    processPurchase, 
-    generateScenarios, 
-    generateInsights, 
+  const {
+    processPurchase,
+    generateScenarios,
+    generateInsights,
     generateChartData,
     analyzeGame,
-    getProcessedPurchases
+    getProcessedPurchases,
   } = useGameAnalysis()
 
   const createMockGameData = (packages: Record<string, PurchasePackage[]>): GameData => ({
@@ -49,10 +49,10 @@ describe('useGameAnalysis Edge Cases & Bug Fixes', () => {
 
       const scenarios = generateScenarios(gameData)
       const chartData = generateChartData(scenarios)
-      
+
       // Should not crash when normal scenarios is empty
       expect(() => generateInsights(scenarios, chartData)).not.toThrow()
-      
+
       const insights = generateInsights(scenarios, chartData)
       expect(insights).toBeTruthy()
       expect(insights.maxSavings).toBe(0) // No savings when no normal scenarios
@@ -74,9 +74,9 @@ describe('useGameAnalysis Edge Cases & Bug Fixes', () => {
 
       const scenarios = generateScenarios(gameData)
       const chartData = generateChartData(scenarios)
-      
+
       expect(() => generateInsights(scenarios, chartData)).not.toThrow()
-      
+
       const insights = generateInsights(scenarios, chartData)
       expect(insights.maxSavings).toBe(0)
       expect(insights.avgSavings).toBe(0)
@@ -107,7 +107,7 @@ describe('useGameAnalysis Edge Cases & Bug Fixes', () => {
       const scenarios = generateScenarios(gameData)
       const chartData = generateChartData(scenarios)
       const insights = generateInsights(scenarios, chartData)
-      
+
       // Should use the valid package and ignore the invalid one
       expect(insights.bestPurchase).toBeTruthy()
       expect(insights.bestPurchase?.costPerPull).not.toBe(Infinity)
@@ -121,9 +121,9 @@ describe('useGameAnalysis Edge Cases & Bug Fixes', () => {
 
       const scenarios = generateScenarios(gameData)
       const chartData = generateChartData(scenarios)
-      
+
       expect(() => generateInsights(scenarios, chartData)).not.toThrow()
-      
+
       const insights = generateInsights(scenarios, chartData)
       expect(insights.bestScenario).toBeNull()
       expect(insights.bestPurchase).toBeNull()
@@ -164,10 +164,10 @@ describe('useGameAnalysis Edge Cases & Bug Fixes', () => {
 
       const scenarios = generateScenarios(gameData)
       const chartData = generateChartData(scenarios)
-      
+
       expect(() => generateInsights(scenarios, chartData)).not.toThrow()
       expect(() => generateChartData(scenarios)).not.toThrow()
-      
+
       // Chart data should handle different array lengths gracefully
       expect(chartData.savings).toBeDefined()
       expect(Array.isArray(chartData.savings)).toBe(true)
@@ -206,7 +206,7 @@ describe('useGameAnalysis Edge Cases & Bug Fixes', () => {
       }
 
       expect(() => generateChartData(scenarios)).not.toThrow()
-      
+
       const chartData = generateChartData(scenarios)
       expect(chartData.savings).toBeDefined()
       expect(Array.isArray(chartData.savings)).toBe(true)
@@ -240,7 +240,7 @@ describe('useGameAnalysis Edge Cases & Bug Fixes', () => {
       } as any
 
       expect(() => processPurchase(invalidPackage, 160)).not.toThrow()
-      
+
       const result = processPurchase(invalidPackage, 160)
       expect(result.price).toBe(undefined)
       expect(result.totalAmount).toBeNaN()
@@ -261,7 +261,7 @@ describe('useGameAnalysis Edge Cases & Bug Fixes', () => {
       } as PurchasePackage
 
       expect(() => processPurchase(package1, 0)).not.toThrow()
-      
+
       const result = processPurchase(package1, 0)
       expect(result.pullsFromPurchase).toBe(Infinity)
       expect(result.costPerPull).toBe(0)
@@ -294,7 +294,7 @@ describe('useGameAnalysis Edge Cases & Bug Fixes', () => {
       } as PurchasePackage
 
       expect(() => processPurchase(package1, 160)).not.toThrow()
-      
+
       const result = processPurchase(package1, 160)
       expect(result.totalAmount).toBe(Number.MAX_SAFE_INTEGER)
       expect(result.efficiency).toBeCloseTo(1, 0)
@@ -304,9 +304,9 @@ describe('useGameAnalysis Edge Cases & Bug Fixes', () => {
   describe('Chart Data Generation Edge Cases', () => {
     it('handles empty scenarios in chart data generation', () => {
       const emptyScenarios = {}
-      
+
       expect(() => generateChartData(emptyScenarios)).not.toThrow()
-      
+
       const chartData = generateChartData(emptyScenarios)
       expect(chartData.costVsPulls).toEqual([])
       expect(chartData.efficiency).toEqual([])
@@ -344,11 +344,11 @@ describe('useGameAnalysis Edge Cases & Bug Fixes', () => {
       }
 
       const chartData = generateChartData(scenarios)
-      
+
       // Should only include the valid scenario in efficiency chart
       expect(chartData.efficiency).toHaveLength(1)
       expect(chartData.efficiency[0].costPerPull).toBeCloseTo(3.33, 2)
-      
+
       // But should include both in cost vs pulls chart
       expect(chartData.costVsPulls).toHaveLength(2)
     })
@@ -361,7 +361,7 @@ describe('useGameAnalysis Edge Cases & Bug Fixes', () => {
       })
 
       expect(() => generateScenarios(gameData)).not.toThrow()
-      
+
       const scenarios = generateScenarios(gameData)
       expect(scenarios.normal).toEqual([])
     })
@@ -381,7 +381,7 @@ describe('useGameAnalysis Edge Cases & Bug Fixes', () => {
       })
 
       expect(() => generateScenarios(gameData)).not.toThrow()
-      
+
       const scenarios = generateScenarios(gameData)
       expect(scenarios.normal).toBeDefined()
     })

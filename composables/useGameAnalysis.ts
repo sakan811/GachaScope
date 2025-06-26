@@ -124,14 +124,14 @@ export const useGameAnalysis = () => {
     for (let i = 0; i < Math.min(normal.length, bonus.length); i++) {
       const normalScenario = normal[i]
       const bonusScenario = bonus[i]
-      
-      if (!normalScenario || !bonusScenario || 
-          normalScenario.costPerPull === Infinity || 
-          bonusScenario.totalPulls === undefined ||
-          normalScenario.totalPulls === undefined) {
+
+      if (!normalScenario || !bonusScenario
+        || normalScenario.costPerPull === Infinity
+        || bonusScenario.totalPulls === undefined
+        || normalScenario.totalPulls === undefined) {
         continue
       }
-      
+
       const pullDiff = bonusScenario.totalPulls - normalScenario.totalPulls
       const savingsAmount = Math.max(0, pullDiff * normalScenario.costPerPull)
       if (savingsAmount > 0) {

@@ -6,16 +6,16 @@ import type { GameData, PurchasePackage } from '~/types/games'
 vi.unmock('~/composables/useGameAnalysis')
 
 describe('Performance Tests', () => {
-  const { 
-    processPurchase, 
-    generateScenarios, 
-    generateChartsFromPurchases, 
+  const {
+    processPurchase,
+    generateScenarios,
+    generateChartsFromPurchases,
     generateInsights,
-    getProcessedPurchases
+    getProcessedPurchases,
   } = useGameAnalysis()
 
   const createLargeGameData = (packageCount: number): GameData => {
-    const generatePackages = (type: string, count: number): PurchasePackage[] => 
+    const generatePackages = (type: string, count: number): PurchasePackage[] =>
       Array.from({ length: count }, (_, i) => ({
         id: `${type}_${i}`,
         name: `${type.charAt(0).toUpperCase() + type.slice(1)} Package ${i + 1}`,
@@ -107,7 +107,7 @@ describe('Performance Tests', () => {
       const endTime = performance.now()
 
       // Should limit scenarios to prevent performance issues
-      Object.values(scenarios).forEach(scenarioArray => {
+      Object.values(scenarios).forEach((scenarioArray) => {
         if (scenarioArray) {
           expect(scenarioArray.length).toBeLessThanOrEqual(50)
         }
@@ -121,7 +121,7 @@ describe('Performance Tests', () => {
     it('generates chart data quickly for large datasets', () => {
       const gameData = createLargeGameData(50)
       const processedPurchases = getProcessedPurchases('hsr') // Use real HSR data
-      
+
       if (!processedPurchases) {
         // Fallback to mock data
         const mockProcessed = {
@@ -152,7 +152,7 @@ describe('Performance Tests', () => {
   describe('Insights Generation Performance', () => {
     it('calculates insights efficiently', () => {
       const gameData = createLargeGameData(30)
-      
+
       const scenarios = generateScenarios(gameData)
       const chartData = {
         costVsPulls: [],
@@ -173,7 +173,7 @@ describe('Performance Tests', () => {
   describe('Memory Usage and Garbage Collection', () => {
     it('does not cause memory leaks with repeated operations', () => {
       const gameData = createLargeGameData(20)
-      
+
       // Perform many operations to test for memory leaks
       for (let i = 0; i < 100; i++) {
         const scenarios = generateScenarios(gameData)
@@ -183,7 +183,7 @@ describe('Performance Tests', () => {
           savings: [],
         }
         generateInsights(scenarios, chartData)
-        
+
         // Force garbage collection opportunity
         if (i % 10 === 0 && global.gc) {
           global.gc()
@@ -286,9 +286,9 @@ describe('Performance Tests', () => {
       const sizes = [10, 20, 40]
       const times: number[] = []
 
-      sizes.forEach(size => {
+      sizes.forEach((size) => {
         const gameData = createLargeGameData(size)
-        
+
         const startTime = performance.now()
         const scenarios = generateScenarios(gameData)
         const chartData = {
@@ -314,9 +314,9 @@ describe('Performance Tests', () => {
   describe('Concurrent Processing', () => {
     it('handles multiple simultaneous operations', async () => {
       const gameData = createLargeGameData(15)
-      
-      const operations = Array.from({ length: 10 }, () => 
-        new Promise<void>(resolve => {
+
+      const operations = Array.from({ length: 10 }, () =>
+        new Promise<void>((resolve) => {
           setTimeout(() => {
             const scenarios = generateScenarios(gameData)
             const chartData = {
@@ -327,7 +327,7 @@ describe('Performance Tests', () => {
             generateInsights(scenarios, chartData)
             resolve()
           }, Math.random() * 10) // Random delay 0-10ms
-        })
+        }),
       )
 
       const startTime = performance.now()
