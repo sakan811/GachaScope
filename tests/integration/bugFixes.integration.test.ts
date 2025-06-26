@@ -79,7 +79,7 @@ describe('Bug Fixes Integration Tests', () => {
         },
       })
 
-      expect(component.find('.u-card').exists()).toBe(true)
+      expect(component.find('.rounded-lg.bg-default, .u-card').exists()).toBe(true)
       expect(component.text()).toContain('In-App Purchase Value Analysis')
       // Should handle the case gracefully without showing savings analysis
       expect(component.text()).not.toContain('Savings Analysis')
