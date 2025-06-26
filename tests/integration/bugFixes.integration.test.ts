@@ -275,7 +275,7 @@ describe('Bug Fixes Integration Tests', () => {
       })
 
       expect(component.find('.border-red-300').exists()).toBe(true)
-      expect(component.text()).toContain('Package data unavailable')
+      expect(component.text()).toContain('Purchase data unavailable')
       expect(component.find('.text-red-600').exists()).toBe(true)
     })
 
