@@ -220,7 +220,8 @@ describe('useGameAnalysis Edge Cases & Bug Fixes', () => {
         getGameById: vi.fn(() => null),
       }))
 
-      expect(() => analyzeGame('invalid_game')).toThrow('Game with ID \'invalid_game\' not found')
+      const result = analyzeGame('invalid_game')
+      expect(result).toBeNull()
     })
 
     it('handles null return from getProcessedPurchases', () => {

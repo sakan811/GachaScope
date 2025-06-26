@@ -99,7 +99,7 @@ describe('SubscriptionSection.vue', () => {
         },
       })
 
-      expect(component.find('.u-card').exists()).toBe(true)
+      expect(component.find('.rounded-lg.bg-default, .u-card').exists()).toBe(true)
       expect(component.text()).toContain('Subscription Packages')
       expect(component.text()).toContain('Express Supply Pass')
       expect(component.text()).toContain('Trailblaze Pass')
