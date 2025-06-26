@@ -81,6 +81,55 @@
       </div>
     </div>
 
+    <!-- Zero-Warp Purchases Warning -->
+    <div
+      v-if="zeroWarpPurchases?.length"
+      class="pt-6 border-t border-gray-200 dark:border-gray-700"
+    >
+      <h3 class="text-lg font-semibold text-red-700 dark:text-red-400 mb-4 flex items-center gap-2">
+        <UIcon
+          name="i-heroicons-exclamation-triangle"
+          class="w-4 h-4"
+        />
+        Purchases to Avoid
+      </h3>
+      <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">
+        These purchases provide no warps and should be avoided purchasing them alone
+      </p>
+
+      <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
+        They should be purchased only as part of a larger bundle that includes warps
+      </p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+        <UCard
+          v-for="purchase in zeroWarpPurchases"
+          :key="purchase.id"
+          class="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
+        >
+          <div class="text-center p-2 sm:p-3">
+            <div class="text-sm font-medium text-red-700 dark:text-red-300 mb-2">
+              {{ purchase.type }}
+            </div>
+            <div class="space-y-1">
+              <div class="text-xs text-gray-600 dark:text-gray-300">
+                Avoid This Purchase
+              </div>
+              <div class="text-sm font-bold text-red-600 dark:text-red-400">
+                {{ purchase.name }}
+              </div>
+              <div class="text-xs text-red-500 dark:text-red-400">
+                ${{ purchase.price.toFixed(2) }} - no warps
+              </div>
+              <div class="text-xs text-red-600 dark:text-red-400 mt-1">
+                This purchase provides no warps for the cost
+              </div>
+            </div>
+          </div>
+        </UCard>
+      </div>
+    </div>
+
     <!-- Savings Analysis - Normal vs First-Time Bonus Comparison -->
     <div
       v-if="purchaseSavingsAnalysis?.length"
@@ -227,10 +276,12 @@ const purchaseTypeStats = computed(() => {
   const stats = []
 
   for (const [type, config] of Object.entries(purchaseTypeConfig)) {
-    const purchases = props.processedPurchases[type]?.filter(purchase => purchase.pullsFromPurchase > 0) || []
+    const allPurchases = props.processedPurchases[type] || []
+    const validPurchases = allPurchases.filter(purchase => purchase.pullsFromPurchase > 0)
+    const zeroPullPurchases = allPurchases.filter(purchase => purchase.pullsFromPurchase === 0)
 
-    if (purchases.length > 0) {
-      const bestPurchase = purchases.reduce((best, purchase) =>
+    if (validPurchases.length > 0) {
+      const bestPurchase = validPurchases.reduce((best, purchase) =>
         purchase.costPerPull < best.costPerPull ? purchase : best,
       )
 
@@ -249,6 +300,7 @@ const purchaseTypeStats = computed(() => {
         bestCostPerPull: costDisplay,
         explanation,
       })
+      
     }
   }
 
@@ -268,6 +320,25 @@ const purchaseTypeStats = computed(() => {
     
     return aValue - bValue
   })
+})
+
+// Zero-warp purchases for warning section
+const zeroWarpPurchases = computed(() => {
+  const allZeroPurchases = []
+  
+  for (const [type, config] of Object.entries(purchaseTypeConfig)) {
+    const purchases = props.processedPurchases[type] || []
+    const zeroPullPurchases = purchases.filter(purchase => purchase.pullsFromPurchase === 0)
+    
+    for (const purchase of zeroPullPurchases) {
+      allZeroPurchases.push({
+        ...purchase,
+        type: config.displayName,
+      })
+    }
+  }
+  
+  return allZeroPurchases
 })
 
 // Purchase-specific savings analysis - comparing actual purchases by name

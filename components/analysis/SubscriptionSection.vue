@@ -25,8 +25,8 @@
             ${{ pkg.price.toFixed(2) }}
           </div>
           <div class="text-right">
-            <div :class="pkg.pullsFromPackage === 0 ? 'text-red-500 font-medium' : 'text-blue-600 dark:text-blue-400 font-semibold'">
-              {{ pkg.pullsFromPackage }} {{ gameData.metadata.pull.name.toLowerCase() }}s
+            <div :class="pkg.pullsFromPurchase === 0 ? 'text-red-500 font-medium' : 'text-blue-600 dark:text-blue-400 font-semibold'">
+              {{ pkg.pullsFromPurchase }} {{ gameData.metadata.pull.name.toLowerCase() }}s
             </div>
           </div>
         </div>
@@ -77,8 +77,8 @@
               <div class="text-gray-600 dark:text-gray-300">
                 {{ pkg.totalAmount.toLocaleString() }}
               </div>
-              <div :class="pkg.pullsFromPackage === 0 ? 'text-red-500 font-medium' : 'text-blue-600 dark:text-blue-400 font-medium'">
-                {{ pkg.pullsFromPackage }}
+              <div :class="pkg.pullsFromPurchase === 0 ? 'text-red-500 font-medium' : 'text-blue-600 dark:text-blue-400 font-medium'">
+                {{ pkg.pullsFromPurchase }}
               </div>
               <div class="text-sm text-gray-500 dark:text-gray-400">
                 {{ pkg.leftoverAmount }}
@@ -135,11 +135,11 @@
 </template>
 
 <script setup lang="ts">
-import type { GameData, ProcessedPackage } from '~/types/games'
+import type { GameData, ProcessedPurchase } from '~/types/games'
 
 interface Props {
   gameData: GameData
-  subscriptionPackages: ProcessedPackage[]
+  subscriptionPackages: ProcessedPurchase[]
 }
 
 const props = defineProps<Props>()
@@ -148,7 +148,7 @@ const props = defineProps<Props>()
 const subscriptionAnalysis = computed(() => {
   if (!props.subscriptionPackages?.length) return null
 
-  const validPackages = props.subscriptionPackages.filter(pkg => pkg.pullsFromPackage > 0)
+  const validPackages = props.subscriptionPackages.filter(pkg => pkg.pullsFromPurchase > 0)
   if (!validPackages.length) return null
 
   return {
@@ -157,7 +157,7 @@ const subscriptionAnalysis = computed(() => {
     ),
     avgCostPerPull: validPackages.reduce((sum, pkg) => sum + pkg.costPerPull, 0) / validPackages.length,
     totalMonthlyValue: validPackages.reduce((sum, pkg) => sum + pkg.price, 0),
-    totalMonthlyPulls: validPackages.reduce((sum, pkg) => sum + pkg.pullsFromPackage, 0),
+    totalMonthlyPulls: validPackages.reduce((sum, pkg) => sum + pkg.pullsFromPurchase, 0),
   }
 })
 
