@@ -9,10 +9,13 @@
         ${{ pkg.price?.toFixed(2) || '0.00' }}
       </div>
       <div class="text-right">
-        <div :class="[(pkg.pullsFromPackage || 0) === 0 ? 'text-red-500' : textColor, 'font-medium']">
-          {{ pkg.pullsFromPackage || 0 }} {{ pullName.toLowerCase() }}s
+        <div :class="[(pkg.pullsFromPurchase || 0) === 0 ? 'text-red-500' : textColor, 'font-medium']">
+          {{ pkg.pullsFromPurchase || 0 }} {{ pullName.toLowerCase() }}s
         </div>
       </div>
+    </div>
+    <div class="text-sm font-medium text-gray-900 dark:text-white mb-2">
+      {{ pkg.name || 'Unknown Purchase' }}
     </div>
     <div class="text-sm text-gray-600 dark:text-gray-300 mb-1">
       {{ pkg.totalAmount || 0 }} {{ currencyName.toLowerCase() }}
@@ -23,7 +26,7 @@
   </div>
   <div v-else class="p-4 rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20">
     <div class="text-red-600 dark:text-red-400 text-center">
-      Package data unavailable
+      Purchase data unavailable
     </div>
   </div>
 </template>

@@ -6,7 +6,7 @@ import type { ProcessedPurchase } from '~/types/games'
 
 const mockPackage: ProcessedPurchase = {
   id: 'pkg_1',
-  name: 'Test Package',
+  name: 'Test Purchase',
   price: 9.99,
   baseAmount: 500,
   extraAmount: 180,
@@ -14,7 +14,6 @@ const mockPackage: ProcessedPurchase = {
   totalAmount: 680,
   amountPerDollar: 68.07,
   pullsFromPurchase: 4,
-  pullsFromPackage: 4,
   costPerPull: 2.50,
   leftoverAmount: 40,
   efficiency: 68.07,
@@ -22,7 +21,7 @@ const mockPackage: ProcessedPurchase = {
 
 const zeroPullPackage: ProcessedPurchase = {
   id: 'zero_pkg',
-  name: 'Zero Pull Package',
+  name: 'Zero Pull Purchase',
   price: 1.99,
   baseAmount: 100,
   extraAmount: 0,
@@ -30,7 +29,6 @@ const zeroPullPackage: ProcessedPurchase = {
   totalAmount: 100,
   amountPerDollar: 50.25,
   pullsFromPurchase: 0,
-  pullsFromPackage: 0,
   costPerPull: Infinity,
   leftoverAmount: 100,
   efficiency: 50.25,
@@ -100,7 +98,7 @@ describe('PackageCard.vue', () => {
         },
       })
 
-      expect(component.text()).toContain('Package data unavailable')
+      expect(component.text()).toContain('Purchase data unavailable')
       expect(component.find('.border-red-300').exists()).toBe(true)
       expect(component.find('.bg-red-50').exists()).toBe(true)
     })
@@ -212,10 +210,10 @@ describe('PackageCard.vue', () => {
       expect(component.text()).toContain('$0.00')
     })
 
-    it('handles missing pullsFromPackage property', async () => {
+    it('handles missing pullsFromPurchase property', async () => {
       const packageMissingPulls = {
         ...mockPackage,
-        pullsFromPackage: undefined,
+        pullsFromPurchase: undefined,
       }
 
       const component = await mountSuspended(PackageCard, {
@@ -359,7 +357,7 @@ describe('PackageCard.vue', () => {
     it('handles negative values gracefully', async () => {
       const negativePackage = {
         ...mockPackage,
-        pullsFromPackage: -1,
+        pullsFromPurchase: -1,
         leftoverAmount: -5,
       }
 
