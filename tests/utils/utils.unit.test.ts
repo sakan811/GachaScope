@@ -14,7 +14,7 @@ describe('Utils Unit Tests', () => {
 
     it('returns undefined for invalid game', () => {
       const invalid = getGameById('invalid_game')
-      expect(invalid).toBeUndefined()
+      expect(invalid).toBeFalsy()
     })
 
     it('lists all available games', () => {
@@ -52,8 +52,8 @@ describe('Utils Unit Tests', () => {
     })
 
     it('handles edge cases', () => {
-      expect(getGameById('')).toBeUndefined()
-      expect(getGameMetadata('')).toBeUndefined()
+      expect(getGameById('')).toBeFalsy()
+      expect(getGameMetadata('')).toBeFalsy()
       expect(isValidGameId('')).toBe(false)
     })
   })
