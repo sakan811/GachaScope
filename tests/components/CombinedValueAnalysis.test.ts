@@ -270,10 +270,10 @@ describe('CombinedValueAnalysis.vue', () => {
     })
 
     it('handles infinity cost per pull as "no warp for the cost"', async () => {
-      // Since zero-pull packages are filtered out by the component, 
+      // Since zero-pull packages are filtered out by the component,
       // we need to test this through the formatCostPerPull function behavior
       // The component only shows valid packages (pullsFromPurchase > 0)
-      
+
       const component = await mountSuspended(CombinedValueAnalysis, {
         props: {
           gameData: mockGameData,
@@ -281,7 +281,7 @@ describe('CombinedValueAnalysis.vue', () => {
         },
       })
 
-      // Check that normal costs are displayed correctly 
+      // Check that normal costs are displayed correctly
       expect(component.text()).toContain('$1.25')
       expect(component.text()).toContain('$2.00')
       // The function formatCostPerPull exists and would return 'no warp for the cost' for Infinity
@@ -357,7 +357,7 @@ describe('CombinedValueAnalysis.vue', () => {
       // Find all cost per pull values and verify ordering
       const text = component.text()
       const costMatches = text.match(/\$\d+\.\d+/g) || []
-      
+
       // Should find multiple cost values
       expect(costMatches.length).toBeGreaterThan(0)
     })
@@ -373,7 +373,7 @@ describe('CombinedValueAnalysis.vue', () => {
       const html = component.html()
       const normalIndex = html.indexOf('Normal Purchases')
       const noWarpIndex = html.indexOf('no warp for the cost')
-      
+
       // "no warp for the cost" should appear after valid costs
       if (noWarpIndex !== -1) {
         expect(noWarpIndex).toBeGreaterThan(normalIndex)
