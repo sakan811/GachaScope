@@ -178,9 +178,14 @@
       <!-- Efficiency Chart -->
       <UCard>
         <template #header>
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-            Purchase Efficiency
-          </h3>
+          <div class="space-y-2">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+              Purchase Efficiency
+            </h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              Cost per {{ gameData.metadata.pull.name.toLowerCase() }} - lower values indicate better efficiency
+            </p>
+          </div>
         </template>
         <div class="h-80 w-full">
           <Bar
