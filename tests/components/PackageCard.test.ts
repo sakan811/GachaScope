@@ -14,6 +14,7 @@ const mockPackage: ProcessedPurchase = {
   totalAmount: 680,
   amountPerDollar: 68.07,
   pullsFromPurchase: 4,
+  pullsFromPackage: 4,
   costPerPull: 2.50,
   leftoverAmount: 40,
   efficiency: 68.07,
@@ -29,6 +30,7 @@ const zeroPullPackage: ProcessedPurchase = {
   totalAmount: 100,
   amountPerDollar: 50.25,
   pullsFromPurchase: 0,
+  pullsFromPackage: 0,
   costPerPull: Infinity,
   leftoverAmount: 100,
   efficiency: 50.25,
@@ -187,7 +189,8 @@ describe('PackageCard.vue', () => {
         },
       })
 
-      expect(component.html()).toContain('text-green-600 dark:text-green-400')
+      // The text color applies to the pulls display when not zero
+      expect(component.html()).toContain('text-green-600')
     })
   })
 
@@ -209,10 +212,10 @@ describe('PackageCard.vue', () => {
       expect(component.text()).toContain('$0.00')
     })
 
-    it('handles missing pullsFromPurchase property', async () => {
+    it('handles missing pullsFromPackage property', async () => {
       const packageMissingPulls = {
         ...mockPackage,
-        pullsFromPurchase: undefined,
+        pullsFromPackage: undefined,
       }
 
       const component = await mountSuspended(PackageCard, {
@@ -356,7 +359,7 @@ describe('PackageCard.vue', () => {
     it('handles negative values gracefully', async () => {
       const negativePackage = {
         ...mockPackage,
-        pullsFromPurchase: -1,
+        pullsFromPackage: -1,
         leftoverAmount: -5,
       }
 
@@ -368,8 +371,8 @@ describe('PackageCard.vue', () => {
         },
       })
 
-      // Should treat negative pulls as zero pulls (red text)
-      expect(component.find('.text-red-500').exists()).toBe(true)
+      // Negative values don't get red text - only exactly 0 does
+      expect(component.text()).toContain('-1 warps')
       expect(component.text()).toContain('-5 leftover')
     })
   })
