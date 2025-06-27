@@ -229,10 +229,32 @@ if (!gameData.value) {
 
 useHead({
   title: `${gameData.value.metadata.name} Analysis`,
-  meta: [{
-    name: 'description',
-    content: `${gameData.value.metadata.currency.name} purchase analysis for ${gameData.value.metadata.name}`,
-  }],
+  meta: [
+    {
+      name: 'description',
+      content: `${gameData.value.metadata.currency.name} purchase analysis for ${gameData.value.metadata.name}`,
+    },
+    {
+      property: 'og:title',
+      content: `${gameData.value.metadata.name} Analysis - GachaScope`,
+    },
+    {
+      property: 'og:description',
+      content: `Analyze ${gameData.value.metadata.currency.name} packages and optimize your spending in ${gameData.value.metadata.name}`,
+    },
+    {
+      property: 'og:type',
+      content: 'website',
+    },
+    {
+      name: 'twitter:title',
+      content: `${gameData.value.metadata.name} Analysis - GachaScope`,
+    },
+    {
+      name: 'twitter:description',
+      content: `Analyze ${gameData.value.metadata.currency.name} packages and optimize your spending in ${gameData.value.metadata.name}`,
+    },
+  ],
 })
 
 const processedPurchases = getProcessedPurchases(gameId)
