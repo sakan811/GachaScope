@@ -11,10 +11,16 @@ export default defineNuxtConfig({
       meta: [
         { name: 'description', content: 'Comprehensive analysis tool for gacha game in-app purchases and spending optimization' },
         { name: 'keywords', content: 'gacha games, in-app purchase, cost analysis, spending optimization, mobile games, HSR' },
+        { name: 'author', content: 'GachaScope' },
+        { name: 'robots', content: 'index, follow' },
         { property: 'og:title', content: 'GachaScope - Gacha Game In-App Purchases Analysis' },
         { property: 'og:description', content: 'Make informed decisions about your gacha game spending with detailed package analysis' },
         { property: 'og:type', content: 'website' },
+        { property: 'og:site_name', content: 'GachaScope' },
+        { property: 'og:locale', content: 'en_US' },
         { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: 'GachaScope - Gacha Game Analysis Tool' },
+        { name: 'twitter:description', content: 'Make informed decisions about your gacha game spending with detailed package analysis' },
       ],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
