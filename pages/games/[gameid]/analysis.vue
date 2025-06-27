@@ -11,7 +11,7 @@
         Game Not Found
       </template>
       <template #description>
-        The game "{{ route.params.gameId }}" is not supported yet.
+        The game "{{ route.params.gameid }}" is not supported yet.
       </template>
     </UAlert>
   </div>
@@ -220,7 +220,7 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarEleme
 
 const route = useRoute()
 const { getProcessedPurchases, generateChartsFromPurchases } = useGameAnalysis()
-const gameId = route.params.gameId
+const gameId = route.params.gameid
 const gameData = ref(getGameById(gameId))
 
 if (!gameData.value) {
