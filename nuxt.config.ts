@@ -1,5 +1,5 @@
 export default defineNuxtConfig({
-  modules: ['@nuxt/ui', '@nuxt/test-utils/module', '@nuxt/eslint'],
+  modules: ['@nuxt/ui', '@nuxt/test-utils/module', '@nuxt/eslint', '@nuxthub/core'],
   devtools: { enabled: true },
 
   // App configuration
