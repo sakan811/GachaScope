@@ -146,11 +146,7 @@ const props = defineProps<Props>()
 
 // Format battle pass names for better display
 const formatBattlePassName = (name: string): string => {
-  return name
-    .replace(/Nameless/g, 'Nameless')
-    .replace(/Glory/g, 'Glory')
-    .replace(/Medal/g, 'Medal')
-    .trim()
+  return name.trim()
 }
 
 // Battle pass analysis
