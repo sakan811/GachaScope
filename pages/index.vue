@@ -1,11 +1,11 @@
 <template>
   <div>
     <!-- Hero Section -->
-    <section class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900">
+    <section class="bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-900 dark:via-green-900 dark:to-emerald-900">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div class="text-center">
           <h1 class="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
-            <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-teal-600">
               GachaScope
             </span>
           </h1>
@@ -39,7 +39,7 @@
             :key="game.metadata.id"
             :class="[
               'cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-lg',
-              'border-2 hover:border-blue-500 dark:hover:border-blue-400',
+              'border-2 hover:border-green-500 dark:hover:border-green-400',
             ]"
             :data-testid="`game-card-${game.metadata.id}`"
             @click="navigateToGame(game.metadata.id)"

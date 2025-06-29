@@ -1,2 +1,73 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
+
+/* White-Green Color Palette */
+:root {
+  --color-primary: #065f46;
+  --color-primary-light: #10b981;
+  --color-primary-lighter: #34d399;
+  --color-secondary: #047857;
+  --color-accent: #059669;
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f0fdf4;
+  --color-bg-tertiary: #ecfdf5;
+  --color-text-primary: #111827;
+  --color-text-secondary: #374151;
+  --color-text-accent: #065f46;
+}
+
+.dark {
+  --color-primary: #34d399;
+  --color-primary-light: #6ee7b7;
+  --color-primary-lighter: #a7f3d0;
+  --color-secondary: #10b981;
+  --color-accent: #059669;
+  --color-bg-primary: #0f172a;
+  --color-bg-secondary: #064e3b;
+  --color-bg-tertiary: #065f46;
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #e2e8f0;
+  --color-text-accent: #34d399;
+}
+
+/* Custom utility classes for white-green theme */
+.bg-theme-primary {
+  background-color: var(--color-bg-primary);
+}
+
+.bg-theme-secondary {
+  background-color: var(--color-bg-secondary);
+}
+
+.bg-theme-tertiary {
+  background-color: var(--color-bg-tertiary);
+}
+
+.text-theme-primary {
+  color: var(--color-text-primary);
+}
+
+.text-theme-secondary {
+  color: var(--color-text-secondary);
+}
+
+.text-theme-accent {
+  color: var(--color-text-accent);
+}
+
+.border-theme-primary {
+  border-color: var(--color-primary);
+}
+
+.border-theme-secondary {
+  border-color: var(--color-secondary);
+}
+
+/* Override default gradients with green theme */
+.gradient-primary {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+}
+
+.gradient-accent {
+  background: linear-gradient(135deg, var(--color-accent), var(--color-primary-lighter));
+}

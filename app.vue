@@ -12,7 +12,7 @@
             alt="GachaScope Logo"
             class="h-8 w-8 sm:h-10 sm:w-10"
           >
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-500">
             GachaScope
           </span>
         </NuxtLink>
@@ -22,15 +22,15 @@
       <div class="hidden md:flex items-center gap-6">
         <NuxtLink
           to="/"
-          class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-          :class="{ 'text-blue-600 dark:text-blue-400': $route.path === '/' }"
+          class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors"
+          :class="{ 'text-green-600 dark:text-green-400': $route.path === '/' }"
         >
           Home
         </NuxtLink>
         <NuxtLink
           to="/games/hsr/analysis"
-          class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-          :class="{ 'text-blue-600 dark:text-blue-400': $route.path.includes('/analysis') }"
+          class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors"
+          :class="{ 'text-green-600 dark:text-green-400': $route.path.includes('/analysis') }"
         >
           HSR Analysis
         </NuxtLink>
@@ -78,7 +78,7 @@
             to="/"
             class="block py-3 px-4 text-base font-medium rounded-lg transition-colors"
             :class="$route.path === '/'
-              ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+              ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400'
               : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'"
             @click="closeMobileMenu"
           >
@@ -88,7 +88,7 @@
             to="/games/hsr/analysis"
             class="block py-3 px-4 text-base font-medium rounded-lg transition-colors"
             :class="$route.path.includes('/analysis')
-              ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+              ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400'
               : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'"
             @click="closeMobileMenu"
           >

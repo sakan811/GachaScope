@@ -289,8 +289,8 @@ const purchaseTypeStyles = {
     title: 'text-green-600 dark:text-green-400',
   },
   subscription: {
-    card: 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800',
-    title: 'text-blue-600 dark:text-blue-400',
+    card: 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800',
+    title: 'text-green-600 dark:text-green-400',
   },
   battle_pass: {
     card: 'bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800',
