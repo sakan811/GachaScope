@@ -22,7 +22,7 @@ describe('Performance Tests', () => {
         price: Math.round((Math.random() * 100 + 1) * 100) / 100,
         baseAmount: Math.floor(Math.random() * 2000 + 100),
         extraAmount: Math.floor(Math.random() * 1000),
-        purchaseType: type as any,
+        purchaseType: type as PurchasePackage['purchaseType'],
       }))
 
     return {

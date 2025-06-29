@@ -142,8 +142,8 @@ describe('SubscriptionSection.vue', () => {
       expect(mobileView.exists()).toBe(true)
 
       // Check for mobile card styling
-      expect(mobileView.find('.bg-blue-50').exists()).toBe(true)
-      expect(mobileView.find('.border-blue-200').exists()).toBe(true)
+      expect(mobileView.find('.bg-green-50').exists()).toBe(true)
+      expect(mobileView.find('.border-green-200').exists()).toBe(true)
     })
 
     it('shows correct pricing and pull information in mobile view', async () => {
@@ -154,7 +154,7 @@ describe('SubscriptionSection.vue', () => {
         },
       })
 
-      const mobileCard = component.find('.bg-blue-50')
+      const mobileCard = component.find('.bg-green-50')
       expect(mobileCard.text()).toContain('$4.99')
       expect(mobileCard.text()).toContain('1 warps')
       expect(mobileCard.text()).toContain('300 os')
@@ -369,10 +369,10 @@ describe('SubscriptionSection.vue', () => {
         },
       })
 
-      // Check blue theme colors
-      expect(component.find('.text-blue-600').exists()).toBe(true)
-      expect(component.find('.bg-blue-50').exists()).toBe(true)
-      expect(component.find('.border-blue-200').exists()).toBe(true)
+      // Check green theme colors
+      expect(component.find('.text-green-600').exists()).toBe(true)
+      expect(component.find('.bg-green-50').exists()).toBe(true)
+      expect(component.find('.border-green-200').exists()).toBe(true)
     })
   })
 

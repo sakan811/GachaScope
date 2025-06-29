@@ -78,12 +78,83 @@ const isNuxtEnv = process.env.VITEST_ENV === 'nuxt' || process.env.VITEST_ENVIRO
 const isJsdomEnv = process.env.VITEST_ENV === 'jsdom' || process.env.VITEST_ENVIRONMENT === 'jsdom'
 
 if (isJsdomEnv) {
-  // Unit tests - unmock composables to test real implementations
+  // Unit tests - unmock composables and utils to test real implementations
   vi.unmock('~/composables/useGameAnalysis')
   vi.unmock('~/composables/useChartConfig')
+  vi.unmock('~/utils/gameRegistry')
 }
 else if (isNuxtEnv) {
-  // Integration tests - mock composables for lightweight testing
+  // Integration tests - mock composables and utils for lightweight testing
+  vi.mock('~/utils/gameRegistry', () => ({
+    getGameById: vi.fn((gameId: string) => {
+      if (gameId === 'hsr') {
+        return {
+          metadata: {
+            id: 'hsr',
+            name: 'Honkai: Star Rail',
+            shortName: 'HSR',
+            currency: { name: 'Oneiric Shards', shortName: 'Shards' },
+            pull: { name: 'Warp', cost: 160 },
+            analysisConfig: { maxScenarios: 50, includeMultiPackage: true, maxPackageMultiplier: 3 },
+          },
+          packages: {
+            normal: [{ id: 'test1', name: 'Test Package', baseAmount: 1000, price: 9.99, extraAmount: 0, purchaseType: 'normal', currency: 'shards' }],
+            first_time_bonus: [{ id: 'test2', name: 'Test Bonus Package', baseAmount: 2000, price: 9.99, extraAmount: 0, purchaseType: 'first_time_bonus', currency: 'shards' }],
+          },
+        }
+      }
+      return null
+    }),
+    getAllGames: vi.fn(() => [{
+      metadata: {
+        id: 'hsr',
+        name: 'Honkai: Star Rail',
+        shortName: 'HSR',
+        currency: { name: 'Oneiric Shards', shortName: 'Shards' },
+        pull: { name: 'Warp', cost: 160 },
+        analysisConfig: { maxScenarios: 50, includeMultiPackage: true, maxPackageMultiplier: 3 },
+      },
+      packages: {
+        normal: [{ id: 'test1', name: 'Test Package', baseAmount: 1000, price: 9.99, extraAmount: 0, purchaseType: 'normal', currency: 'shards' }],
+        first_time_bonus: [{ id: 'test2', name: 'Test Bonus Package', baseAmount: 2000, price: 9.99, extraAmount: 0, purchaseType: 'first_time_bonus', currency: 'shards' }],
+      },
+    }]),
+    getActiveGames: vi.fn(() => [{
+      metadata: {
+        id: 'hsr',
+        name: 'Honkai: Star Rail',
+        shortName: 'HSR',
+        currency: { name: 'Oneiric Shards', shortName: 'Shards' },
+        pull: { name: 'Warp', cost: 160 },
+        analysisConfig: { maxScenarios: 50, includeMultiPackage: true, maxPackageMultiplier: 3 },
+      },
+      packages: {
+        normal: [{ id: 'test1', name: 'Test Package', baseAmount: 1000, price: 9.99, extraAmount: 0, purchaseType: 'normal', currency: 'shards' }],
+        first_time_bonus: [{ id: 'test2', name: 'Test Bonus Package', baseAmount: 2000, price: 9.99, extraAmount: 0, purchaseType: 'first_time_bonus', currency: 'shards' }],
+      },
+    }]),
+    getGameMetadata: vi.fn((gameId: string) => {
+      if (gameId === 'hsr') {
+        return {
+          id: 'hsr',
+          name: 'Honkai: Star Rail',
+          shortName: 'HSR',
+          currency: { name: 'Oneiric Shards', shortName: 'Shards' },
+          pull: { name: 'Warp', cost: 160 },
+          analysisConfig: { maxScenarios: 50, includeMultiPackage: true, maxPackageMultiplier: 3 },
+        }
+      }
+      return null
+    }),
+    isValidGameId: vi.fn((gameId: string) => gameId === 'hsr'),
+    getGameNames: vi.fn(() => [{
+      id: 'hsr',
+      name: 'Honkai: Star Rail',
+      shortName: 'HSR',
+    }]),
+    registerGame: vi.fn(),
+  }))
+
   vi.mock('~/composables/useChartConfig', () => ({
     useChartConfig: () => ({
       packageTypeColors: {
@@ -103,25 +174,65 @@ else if (isNuxtEnv) {
 
   vi.mock('~/composables/useGameAnalysis', () => ({
     useGameAnalysis: () => ({
-      getProcessedPurchases: vi.fn(() => ({
-        normal: [
-          {
-            id: 'test1',
-            name: 'Test Purchase 1',
-            price: 9.99,
-            totalAmount: 1000,
-            pullsFromPurchase: 6,
-            leftoverAmount: 40,
-            costPerPull: 1.67,
-          },
-        ],
-      })),
+      getProcessedPurchases: vi.fn((gameId: string) => {
+        if (gameId === 'hsr') {
+          return {
+            normal: [
+              {
+                id: 'test1',
+                name: 'Test Purchase 1',
+                price: 9.99,
+                totalAmount: 1000,
+                pullsFromPurchase: 6,
+                leftoverAmount: 40,
+                costPerPull: 1.67,
+              },
+            ],
+            first_time_bonus: [
+              {
+                id: 'test2',
+                name: 'Test Purchase 2 (First Time)',
+                price: 9.99,
+                totalAmount: 2000,
+                pullsFromPurchase: 12,
+                leftoverAmount: 80,
+                costPerPull: 0.83,
+              },
+            ],
+          }
+        }
+        return null
+      }),
+      analyzeGame: vi.fn((gameId: string) => {
+        if (gameId === 'hsr') {
+          return {
+            gameId,
+            scenarios: {},
+            chartData: { costVsPulls: [], efficiency: [], savings: [] },
+            insights: {
+              maxSavings: 5.50,
+              bestPurchase: {
+                id: 'test2',
+                name: 'Test Purchase 2 (First Time)',
+                price: 9.99,
+                costPerPull: 0.83,
+              },
+              bestScenario: null,
+              avgSavings: 2.75,
+              bestPurchaseName: 'Test Purchase 2 (First Time)',
+            },
+          }
+        }
+        return null
+      }),
       generateChartsFromPurchases: vi.fn(() => ({
         scatterData: [
           { x: 6, y: 9.99, type: 'normal', purchaseName: 'Test Purchase 1' },
+          { x: 12, y: 9.99, type: 'first_time_bonus', purchaseName: 'Test Purchase 2 (First Time)' },
         ],
         barData: {
           normal: [{ purchase: 'Test Purchase 1', costPerPull: 1.67 }],
+          first_time_bonus: [{ purchase: 'Test Purchase 2 (First Time)', costPerPull: 0.83 }],
         },
       })),
     }),

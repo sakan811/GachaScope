@@ -4,5 +4,6 @@ onlyBuiltDependencies:
   - esbuild
   - sharp
   - unrs-resolver
+  - unrs-resolver
   - vue-demi
   - workerd

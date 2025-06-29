@@ -18,14 +18,14 @@
       <div
         v-for="(pkg, index) in subscriptionPackages"
         :key="index"
-        class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800"
+        class="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800"
       >
         <div class="flex justify-between items-start mb-2">
           <div class="text-lg font-bold text-gray-900 dark:text-white">
             ${{ pkg.price.toFixed(2) }}
           </div>
           <div class="text-right">
-            <div :class="pkg.pullsFromPurchase === 0 ? 'text-red-500 font-medium' : 'text-blue-600 dark:text-blue-400 font-semibold'">
+            <div :class="pkg.pullsFromPurchase === 0 ? 'text-red-500 font-medium' : 'text-green-600 dark:text-green-400 font-semibold'">
               {{ pkg.pullsFromPurchase }} {{ gameData.metadata.pull.name.toLowerCase() }}s
             </div>
           </div>
@@ -41,7 +41,7 @@
         </div>
         <div
           v-if="pkg.description"
-          class="text-xs text-blue-600 dark:text-blue-300 italic"
+          class="text-xs text-green-600 dark:text-green-300 italic"
         >
           {{ pkg.description }}
         </div>
@@ -51,7 +51,7 @@
     <!-- Desktop View: Table Layout -->
     <div class="hidden lg:block">
       <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div class="bg-blue-50 dark:bg-blue-900/20 px-4 py-3 border-b border-blue-200 dark:border-blue-800">
+        <div class="bg-green-50 dark:bg-green-900/20 px-4 py-3 border-b border-green-200 dark:border-green-800">
           <div class="grid grid-cols-6 gap-4 text-sm font-medium text-gray-700 dark:text-gray-300">
             <div>Package Name</div>
             <div>Price</div>
@@ -77,13 +77,13 @@
               <div class="text-gray-600 dark:text-gray-300">
                 {{ pkg.totalAmount.toLocaleString() }}
               </div>
-              <div :class="pkg.pullsFromPurchase === 0 ? 'text-red-500 font-medium' : 'text-blue-600 dark:text-blue-400 font-medium'">
+              <div :class="pkg.pullsFromPurchase === 0 ? 'text-red-500 font-medium' : 'text-green-600 dark:text-green-400 font-medium'">
                 {{ pkg.pullsFromPurchase }}
               </div>
               <div class="text-sm text-gray-500 dark:text-gray-400">
                 {{ pkg.leftoverAmount }}
               </div>
-              <div class="text-xs text-blue-600 dark:text-blue-300">
+              <div class="text-xs text-green-600 dark:text-green-300">
                 {{ pkg.description || 'N/A' }}
               </div>
             </div>
@@ -109,7 +109,7 @@
         <UCard
           v-for="stat in subscriptionStats"
           :key="stat.label"
-          class="bg-blue-50 dark:bg-blue-900/20"
+          class="bg-green-50 dark:bg-green-900/20"
         >
           <div class="text-center p-2 sm:p-3">
             <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-1 sm:mb-2">
@@ -171,7 +171,7 @@ const subscriptionStats = computed(() => {
     {
       label: 'Best Value',
       value: subscriptionAnalysis.value.bestValue.name,
-      color: 'text-blue-600 dark:text-blue-400',
+      color: 'text-green-600 dark:text-green-400',
     },
     {
       label: `Best Cost/${props.gameData.metadata.pull.name}`,

@@ -1,5 +1,3 @@
-dev:
-	pnpm run dev
-
-test:
-	pnpm run test
+pre-ci:
+	pnpm lint:fix && \
+	pnpm test:run
