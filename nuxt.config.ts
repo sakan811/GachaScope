@@ -52,12 +52,9 @@ export default defineNuxtConfig({
   },
   compatibilityDate: '2025-05-15',
 
-  // Nitro configuration for better performance
+  // Nitro configuration for Vercel deployment
   nitro: {
-    preset: 'node-server',
-    output: {
-      dir: 'dist',
-    },
+    preset: 'vercel-edge',
   },
 
   // Vite configuration
