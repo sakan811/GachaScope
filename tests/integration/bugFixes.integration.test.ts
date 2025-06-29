@@ -287,7 +287,7 @@ describe('Bug Fixes Integration Tests', () => {
         baseAmount: 500,
         extraAmount: 0,
         purchaseType: 'normal',
-      } as any
+      } as Partial<ProcessedPurchase>
 
       const component = await mountSuspended(PackageCard, {
         props: {

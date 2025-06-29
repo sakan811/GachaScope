@@ -134,7 +134,7 @@ vi.mock('~/composables/useChartConfig', () => ({
 // Create a simplified test component that mimics the analysis page structure
 const TestAnalysisPage = defineComponent({
   props: ['gameId'],
-  setup(props) {
+  setup(_props) {
     const gameData = {
       metadata: {
         name: 'Honkai: Star Rail',

@@ -72,8 +72,8 @@ export const useChartConfig = (gameData: Ref<GameData>) => {
           titleFont: { size: number }
           bodyFont: { size: number }
           callbacks: {
-            title: (context: any) => string
-            label: (context: any) => string
+            title: (context: Array<{ raw: { purchaseName: string } }>) => string
+            label: (context: { parsed: { y: number; x: number } }) => string
           }
         }
       }
@@ -81,8 +81,8 @@ export const useChartConfig = (gameData: Ref<GameData>) => {
         titleFont: { size: isMobile ? 11 : 13 },
         bodyFont: { size: isMobile ? 10 : 12 },
         callbacks: {
-          title: (context: any) => context[0].raw.purchaseName,
-          label: (context: any) => `$${context.parsed.y.toFixed(2)} for ${context.parsed.x} ${pullName.toLowerCase()}s`,
+          title: (context: Array<{ raw: { purchaseName: string } }>) => context[0].raw.purchaseName,
+          label: (context: { parsed: { y: number; x: number } }) => `$${context.parsed.y.toFixed(2)} for ${context.parsed.x} ${pullName.toLowerCase()}s`,
         },
       }
     }

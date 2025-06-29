@@ -48,7 +48,7 @@ export const expectValidPurchase = (purchase: ProcessedPurchase) => {
   expect(purchase.costPerPull).toBeTypeOf('number')
 }
 
-export const expectValidAnalysis = (analysis: any) => {
+export const expectValidAnalysis = (analysis: { insights: unknown; scenarios: unknown; chartData: unknown }) => {
   expect(analysis).toBeTruthy()
   expect(analysis.insights).toBeTruthy()
   expect(analysis.scenarios).toBeTruthy()

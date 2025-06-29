@@ -278,7 +278,6 @@ const purchaseTypeStats = computed(() => {
   for (const [type, config] of Object.entries(purchaseTypeConfig)) {
     const allPurchases = props.processedPurchases[type] || []
     const validPurchases = allPurchases.filter(purchase => purchase.pullsFromPurchase > 0)
-    const zeroPullPurchases = allPurchases.filter(purchase => purchase.pullsFromPurchase === 0)
 
     if (validPurchases.length > 0) {
       const bestPurchase = validPurchases.reduce((best, purchase) =>

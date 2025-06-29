@@ -148,7 +148,7 @@ export const useGameAnalysis = () => {
 
   function generateInsights(
     scenarios: Partial<Record<PurchaseType, PurchaseScenario[]>>,
-    chartData: ReturnType<typeof generateChartData>,
+    _chartData: ReturnType<typeof generateChartData>,
   ) {
     const normalScenarios = scenarios.normal ?? []
     const bonusScenarios = scenarios.first_time_bonus ?? []

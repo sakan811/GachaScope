@@ -237,7 +237,7 @@ describe('useGameAnalysis Edge Cases & Bug Fixes', () => {
         baseAmount: undefined, // Missing baseAmount
         extraAmount: 0,
         purchaseType: 'normal',
-      } as any
+      } as Partial<PurchasePackage>
 
       expect(() => processPurchase(invalidPackage, 160)).not.toThrow()
 
@@ -376,7 +376,7 @@ describe('useGameAnalysis Edge Cases & Bug Fixes', () => {
             baseAmount: NaN,
             extraAmount: undefined,
             purchaseType: 'normal',
-          } as any,
+          } as Partial<PurchasePackage>,
         ],
       })
 
