@@ -54,11 +54,7 @@ export default defineNuxtConfig({
 
   // Nitro configuration for better performance
   nitro: {
-    preset: 'cloudflare_module',
-    cloudflare: {
-      deployConfig: true,
-      nodeCompat: true,
-    },
+    preset: 'node-server',
   },
 
   // Vite configuration
