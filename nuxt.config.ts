@@ -55,6 +55,9 @@ export default defineNuxtConfig({
   // Nitro configuration for better performance
   nitro: {
     preset: 'node-server',
+    output: {
+      dir: 'dist',
+    },
   },
 
   // Vite configuration
