@@ -248,8 +248,7 @@ describe('CombinedValueAnalysis.vue', () => {
 
       // Check for type-specific styling classes
       expect(component.html()).toContain('bg-red-50') // Normal
-      expect(component.html()).toContain('bg-green-50') // First-Time Bonus
-      expect(component.html()).toContain('bg-blue-50') // Subscription
+      expect(component.html()).toContain('bg-green-50') // First-Time Bonus and Subscription
       expect(component.html()).toContain('bg-purple-50') // Battle Pass
     })
   })

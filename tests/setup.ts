@@ -105,11 +105,53 @@ else if (isNuxtEnv) {
       }
       return null
     }),
-    getAllGames: vi.fn(() => []),
-    getActiveGames: vi.fn(() => []),
-    getGameMetadata: vi.fn(() => null),
-    isValidGameId: vi.fn(() => false),
-    getGameNames: vi.fn(() => []),
+    getAllGames: vi.fn(() => [{
+      metadata: {
+        id: 'hsr',
+        name: 'Honkai: Star Rail',
+        shortName: 'HSR',
+        currency: { name: 'Oneiric Shards', shortName: 'Shards' },
+        pull: { name: 'Warp', cost: 160 },
+        analysisConfig: { maxScenarios: 50, includeMultiPackage: true, maxPackageMultiplier: 3 },
+      },
+      packages: {
+        normal: [{ id: 'test1', name: 'Test Package', baseAmount: 1000, price: 9.99, extraAmount: 0, purchaseType: 'normal', currency: 'shards' }],
+        first_time_bonus: [{ id: 'test2', name: 'Test Bonus Package', baseAmount: 2000, price: 9.99, extraAmount: 0, purchaseType: 'first_time_bonus', currency: 'shards' }],
+      },
+    }]),
+    getActiveGames: vi.fn(() => [{
+      metadata: {
+        id: 'hsr',
+        name: 'Honkai: Star Rail',
+        shortName: 'HSR',
+        currency: { name: 'Oneiric Shards', shortName: 'Shards' },
+        pull: { name: 'Warp', cost: 160 },
+        analysisConfig: { maxScenarios: 50, includeMultiPackage: true, maxPackageMultiplier: 3 },
+      },
+      packages: {
+        normal: [{ id: 'test1', name: 'Test Package', baseAmount: 1000, price: 9.99, extraAmount: 0, purchaseType: 'normal', currency: 'shards' }],
+        first_time_bonus: [{ id: 'test2', name: 'Test Bonus Package', baseAmount: 2000, price: 9.99, extraAmount: 0, purchaseType: 'first_time_bonus', currency: 'shards' }],
+      },
+    }]),
+    getGameMetadata: vi.fn((gameId: string) => {
+      if (gameId === 'hsr') {
+        return {
+          id: 'hsr',
+          name: 'Honkai: Star Rail',
+          shortName: 'HSR',
+          currency: { name: 'Oneiric Shards', shortName: 'Shards' },
+          pull: { name: 'Warp', cost: 160 },
+          analysisConfig: { maxScenarios: 50, includeMultiPackage: true, maxPackageMultiplier: 3 },
+        }
+      }
+      return null
+    }),
+    isValidGameId: vi.fn((gameId: string) => gameId === 'hsr'),
+    getGameNames: vi.fn(() => [{
+      id: 'hsr',
+      name: 'Honkai: Star Rail',
+      shortName: 'HSR',
+    }]),
     registerGame: vi.fn(),
   }))
 
