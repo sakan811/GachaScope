@@ -28,13 +28,12 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
-        
-      - name: Setup Node.js
+
+      - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
-          cache: "pnpm"
-          cache-dependency-path: "./pnpm-lock.yaml"
+          node-version: 24
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install
