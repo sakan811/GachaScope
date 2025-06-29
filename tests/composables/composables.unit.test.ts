@@ -15,8 +15,8 @@ describe('Composables Unit Tests', () => {
       const purchases = getProcessedPurchases('hsr')
 
       expect(purchases).toBeTruthy()
-      expect(purchases?.normal.length).toBeGreaterThan(0)
-      expect(purchases?.first_time_bonus.length).toBeGreaterThan(0)
+      expect(purchases?.normal?.length).toBeGreaterThan(0)
+      expect(purchases?.first_time_bonus?.length).toBeGreaterThan(0)
 
       // Check cost per pull calculations
       purchases?.normal.forEach((pkg) => {
@@ -47,6 +47,7 @@ describe('Composables Unit Tests', () => {
     it('generates chart data from purchases', () => {
       const { getProcessedPurchases, generateChartsFromPurchases } = useGameAnalysis()
       const purchases = getProcessedPurchases('hsr')
+      
       expect(purchases).toBeTruthy()
 
       if (purchases) {
