@@ -20,7 +20,7 @@ A comprehensive web application for analyzing cost-effectiveness of in-app purch
 
 ## Web App
 
-**Access the app**: <https://gacha-scope.sakan811.workers.dev/>
+**Access the app**: <https://gacha-scope.vercel.app/>
 
 ## For Developers
 
