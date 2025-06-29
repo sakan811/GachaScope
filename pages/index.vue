@@ -4,9 +4,6 @@
     <section class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div class="text-center">
-          <div class="text-6xl mb-6">
-            📊
-          </div>
           <h1 class="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
             <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
               GachaScope

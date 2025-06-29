@@ -5,8 +5,13 @@
       <div class="flex items-center gap-2 sm:gap-4">
         <NuxtLink
           to="/"
-          class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white"
+          class="flex items-center gap-2 text-xl sm:text-2xl font-bold text-gray-900 dark:text-white"
         >
+          <img
+            src="/android-chrome-512x512.png"
+            alt="GachaScope Logo"
+            class="h-8 w-8 sm:h-10 sm:w-10"
+          >
           <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
             GachaScope
           </span>
