@@ -47,7 +47,7 @@ describe('Composables Unit Tests', () => {
     it('generates chart data from purchases', () => {
       const { getProcessedPurchases, generateChartsFromPurchases } = useGameAnalysis()
       const purchases = getProcessedPurchases('hsr')
-      
+
       expect(purchases).toBeTruthy()
 
       if (purchases) {
