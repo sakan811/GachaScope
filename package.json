@@ -11,7 +11,10 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:ui": "vitest --ui",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "license:add": "node scripts/manage-license-headers.js add",
+    "license:remove": "node scripts/manage-license-headers.js remove",
+    "license:check": "node scripts/manage-license-headers.js check"
   },
   "dependencies": {
     "@nuxt/eslint": "1.4.1",

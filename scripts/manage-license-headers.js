@@ -18,9 +18,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-const fs = require('fs')
-const path = require('path')
-const readline = require('readline')
+import fs from 'fs'
+import path from 'path'
+import readline from 'readline'
 
 const LICENSE_HEADER = `/*
  * GachaScope - Comprehensive web application for analyzing cost-effectiveness of in-app purchase bundles in gacha games
