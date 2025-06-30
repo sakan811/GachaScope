@@ -47,7 +47,7 @@ const EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.vue']
 // Directories to skip - use relative paths from project root
 const SKIP_DIRS = [
   'node_modules',
-  '__tests__',
+  'tests',
   '.nuxt',
   '.output',
   'dist',
