@@ -29,7 +29,7 @@
   },
   "packageManager": "pnpm@10.12.4+sha512.5ea8b0deed94ed68691c9bad4c955492705c5eeb8a87ef86bc62c74a26b037b08ff9570f108b2e4dbd1dd1a9186fea925e527f141c648e85af45631074680184",
   "devDependencies": {
-    "@nuxt/test-utils": "^3.19.1",
+    "@nuxt/test-utils": "^3.19.2",
     "@vitest/ui": "^3.2.4",
     "@vue/test-utils": "^2.4.6",
     "jsdom": "^26.1.0",
