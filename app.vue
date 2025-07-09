@@ -45,11 +45,13 @@
           Home
         </NuxtLink>
         <NuxtLink
-          to="/games/hsr/analysis"
+          v-for="game in availableGames"
+          :key="game.id"
+          :to="`/games/${game.id}/analysis`"
           class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors"
-          :class="{ 'text-green-600 dark:text-green-400': $route.path.includes('/analysis') }"
+          :class="{ 'text-green-600 dark:text-green-400': $route.path.includes(`/games/${game.id}/analysis`) }"
         >
-          HSR Analysis
+          {{ game.shortName }} Analysis
         </NuxtLink>
         <UColorModeButton class="ml-2" />
       </div>
@@ -101,16 +103,23 @@
           >
             🏠 Home
           </NuxtLink>
-          <NuxtLink
-            to="/games/hsr/analysis"
-            class="block py-3 px-4 text-base font-medium rounded-lg transition-colors"
-            :class="$route.path.includes('/analysis')
-              ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400'
-              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'"
-            @click="closeMobileMenu"
-          >
-            ⭐ HSR Analysis
-          </NuxtLink>
+          <div class="space-y-2">
+            <div class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4">
+              Games
+            </div>
+            <NuxtLink
+              v-for="game in availableGames"
+              :key="game.id"
+              :to="`/games/${game.id}/analysis`"
+              class="block py-3 px-4 text-base font-medium rounded-lg transition-colors"
+              :class="$route.path.includes(`/games/${game.id}/analysis`)
+                ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'"
+              @click="closeMobileMenu"
+            >
+              ⭐ {{ game.shortName }} Analysis
+            </NuxtLink>
+          </div>
         </nav>
       </div>
     </div>
@@ -121,6 +130,8 @@
 </template>
 
 <script setup>
+import { getGameNames } from '~/utils/gameRegistry'
+
 // Global app configuration
 useHead({
   titleTemplate: '%s - GachaScope',
@@ -145,8 +156,11 @@ const closeMobileMenu = () => {
   isMobileMenuOpen.value = false
 }
 
-// Close mobile menu on route change
+// Game navigation functionality
+const availableGames = getGameNames()
 const route = useRoute()
+
+// Close mobile menu on route change
 watch(() => route.path, () => {
   isMobileMenuOpen.value = false
 })
