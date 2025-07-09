@@ -27,7 +27,7 @@
     "vue-chartjs": "^5.3.2",
     "vue-router": "^4.5.1"
   },
-  "packageManager": "pnpm@10.12.4+sha512.5ea8b0deed94ed68691c9bad4c955492705c5eeb8a87ef86bc62c74a26b037b08ff9570f108b2e4dbd1dd1a9186fea925e527f141c648e85af45631074680184",
+  "packageManager": "pnpm@10.13.1",
   "devDependencies": {
     "@nuxt/test-utils": "^3.19.1",
     "@vitest/ui": "^3.2.4",
