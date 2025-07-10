@@ -5,6 +5,7 @@ A comprehensive web application for analyzing cost-effectiveness of in-app purch
 ## Supported Games
 
 - **Honkai: Star Rail**
+- **Wuthering Waves**
 
 ## Features
 
