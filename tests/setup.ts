@@ -73,84 +73,27 @@ vi.mock('vue-chartjs', () => ({
   },
 }))
 
-// Mock @nuxtjs/color-mode module and all its runtime components completely
-vi.mock('@nuxtjs/color-mode', () => ({
-  default: {},
-  useColorMode: () => ({
-    preference: 'system',
-    value: 'light',
-    unknown: false,
-    forced: false,
-    setColorTheme: vi.fn(),
-    removeColorScheme: vi.fn(),
-  }),
-}))
-
-// Mock the specific runtime files that cause resolution issues with full function definitions
-vi.mock('@nuxtjs/color-mode/dist/runtime/plugin.client.js', () => ({
-  default: function defineNuxtPlugin() {
-    return {
-      name: 'color-mode-mock-client',
-      setup: vi.fn(() => Promise.resolve()),
-    }
-  },
-}))
-
-vi.mock('@nuxtjs/color-mode/dist/runtime/plugin.server.js', () => ({
-  default: function defineNuxtPlugin() {
-    return {
-      name: 'color-mode-mock-server',
-      setup: vi.fn(() => Promise.resolve()),
-    }
-  },
-}))
-
-vi.mock('@nuxtjs/color-mode/dist/runtime/composables.js', () => ({
-  useColorMode: vi.fn(() => ({
-    preference: 'system',
-    value: 'light',
-    unknown: false,
-    forced: false,
-    setColorTheme: vi.fn(),
-    removeColorScheme: vi.fn(),
-  })),
-}))
-
-// Mock Nuxt's internal color-mode aliases
-vi.mock('#color-mode/client', () => ({
-  default: {},
-}))
-
-vi.mock('#color-mode/server', () => ({
-  default: {},
-}))
-
-// Mock #imports that color-mode plugins try to use
+// Mock #imports for unit tests
 vi.mock('#imports', () => ({
-  useState: vi.fn(_key => ({
-    value: {
-      preference: 'system',
-      value: 'light',
-      unknown: false,
-      forced: false,
-    },
-  })),
+  useState: vi.fn((_key, init) => ({ value: init ? init() : null })),
   defineNuxtPlugin: vi.fn(fn => fn),
   useNuxtApp: vi.fn(() => ({})),
   useCookie: vi.fn(() => ({ value: null })),
+  useRuntimeConfig: vi.fn(() => ({
+    public: {
+      colorMode: {
+        preference: 'system',
+        fallback: 'light',
+        hid: 'nuxt-color-mode-script',
+        globalName: '__NUXT_COLOR_MODE__',
+        componentName: 'ColorScheme',
+        classPrefix: '',
+        classSuffix: '-mode',
+        storageKey: 'nuxt-color-mode',
+      },
+    },
+  })),
 }))
-
-// Global fallback for useColorMode in all test environments
-if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
-  globalThis.useColorMode = vi.fn(() => ({
-    preference: 'system',
-    value: 'light',
-    unknown: false,
-    forced: false,
-    setColorTheme: vi.fn(),
-    removeColorScheme: vi.fn(),
-  }))
-}
 
 // Environment-specific mocking
 const isNuxtEnv = process.env.VITEST_ENV === 'nuxt' || process.env.VITEST_ENVIRONMENT === 'nuxt'
