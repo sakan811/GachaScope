@@ -28,3 +28,4 @@ logs
 /CLAUDE.md
 /.vercel
 /data
+node-compile-cache
