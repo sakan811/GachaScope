@@ -1,7 +1,7 @@
 // Mock for #imports - Nuxt's auto-import functionality
 import { vi } from 'vitest'
 
-export const useState = vi.fn(key => ({
+export const useState = vi.fn(() => ({
   value: {
     preference: 'system',
     value: 'light',

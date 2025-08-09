@@ -1,4 +1,4 @@
-import { setup, mockNuxtImport } from '@nuxt/test-utils'
+import { setup } from '@nuxt/test-utils'
 import { beforeAll, afterAll, beforeEach, vi } from 'vitest'
 import { config } from '@vue/test-utils'
 
@@ -127,7 +127,7 @@ vi.mock('#color-mode/server', () => ({
 
 // Mock #imports that color-mode plugins try to use
 vi.mock('#imports', () => ({
-  useState: vi.fn(key => ({
+  useState: vi.fn(_key => ({
     value: {
       preference: 'system',
       value: 'light',
