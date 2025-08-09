@@ -29,3 +29,4 @@ logs
 /.vercel
 /data
 node-compile-cache
+git.md
