@@ -16,6 +16,13 @@ export default defineVitestProject({
   },
 
   test: {
+    // Server dependencies to transform
+    server: {
+      deps: {
+        inline: ['@nuxt/ui', '@nuxtjs/color-mode'],
+      },
+    },
+
     // Coverage configuration
     coverage: {
       provider: 'v8',
