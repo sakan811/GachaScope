@@ -1,4 +1,4 @@
-import { setup } from '@nuxt/test-utils'
+import { setup, mockNuxtImport } from '@nuxt/test-utils'
 import { beforeAll, afterAll, beforeEach, vi } from 'vitest'
 import { config } from '@vue/test-utils'
 
@@ -73,6 +73,85 @@ vi.mock('vue-chartjs', () => ({
   },
 }))
 
+// Mock @nuxtjs/color-mode module and all its runtime components completely
+vi.mock('@nuxtjs/color-mode', () => ({
+  default: {},
+  useColorMode: () => ({
+    preference: 'system',
+    value: 'light',
+    unknown: false,
+    forced: false,
+    setColorTheme: vi.fn(),
+    removeColorScheme: vi.fn(),
+  }),
+}))
+
+// Mock the specific runtime files that cause resolution issues with full function definitions
+vi.mock('@nuxtjs/color-mode/dist/runtime/plugin.client.js', () => ({
+  default: function defineNuxtPlugin() {
+    return {
+      name: 'color-mode-mock-client',
+      setup: vi.fn(() => Promise.resolve()),
+    }
+  },
+}))
+
+vi.mock('@nuxtjs/color-mode/dist/runtime/plugin.server.js', () => ({
+  default: function defineNuxtPlugin() {
+    return {
+      name: 'color-mode-mock-server',
+      setup: vi.fn(() => Promise.resolve()),
+    }
+  },
+}))
+
+vi.mock('@nuxtjs/color-mode/dist/runtime/composables.js', () => ({
+  useColorMode: vi.fn(() => ({
+    preference: 'system',
+    value: 'light',
+    unknown: false,
+    forced: false,
+    setColorTheme: vi.fn(),
+    removeColorScheme: vi.fn(),
+  })),
+}))
+
+// Mock Nuxt's internal color-mode aliases
+vi.mock('#color-mode/client', () => ({
+  default: {},
+}))
+
+vi.mock('#color-mode/server', () => ({
+  default: {},
+}))
+
+// Mock #imports that color-mode plugins try to use
+vi.mock('#imports', () => ({
+  useState: vi.fn(key => ({
+    value: {
+      preference: 'system',
+      value: 'light',
+      unknown: false,
+      forced: false,
+    },
+  })),
+  defineNuxtPlugin: vi.fn(fn => fn),
+  useNuxtApp: vi.fn(() => ({})),
+  useCookie: vi.fn(() => ({ value: null })),
+}))
+
+// Global fallback for useColorMode in all test environments
+if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
+  globalThis.useColorMode = vi.fn(() => ({
+    preference: 'system',
+    value: 'light',
+    unknown: false,
+    forced: false,
+    setColorTheme: vi.fn(),
+    removeColorScheme: vi.fn(),
+  }))
+}
+
 // Environment-specific mocking
 const isNuxtEnv = process.env.VITEST_ENV === 'nuxt' || process.env.VITEST_ENVIRONMENT === 'nuxt'
 const isJsdomEnv = process.env.VITEST_ENV === 'jsdom' || process.env.VITEST_ENVIRONMENT === 'jsdom'
@@ -85,6 +164,9 @@ if (isJsdomEnv) {
 }
 else if (isNuxtEnv) {
   // Integration tests - mock composables and utils for lightweight testing
+
+  // Mock useColorMode for Nuxt environment - don't use mockNuxtImport as it causes issues
+  // The composable will be available through the global mock above
   vi.mock('~/utils/gameRegistry', () => ({
     getGameById: vi.fn((gameId: string) => {
       if (gameId === 'hsr') {
