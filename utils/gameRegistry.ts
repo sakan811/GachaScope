@@ -128,9 +128,64 @@ const wuwaGameData: GameData = {
   },
 }
 
+// Zenless Zone Zero Configuration
+const zzzGameData: GameData = {
+  metadata: {
+    id: 'zzz',
+    name: 'Zenless Zone Zero',
+    shortName: 'ZZZ',
+
+    currency: {
+      name: 'Monochrome',
+      shortName: 'Monochrome',
+    },
+
+    pull: {
+      name: 'Signal Search',
+      cost: 160, // 160 Polychrome per pull (converted from Monochrome)
+    },
+
+    analysisConfig: {
+      maxScenarios: 50,
+      includeMultiPackage: true,
+      maxPackageMultiplier: 3,
+    },
+  },
+
+  packages: {
+    normal: [
+      { id: 'zzz_n1', name: 'Monochrome ×60', baseAmount: 60, price: 0.99, extraAmount: 0, purchaseType: 'normal', currency: 'monochrome' },
+      { id: 'zzz_n2', name: 'Monochrome ×300', baseAmount: 300, price: 4.99, extraAmount: 30, purchaseType: 'normal', currency: 'monochrome' },
+      { id: 'zzz_n3', name: 'Monochrome ×980', baseAmount: 980, price: 14.99, extraAmount: 110, purchaseType: 'normal', currency: 'monochrome' },
+      { id: 'zzz_n4', name: 'Monochrome ×1980', baseAmount: 1980, price: 29.99, extraAmount: 260, purchaseType: 'normal', currency: 'monochrome' },
+      { id: 'zzz_n5', name: 'Monochrome ×3280', baseAmount: 3280, price: 49.99, extraAmount: 600, purchaseType: 'normal', currency: 'monochrome' },
+      { id: 'zzz_n6', name: 'Monochrome ×6480', baseAmount: 6480, price: 99.99, extraAmount: 1600, purchaseType: 'normal', currency: 'monochrome' },
+    ],
+
+    first_time_bonus: [
+      { id: 'zzz_b1', name: 'Monochrome ×60 (First Purchase)', baseAmount: 60, price: 0.99, extraAmount: 60, purchaseType: 'first_time_bonus', currency: 'monochrome' },
+      { id: 'zzz_b2', name: 'Monochrome ×300 (First Purchase)', baseAmount: 300, price: 4.99, extraAmount: 300, purchaseType: 'first_time_bonus', currency: 'monochrome' },
+      { id: 'zzz_b3', name: 'Monochrome ×980 (First Purchase)', baseAmount: 980, price: 14.99, extraAmount: 980, purchaseType: 'first_time_bonus', currency: 'monochrome' },
+      { id: 'zzz_b4', name: 'Monochrome ×1980 (First Purchase)', baseAmount: 1980, price: 29.99, extraAmount: 1980, purchaseType: 'first_time_bonus', currency: 'monochrome' },
+      { id: 'zzz_b5', name: 'Monochrome ×3280 (First Purchase)', baseAmount: 3280, price: 49.99, extraAmount: 3280, purchaseType: 'first_time_bonus', currency: 'monochrome' },
+      { id: 'zzz_b6', name: 'Monochrome ×6480 (First Purchase)', baseAmount: 6480, price: 99.99, extraAmount: 6480, purchaseType: 'first_time_bonus', currency: 'monochrome' },
+    ],
+
+    subscription: [
+      { id: 'zzz_s1', name: 'Inter-Knot Membership', baseAmount: 300, price: 4.99, extraAmount: 2700, purchaseType: 'subscription', currency: 'monochrome', description: '300 Monochrome immediately + 90 Polychrome daily for 30 days' },
+    ],
+
+    battle_pass: [
+      { id: 'zzz_bp1', name: 'New Eridu City Fund - Growth Plan', baseAmount: 780, price: 9.99, extraAmount: 640, purchaseType: 'battle_pass', currency: 'monochrome', description: '780 Polychrome plus 4 Encrypted Master Tape' },
+      { id: 'zzz_bp2', name: 'New Eridu City Fund - Premium Plan', baseAmount: 980, price: 19.99, extraAmount: 640, purchaseType: 'battle_pass', currency: 'monochrome', description: '980 Polychrome plus 4 Encrypted Master Tape' },
+    ],
+  },
+}
+
 // Register games
 gameRegistry.set('hsr', hsrGameData)
 gameRegistry.set('wuwa', wuwaGameData)
+gameRegistry.set('zzz', zzzGameData)
 
 // Game registry functions
 export function getAllGames(): GameData[] {
@@ -166,4 +221,4 @@ export function getGameNames(): Array<{ id: string, name: string, shortName: str
 }
 
 // Export game data for easier imports
-export { hsrGameData, wuwaGameData }
+export { hsrGameData, wuwaGameData, zzzGameData }
