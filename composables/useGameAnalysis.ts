@@ -118,10 +118,10 @@ export const useGameAnalysis = () => {
   function generateChartData(
     scenariosByType: Partial<Record<ChartKey, PurchaseScenario[]>>,
   ): {
-      costVsPulls: Array<{ pulls: number, cost: number, scenario: string, type: ChartKey }>
-      efficiency: Array<{ purchase: string, costPerPull: number, type: ChartKey }>
-      savings: Array<{ purchase: string, savings: number, pulls: number }>
-    } {
+    costVsPulls: Array<{ pulls: number, cost: number, scenario: string, type: ChartKey }>
+    efficiency: Array<{ purchase: string, costPerPull: number, type: ChartKey }>
+    savings: Array<{ purchase: string, savings: number, pulls: number }>
+  } {
     const costVsPulls: Array<{ pulls: number, cost: number, scenario: string, type: ChartKey }> = []
     const efficiency: Array<{ purchase: string, costPerPull: number, type: ChartKey }> = []
 
