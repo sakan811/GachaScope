@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@nuxt/eslint": "1.8.0",
-    "@nuxt/ui": "^3.3.0",
+    "@nuxt/ui": "^3.3.2",
     "chart.js": "^4.5.0",
     "eslint": "^9.33.0",
     "happy-dom": "^18.0.1",
