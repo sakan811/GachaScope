@@ -21,7 +21,7 @@
     class="container mx-auto px-4 py-8"
   >
     <UAlert
-      color="red"
+      color="error"
       variant="solid"
     >
       <template #title>
@@ -232,12 +232,13 @@ import { getGameById } from '~/utils/gameRegistry'
 import { useGameAnalysis } from '~/composables/useGameAnalysis'
 import CombinedValueAnalysis from '~/components/analysis/CombinedValueAnalysis.vue'
 import { useChartConfig } from '~/composables/useChartConfig'
+import type { GameData } from '~/types/games'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend)
 
 const route = useRoute()
 const { getProcessedPurchases, generateChartsFromPurchases } = useGameAnalysis()
-const gameId = route.params.gameid
+const gameId = Array.isArray(route.params.gameid) ? route.params.gameid[0] : route.params.gameid
 const gameData = ref(getGameById(gameId))
 
 if (!gameData.value) {
@@ -290,13 +291,13 @@ const filteredPurchases = computed(() => {
 // Format cost per pull to handle infinity
 const formatCostPerPull = (costPerPull: number): string => {
   if (!Number.isFinite(costPerPull) || costPerPull === Infinity) {
-    return 'no warp for the cost'
+    return `no ${gameData.value?.metadata.pull.name.toLowerCase()} for the cost`
   }
-  return `$${costPerPull.toFixed(2)} per ${gameData.value.metadata.pull.name.toLowerCase()}`
+  return `$${costPerPull.toFixed(2)} per ${gameData.value?.metadata.pull.name.toLowerCase()}`
 }
 
 // Purchase type styling
-const purchaseTypeStyles = {
+const purchaseTypeStyles: Record<string, { card: string, title: string }> = {
   normal: {
     card: 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800',
     title: 'text-red-600 dark:text-red-400',
@@ -313,44 +314,57 @@ const purchaseTypeStyles = {
     card: 'bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800',
     title: 'text-purple-600 dark:text-purple-400',
   },
+  limited_time: {
+    card: 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800',
+    title: 'text-blue-600 dark:text-blue-400',
+  },
 }
 
-const purchaseTypeNames = {
-  normal: 'Normal Oneiric Shard Purchase',
-  first_time_bonus: 'First-Time Bonus Oneiric Shard Purchase',
+const purchaseTypeNames = computed((): Record<string, string> => ({
+  normal: `Normal ${gameData.value?.metadata.currency.name} Purchase`,
+  first_time_bonus: `First-Time Bonus ${gameData.value?.metadata.currency.name} Purchase`,
   subscription: 'Subscription',
   battle_pass: 'Battle Pass',
-}
+  limited_time: 'Limited Time',
+}))
 
-const purchaseTypeIcons = {
+const purchaseTypeIcons: Record<string, string> = {
   normal: 'i-heroicons-shopping-bag',
   first_time_bonus: 'i-heroicons-gift',
   subscription: 'i-heroicons-calendar',
   battle_pass: 'i-heroicons-trophy',
+  limited_time: 'i-heroicons-clock',
 }
 
 const getPurchaseTypeStyle = (type: string) => purchaseTypeStyles[type] || purchaseTypeStyles.normal
-const getPurchaseTypeName = (type: string): string => purchaseTypeNames[type] || type
+const getPurchaseTypeName = (type: string): string => purchaseTypeNames.value[type] || type
 const getPurchaseTypeIcon = (type: string): string => purchaseTypeIcons[type] || 'i-heroicons-cube'
 
 // Chart data and options
-const { packageTypeColors, typeLabels, createChartOptions } = useChartConfig(gameData)
+const { packageTypeColors, typeLabels, createChartOptions } = useChartConfig(gameData as Ref<GameData>)
 
 const scatterChartData = computed(() => {
   if (!chartsData) return { datasets: [] }
 
-  const groupedData = chartsData.scatterData.reduce((acc, point) => {
-    acc[point.type] = acc[point.type] || []
-    acc[point.type].push({ x: point.x, y: point.y, purchaseName: point.purchaseName })
-    return acc
-  }, {})
+  const groupedData = chartsData.scatterData.reduce(
+    (acc: Record<string, Array<{ x: number, y: number, purchaseName: string }>>, point) => {
+      acc[point.type] = acc[point.type] || []
+      acc[point.type].push({ x: point.x, y: point.y, purchaseName: point.purchaseName })
+      return acc
+    },
+    {},
+  )
 
   return {
     datasets: Object.entries(groupedData).map(([type, data]) => ({
-      label: typeLabels[type] || type,
+      label: (typeLabels as Record<string, string>)[type] || type,
       data,
-      backgroundColor: packageTypeColors[type]?.bg || 'rgba(156, 163, 175, 0.8)',
-      borderColor: packageTypeColors[type]?.border || 'rgb(156, 163, 175)',
+      backgroundColor:
+        (packageTypeColors as Record<string, { bg: string, border: string }>)[type]?.bg
+        || 'rgba(156, 163, 175, 0.8)',
+      borderColor:
+        (packageTypeColors as Record<string, { bg: string, border: string }>)[type]?.border
+        || 'rgb(156, 163, 175)',
       pointRadius: 6,
     })),
   }
@@ -366,13 +380,17 @@ const barChartData = computed(() => {
 
   const labels = Array.from(allPurchaseNames)
   const datasets = Object.entries(chartsData.barData).map(([type, purchases]) => ({
-    label: typeLabels[type] || type,
+    label: (typeLabels as Record<string, string>)[type] || type,
     data: labels.map((label) => {
       const purchase = purchases.find(p => p.purchase === label)
       return purchase ? parseFloat(purchase.costPerPull.toFixed(2)) : null
     }),
-    backgroundColor: packageTypeColors[type]?.bg || 'rgba(156, 163, 175, 0.7)',
-    borderColor: packageTypeColors[type]?.border || 'rgb(156, 163, 175)',
+    backgroundColor:
+      (packageTypeColors as Record<string, { bg: string, border: string }>)[type]?.bg
+      || 'rgba(156, 163, 175, 0.7)',
+    borderColor:
+      (packageTypeColors as Record<string, { bg: string, border: string }>)[type]?.border
+      || 'rgb(156, 163, 175)',
     borderWidth: 1,
   }))
 
