@@ -98,9 +98,9 @@
       </div>
     </div>
 
-    <!-- Zero-Warp Purchases Warning -->
+    <!-- Zero-Pull Purchases Warning -->
     <div
-      v-if="zeroWarpPurchases?.length"
+      v-if="zeroPullPurchases?.length"
       class="pt-6 border-t border-gray-200 dark:border-gray-700"
     >
       <h3 class="text-lg font-semibold text-red-700 dark:text-red-400 mb-4 flex items-center gap-2">
@@ -111,16 +111,16 @@
         Purchases to Avoid
       </h3>
       <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">
-        These purchases provide no warps and should be avoided purchasing them alone
+        These purchases provide no {{ gameData.metadata.pull.name.toLowerCase() }}s and should be avoided purchasing them alone
       </p>
 
       <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
-        They should be purchased only as part of a larger bundle that includes warps
+        They should be purchased only as part of a larger bundle that includes {{ gameData.metadata.pull.name.toLowerCase() }}s
       </p>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         <UCard
-          v-for="purchase in zeroWarpPurchases"
+          v-for="purchase in zeroPullPurchases"
           :key="purchase.id"
           class="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
         >
@@ -136,10 +136,10 @@
                 {{ purchase.name }}
               </div>
               <div class="text-xs text-red-500 dark:text-red-400">
-                ${{ purchase.price.toFixed(2) }} - no warps
+                ${{ purchase.price.toFixed(2) }} - no {{ gameData.metadata.pull.name.toLowerCase() }}s
               </div>
               <div class="text-xs text-red-600 dark:text-red-400 mt-1">
-                This purchase provides no warp for the cost
+                This purchase provides no {{ gameData.metadata.pull.name.toLowerCase() }} for the cost
               </div>
             </div>
           </div>
@@ -157,7 +157,7 @@
           name="i-heroicons-calculator"
           class="w-4 h-4"
         />
-        Savings Analysis - Normal vs First-Time Bonus for Oneiric Shard Purchases
+        Savings Analysis - Normal vs First-Time Bonus for {{ gameData.metadata.currency.name }} Purchases
       </h3>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
@@ -220,7 +220,7 @@ const props = defineProps<Props>()
 // Format cost per pull to handle infinity
 const formatCostPerPull = (costPerPull: number): string => {
   if (!Number.isFinite(costPerPull) || costPerPull === Infinity) {
-    return 'no warp for the cost'
+    return `no ${props.gameData.metadata.pull.name.toLowerCase()} for the cost`
   }
   return `$${costPerPull.toFixed(2)}`
 }
@@ -302,8 +302,8 @@ const purchaseTypeStats = computed(() => {
       )
 
       const costDisplay = formatCostPerPull(bestPurchase.costPerPull)
-      const explanation = costDisplay === 'no warp for the cost'
-        ? 'This purchase provides no warp for the cost'
+      const explanation = costDisplay === `no ${props.gameData.metadata.pull.name.toLowerCase()} for the cost`
+        ? `This purchase provides no ${props.gameData.metadata.pull.name.toLowerCase()} for the cost`
         : `Each ${props.gameData.metadata.pull.name.toLowerCase()} costs ${costDisplay}`
 
       stats.push({
@@ -320,10 +320,10 @@ const purchaseTypeStats = computed(() => {
   }
 
   return stats.sort((a, b) => {
-    // Handle 'no warp for the cost' by putting them at the end
-    if (a.bestCostPerPull === 'no warp for the cost' && b.bestCostPerPull !== 'no warp for the cost') return 1
-    if (b.bestCostPerPull === 'no warp for the cost' && a.bestCostPerPull !== 'no warp for the cost') return -1
-    if (a.bestCostPerPull === 'no warp for the cost' && b.bestCostPerPull === 'no warp for the cost') return 0
+    // Handle 'no pull for the cost' by putting them at the end
+    if (a.bestCostPerPull.includes('no ') && a.bestCostPerPull.includes(' for the cost') && !b.bestCostPerPull.includes('no ') && !b.bestCostPerPull.includes(' for the cost')) return 1
+    if (b.bestCostPerPull.includes('no ') && b.bestCostPerPull.includes(' for the cost') && !a.bestCostPerPull.includes('no ') && !a.bestCostPerPull.includes(' for the cost')) return -1
+    if (a.bestCostPerPull.includes('no ') && a.bestCostPerPull.includes(' for the cost') && b.bestCostPerPull.includes('no ') && b.bestCostPerPull.includes(' for the cost')) return 0
 
     const aValue = parseFloat(a.bestCostPerPull.replace('$', ''))
     const bValue = parseFloat(b.bestCostPerPull.replace('$', ''))
@@ -337,8 +337,8 @@ const purchaseTypeStats = computed(() => {
   })
 })
 
-// Zero-warp purchases for warning section
-const zeroWarpPurchases = computed(() => {
+// Zero-pull purchases for warning section
+const zeroPullPurchases = computed(() => {
   const allZeroPurchases = []
 
   for (const [type, config] of Object.entries(purchaseTypeConfig)) {

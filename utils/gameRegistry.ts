@@ -182,10 +182,60 @@ const zzzGameData: GameData = {
   },
 }
 
+// Uma Musume: Pretty Derby (Global) Configuration
+const umaGameData: GameData = {
+  metadata: {
+    id: 'uma',
+    name: 'Uma Musume: Pretty Derby (Global)',
+    shortName: 'Uma Musume',
+
+    currency: {
+      name: 'Carats',
+      shortName: 'Carats',
+    },
+
+    pull: {
+      name: 'Make Debut Ticket',
+      cost: 150, // 150 Carats per pull
+    },
+
+    analysisConfig: {
+      maxScenarios: 50,
+      includeMultiPackage: true,
+      maxPackageMultiplier: 3,
+    },
+  },
+
+  packages: {
+    normal: [
+      { id: 'uma_n1', name: 'Carats ×60', baseAmount: 60, price: 0.99, extraAmount: 0, purchaseType: 'normal', currency: 'carats' },
+      { id: 'uma_n2', name: 'Carats ×210', baseAmount: 210, price: 2.99, extraAmount: 0, purchaseType: 'normal', currency: 'carats' },
+      { id: 'uma_n3', name: 'Carats ×350', baseAmount: 350, price: 5.99, extraAmount: 0, purchaseType: 'normal', currency: 'carats' },
+      { id: 'uma_n4', name: 'Carats ×700', baseAmount: 700, price: 9.99, extraAmount: 0, purchaseType: 'normal', currency: 'carats' },
+      { id: 'uma_n5', name: 'Carats ×1500', baseAmount: 1500, price: 20.99, extraAmount: 0, purchaseType: 'normal', currency: 'carats' },
+      { id: 'uma_n6', name: 'Carats ×2500', baseAmount: 2500, price: 33.99, extraAmount: 0, purchaseType: 'normal', currency: 'carats' },
+      { id: 'uma_n7', name: 'Carats ×5000', baseAmount: 5000, price: 69.99, extraAmount: 0, purchaseType: 'normal', currency: 'carats' },
+    ],
+
+    first_time_bonus: [
+      { id: 'uma_sp1', name: 'Rookie Starter Pack A', baseAmount: 600, price: 3.99, extraAmount: 0, purchaseType: 'first_time_bonus', currency: 'carats', description: '600 Carats + Monies + Support Points' },
+      { id: 'uma_sp2', name: 'Rookie Starter Pack B', baseAmount: 1500, price: 20.99, extraAmount: 0, purchaseType: 'first_time_bonus', currency: 'carats', description: '1500 Carats + 3☆ Guaranteed Make Debut Ticket (Trainee)' },
+      { id: 'uma_sp3', name: 'Rookie Starter Pack C', baseAmount: 1500, price: 20.99, extraAmount: 0, purchaseType: 'first_time_bonus', currency: 'carats', description: '1500 Carats + 3☆ Guaranteed Make Debut Ticket (Support Card)' },
+      { id: 'uma_l1', name: 'Carats ×2500 (Limited, Max x2)', baseAmount: 2500, price: 13.99, extraAmount: 0, purchaseType: 'first_time_bonus', currency: 'carats', description: 'Limited Offer, Maximum 2 purchases' },
+      { id: 'uma_l2', name: 'Carats ×7500 (Limited, Max x3)', baseAmount: 7500, price: 69.99, extraAmount: 0, purchaseType: 'first_time_bonus', currency: 'carats', description: 'Limited Offer, Maximum 3 purchases' },
+    ],
+
+    subscription: [
+      { id: 'uma_s1', name: 'Daily Carat Pack', baseAmount: 500, price: 6.99, extraAmount: 1500, purchaseType: 'subscription', currency: 'carats', description: '500 Carats immediately + 50 Carats daily for 30 days' },
+    ],
+  },
+}
+
 // Register games
 gameRegistry.set('hsr', hsrGameData)
 gameRegistry.set('wuwa', wuwaGameData)
 gameRegistry.set('zzz', zzzGameData)
+gameRegistry.set('uma', umaGameData)
 
 // Game registry functions
 export function getAllGames(): GameData[] {
@@ -221,4 +271,4 @@ export function getGameNames(): Array<{ id: string, name: string, shortName: str
 }
 
 // Export game data for easier imports
-export { hsrGameData, wuwaGameData, zzzGameData }
+export { hsrGameData, wuwaGameData, zzzGameData, umaGameData }
