@@ -182,12 +182,12 @@ const zzzGameData: GameData = {
   },
 }
 
-// Uma Musume: Pretty Derby (Global) Configuration
+// Umamusume: Pretty Derby (Global) Configuration
 const umaGameData: GameData = {
   metadata: {
     id: 'uma',
-    name: 'Uma Musume: Pretty Derby (Global)',
-    shortName: 'Uma Musume',
+    name: 'Umamusume: Pretty Derby (Global)',
+    shortName: 'Umamusume',
 
     currency: {
       name: 'Carats',
