@@ -7,6 +7,7 @@ A comprehensive web application for analyzing cost-effectiveness of in-app purch
 - **Honkai: Star Rail**
 - **Wuthering Waves**
 - **Zenless Zone Zero**
+- **Umamusume: Pretty Derby (Global)**
 
 ## Features
 
