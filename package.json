@@ -19,7 +19,7 @@
     "license:check": "node scripts/manage-license-headers.js check"
   },
   "dependencies": {
-    "@nuxt/eslint": "1.11.0",
+    "@nuxt/eslint": "1.12.1",
     "@nuxt/ui": "^4.2.1",
     "chart.js": "^4.5.1",
     "eslint": "^9.39.1",
